@@ -25,7 +25,6 @@ namespace DialogueSystem.Nodes
 
         protected virtual void DrawTitleContainer()
         {
-            //Title conteiner
             TextField dialogueNameTF = new TextField()
             {
                 value = DialogueName,
@@ -35,14 +34,16 @@ namespace DialogueSystem.Nodes
         }
         protected virtual void DrawInputOutputContainer()
         {
-            //Input conteiner
             Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
             inputPort.portName = "Dialogue Connection";
             inputContainer.Add(inputPort);
         }
+        protected virtual void DrawMainContainer()
+        {
+
+        }
         protected virtual void DrawExtensionContainer()
         {
-            //Extension Container
             VisualElement customDataContainer = new VisualElement();
             Foldout textFolout = new()
             {
@@ -62,6 +63,7 @@ namespace DialogueSystem.Nodes
         internal virtual void Draw()
         {
             DrawTitleContainer();
+            DrawMainContainer();
             DrawInputOutputContainer();
             DrawExtensionContainer();
 

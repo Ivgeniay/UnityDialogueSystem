@@ -22,21 +22,6 @@ namespace DialogueSystem.Window
             AddStyles();
         }
 
-        private BaseNode CreateNode(Type type, Vector2 position)
-        {
-            if (typeof(BaseNode).IsAssignableFrom(type))
-            {
-                BaseNode node = (BaseNode)Activator.CreateInstance(type);
-                node.Initialize(position);
-                node.Draw();
-
-                return node;
-            }
-            else
-            {
-                throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
-            }
-        }
 
         private void AddManipulators()
         {
@@ -62,6 +47,21 @@ namespace DialogueSystem.Window
 
             return contextualMenuManipulator;
         }
+        private BaseNode CreateNode(Type type, Vector2 position)
+        {
+            if (typeof(BaseNode).IsAssignableFrom(type))
+            {
+                BaseNode node = (BaseNode)Activator.CreateInstance(type);
+                node.Initialize(position);
+                node.Draw();
+
+                return node;
+            }
+            else
+            {
+                throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
+            }
+        }
 
         private List<Type> GetListExtendedClasses(Type baseType)
         {
@@ -84,13 +84,11 @@ namespace DialogueSystem.Window
             catch {}
             return nodeTypes;
         }
-
         private void AddStyles()
         {
             StyleSheet styleSheet = EditorGUIUtility.Load(stylesLink) as StyleSheet;
             styleSheets.Add(styleSheet);
         }
-
         private void AddGridBackground()
         {
             GridBackground gridBackground = new GridBackground();

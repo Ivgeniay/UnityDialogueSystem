@@ -8,20 +8,25 @@ namespace DialogueSystem.Nodes
     {
         internal override void Initialize(Vector2 position)
         {
-            DialogueType = Dialogue.DialogueType.MultipleChoice;
             base.Initialize(position);
+
+            DialogueType = Dialogue.DialogueType.MultipleChoice;
             Choises.Add("New Choice");
         }
 
-        protected override void DrawInputOutputContainer()
+        protected override void DrawMainContainer()
         {
-            base.DrawInputOutputContainer();
-
+            base.DrawMainContainer();
             Button addChoiceBtn = new Button()
             {
                 text = "Add Choice"
             };
             mainContainer.Insert(1, addChoiceBtn);
+        }
+
+        protected override void DrawInputOutputContainer()
+        {
+            base.DrawInputOutputContainer();
 
             foreach (var choice in Choises)
             {
@@ -36,11 +41,21 @@ namespace DialogueSystem.Nodes
                 {
                     value = choice
                 };
-                choicePort.Add(deleteChoiceBtn);
                 choicePort.Add(choiceText);
+                choicePort.Add(deleteChoiceBtn);
 
                 outputContainer.Add(choicePort);
             }
+
         }
+
+        //internal override void Draw()
+        //{
+        //    //base.DrawTitleContainer();
+        //    //DrawInputOutputContainer();
+        //    //base.DrawExtensionContainer();
+        //    base.Draw();
+        //    RefreshExpandedState();
+        //}
     }
 }
