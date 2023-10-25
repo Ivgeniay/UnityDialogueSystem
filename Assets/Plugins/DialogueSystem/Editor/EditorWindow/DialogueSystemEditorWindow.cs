@@ -1,27 +1,40 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace DialogueSystem
+namespace DialogueSystem.Window
 {
     public class DialogueSystemEditorWindow : EditorWindow
     {
-        [MenuItem("DES/DialogueSystem")]
-        public static void ShowExample()
+        private string stylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemVariables.uss";
+
+        [MenuItem("DES/Dialogue Graph")]
+        public static void OpenWindow()
         {
-            DialogueSystemEditorWindow wnd = GetWindow<DialogueSystemEditorWindow>();
-            wnd.titleContent = new GUIContent("Dialogue Graph Window");
+            GetWindow<DialogueSystemEditorWindow>("Dialogue Graph");
         }
 
-        public void CreateGUI()
+        private void OnEnable()
         {
-            // Each editor window contains a root VisualElement object
-            VisualElement root = rootVisualElement;
-
-            // VisualElements objects can contain other VisualElement following a tree hierarchy.
-            VisualElement label = new Label("Hello World! From C#");
-            root.Add(label);
-
+            AddGraphView();
+            AddStyles();
         }
+
+        private void AddGraphView()
+        {
+            DialogueSystemGraphView grathView = new DialogueSystemGraphView();
+            
+            grathView.StretchToParentSize();
+
+            rootVisualElement.Add(grathView);
+        }
+
+        private void AddStyles()
+        {
+            StyleSheet styleSheet = EditorGUIUtility.Load(stylesLink) as StyleSheet;
+            rootVisualElement.styleSheets.Add(styleSheet);
+        }
+
     }
 }
