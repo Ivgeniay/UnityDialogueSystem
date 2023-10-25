@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Nodes
 {
-    internal class BaseNode : Node
+    public class BaseNode : Node
     {
         //[field: SerializeField]
         public string DialogueName { get; set; }
@@ -14,29 +14,34 @@ namespace DialogueSystem.Nodes
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
 
-        public void Initialize()
+        internal virtual void Initialize(Vector2 position)
         {
             DialogueName = "Dialogue Name";
             Choises = new List<string>();
             Text = "Dialogue text";
 
+            this.SetPosition(new Rect(position, Vector2.zero));
         }
 
-        public void Draw()
+        protected virtual void DrawTitleContainer()
         {
-            //Title container
+            //Title conteiner
             TextField dialogueNameTF = new TextField()
             {
                 value = DialogueName,
             };
 
             titleContainer.Insert(0, dialogueNameTF);
-
+        }
+        protected virtual void DrawInputOutputContainer()
+        {
             //Input conteiner
             Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
             inputPort.portName = "Dialogue Connection";
             inputContainer.Add(inputPort);
-
+        }
+        protected virtual void DrawExtensionContainer()
+        {
             //Extension Container
             VisualElement customDataContainer = new VisualElement();
             Foldout textFolout = new()
@@ -52,6 +57,13 @@ namespace DialogueSystem.Nodes
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);
             extensionContainer.Add(customDataContainer);
+        }
+
+        internal virtual void Draw()
+        {
+            DrawTitleContainer();
+            DrawInputOutputContainer();
+            DrawExtensionContainer();
 
             RefreshExpandedState();
         }
