@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Dialogue;
+using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -21,6 +22,13 @@ namespace DialogueSystem.Nodes
             Text = "Dialogue text";
 
             this.SetPosition(new Rect(position, Vector2.zero));
+            AddStyles();
+        }
+
+        private void AddStyles()
+        {
+            mainContainer.AddToClassList("ds-node__main-container");
+            extensionContainer.AddToClassList("ds-node__extension-container");
         }
 
         protected virtual void DrawTitleContainer()
@@ -29,6 +37,9 @@ namespace DialogueSystem.Nodes
             {
                 value = DialogueName,
             };
+            dialogueNameTF.AddToClassList("ds-node__textfield");
+            dialogueNameTF.AddToClassList("ds-node__filename-textfield");
+            dialogueNameTF.AddToClassList("ds-node__textfield__hidden");
 
             titleContainer.Insert(0, dialogueNameTF);
         }
@@ -45,6 +56,9 @@ namespace DialogueSystem.Nodes
         protected virtual void DrawExtensionContainer()
         {
             VisualElement customDataContainer = new VisualElement();
+
+            customDataContainer.AddToClassList("ds-node__custom-data-container");
+
             Foldout textFolout = new()
             {
                 text = "DialogueText",
@@ -54,6 +68,9 @@ namespace DialogueSystem.Nodes
             {
                 value = Text,
             };
+            textField.AddToClassList("ds-node__textfield");
+            textField.AddToClassList("ds-node__quote-textfield");
+            //textField.AddToClassList("ds-node__textfield__hidden");
 
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);

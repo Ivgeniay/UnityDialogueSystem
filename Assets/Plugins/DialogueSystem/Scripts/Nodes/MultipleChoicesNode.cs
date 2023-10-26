@@ -21,6 +21,9 @@ namespace DialogueSystem.Nodes
             {
                 text = "Add Choice"
             };
+
+            addChoiceBtn.AddToClassList("ds-node__button");
+
             mainContainer.Insert(1, addChoiceBtn);
         }
 
@@ -39,8 +42,20 @@ namespace DialogueSystem.Nodes
                 };
                 TextField choiceText = new TextField()
                 {
-                    value = choice
+                    value = choice,
+                    //style =
+                    //{
+                        //width = choicePort.contentContainer.layout.width - 50,
+                        //height = 12
+                    //}
                 };
+
+                choiceText.AddToClassList("ds-node__textfield");
+                choiceText.AddToClassList("ds-node__choice-textfield");
+                choiceText.AddToClassList("ds-node__textfield__hidden");
+
+                deleteChoiceBtn.AddToClassList("ds-node__button");
+
                 choicePort.Add(choiceText);
                 choicePort.Add(deleteChoiceBtn);
 

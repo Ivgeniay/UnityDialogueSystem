@@ -13,7 +13,8 @@ namespace DialogueSystem.Window
 {
     internal class DialogueSystemGraphView : GraphView
     {
-        private string stylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
+        private string graphStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
+        private string nodeStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
         public DialogueSystemGraphView()
         {
             AddGridBackground();
@@ -86,8 +87,11 @@ namespace DialogueSystem.Window
         }
         private void AddStyles()
         {
-            StyleSheet styleSheet = EditorGUIUtility.Load(stylesLink) as StyleSheet;
-            styleSheets.Add(styleSheet);
+            StyleSheet graphStyleSheet = EditorGUIUtility.Load(graphStylesLink) as StyleSheet;
+            StyleSheet nodeStyleSheet = EditorGUIUtility.Load(nodeStylesLink) as StyleSheet;
+
+            styleSheets.Add(graphStyleSheet);
+            styleSheets.Add(nodeStyleSheet);
         }
         private void AddGridBackground()
         {
