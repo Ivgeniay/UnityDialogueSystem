@@ -1,13 +1,10 @@
 ﻿using DialogueSystem.Nodes;
-using DialogueSystem.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEngine;
+using System.Collections.Generic;
+using DialogueSystem.Utilities;
 using UnityEngine.UIElements;
+using UnityEngine;
+using System;
 
 namespace DialogueSystem.Window
 {
@@ -15,13 +12,19 @@ namespace DialogueSystem.Window
     {
         private string graphStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private string nodeStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
-        public DialogueSystemGraphView()
+        private DialogueSearchWindow searchWindow;
+        private DialogueSystemEditorWindow editorWindow;
+
+        public DialogueSystemGraphView(DialogueSystemEditorWindow editorWindow)
         {
+            this.editorWindow = editorWindow;
             AddGridBackground();
+            AddSearchWindow();
             AddManipulators();
 
             AddStyles();
         }
+
 
         #region Overrides
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
@@ -53,10 +56,8 @@ namespace DialogueSystem.Window
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
 
-            var listNodeTypes = GetListExtendedClasses(typeof(BaseNode));
-            foreach (var item in listNodeTypes)
-                this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
-
+            var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
+            foreach (var item in listNodeTypes) this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
             this.AddManipulator(CreateGroupContextualMenu());
         }
         #endregion
@@ -67,7 +68,7 @@ namespace DialogueSystem.Window
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
             {
                 e.menu.AppendAction("Add Group", a =>
-                    AddElement(CreateGroup("DialogueGroup", a.eventInfo.mousePosition)));
+                    AddElement(CreateGroup(GetLocalMousePosition(a.eventInfo.mousePosition))));
 
             });
 
@@ -80,16 +81,25 @@ namespace DialogueSystem.Window
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
             {
                 e.menu.AppendAction(actionTitle, a =>
-                    AddElement(CreateNode(type, a.eventInfo.mousePosition)));
+                    AddElement(CreateNode(type, GetLocalMousePosition(a.eventInfo.mousePosition))));
                 
             });
-
             return contextualMenuManipulator;
+        }
+
+        private void AddSearchWindow()
+        {
+            if (!searchWindow)
+            {
+                searchWindow = ScriptableObject.CreateInstance<DialogueSearchWindow>();
+                searchWindow.Initialize(this);
+            }
+            nodeCreationRequest = e => SearchWindow.Open(new SearchWindowContext(e.screenMousePosition), searchWindow);
         }
         #endregion
 
         #region Entities
-        private BaseNode CreateNode(Type type, Vector2 position)
+        internal BaseNode CreateNode(Type type, Vector2 position)
         {
             if (typeof(BaseNode).IsAssignableFrom(type))
             {
@@ -100,45 +110,19 @@ namespace DialogueSystem.Window
                 return node;
             }
             else
-            {
                 throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
-            }
         }
-        private Group CreateGroup(string title, Vector2 mousePosition)
+
+        internal Group CreateGroup(Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             Group group = new Group()
             {
                 title = title,
-
+                tooltip = tooltip == null ? title : tooltip,
             };
             group.SetPosition(new Rect(mousePosition, Vector2.zero));
             
-            
             return group;
-        }
-        #endregion
-
-        #region Utilits
-        private List<Type> GetListExtendedClasses(Type baseType)
-        {
-            var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t != baseType && baseType.IsAssignableFrom(t))
-                .ToList();
-
-            try
-            {
-                Assembly assemblyCSharp = Assembly.Load("Assembly-CSharp-Editor");
-                List<Type> derivedTypesFromCSharp = assemblyCSharp.GetTypes()
-                    .Where(t => t != baseType && baseType.IsAssignableFrom(t))
-                    .ToList();
-
-                foreach (Type type in derivedTypesFromCSharp)
-                {
-                    nodeTypes.Add(type);
-                }
-            }
-            catch {}
-            return nodeTypes;
         }
         #endregion
 
@@ -153,6 +137,11 @@ namespace DialogueSystem.Window
             gridBackground.StretchToParentSize();
             Insert(0, gridBackground);
         }
+        #endregion
+        #region Utilities
+        internal Vector2 GetLocalMousePosition(Vector2 mousePosition) =>
+            contentViewContainer.WorldToLocal(mousePosition);
+        
         #endregion
     }
 }

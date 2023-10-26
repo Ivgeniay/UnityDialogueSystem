@@ -25,7 +25,7 @@ namespace DialogueSystem.Window
         #region Elements Addition
         private void AddGraphView()
         {
-            DialogueSystemGraphView grathView = new DialogueSystemGraphView();
+            DialogueSystemGraphView grathView = new DialogueSystemGraphView(this);
             
             grathView.StretchToParentSize();
 

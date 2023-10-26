@@ -1,8 +1,9 @@
-﻿using Codice.Client.BaseCommands.BranchExplorer;
-using DialogueSystem.Nodes;
+﻿using DialogueSystem.Nodes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor.Experimental.GraphView;
-using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -59,6 +60,28 @@ namespace DialogueSystem.Utilities
             port.portCapLit = portCapLit;
 
             return port;
+        }
+
+        public static List<Type> GetListExtendedClasses(Type baseType)
+        {
+            var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => t != baseType && baseType.IsAssignableFrom(t))
+                .ToList();
+
+            try
+            {
+                Assembly assemblyCSharp = Assembly.Load("Assembly-CSharp-Editor");
+                List<Type> derivedTypesFromCSharp = assemblyCSharp.GetTypes()
+                    .Where(t => t != baseType && baseType.IsAssignableFrom(t))
+                    .ToList();
+
+                foreach (Type type in derivedTypesFromCSharp)
+                {
+                    nodeTypes.Add(type);
+                }
+            }
+            catch { }
+            return nodeTypes;
         }
     }
 }
