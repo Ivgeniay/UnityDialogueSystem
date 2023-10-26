@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Nodes;
+using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace DialogueSystem.Window
             AddStyles();
         }
 
-        #region Ovverides
+        #region Overrides
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             List<Port> compatiblePorts = new List<Port>();
@@ -30,19 +31,12 @@ namespace DialogueSystem.Window
             ports.ForEach(port =>
             {
                 if (startPort == port)
-                {
                     return;
-                }
-
                 if (startPort.node == port.node)
-                {
                     return;
-                }
-
                 if (startPort.direction == port.direction)
-                {
                     return;
-                }
+                
                 compatiblePorts.Add(port);
             });
 
@@ -50,6 +44,7 @@ namespace DialogueSystem.Window
         }
         #endregion
 
+        #region Manipulators
         private void AddManipulators()
         {
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
@@ -64,6 +59,7 @@ namespace DialogueSystem.Window
 
             this.AddManipulator(CreateGroupContextualMenu());
         }
+        #endregion
 
         #region ContextMenu
         private IManipulator CreateGroupContextualMenu()
@@ -122,6 +118,7 @@ namespace DialogueSystem.Window
         }
         #endregion
 
+        #region Utilits
         private List<Type> GetListExtendedClasses(Type baseType)
         {
             var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
@@ -143,13 +140,12 @@ namespace DialogueSystem.Window
             catch {}
             return nodeTypes;
         }
+        #endregion
+
+        #region Styles
         private void AddStyles()
         {
-            StyleSheet graphStyleSheet = EditorGUIUtility.Load(graphStylesLink) as StyleSheet;
-            StyleSheet nodeStyleSheet = EditorGUIUtility.Load(nodeStylesLink) as StyleSheet;
-
-            styleSheets.Add(graphStyleSheet);
-            styleSheets.Add(nodeStyleSheet);
+            this.LoadAndAddStyleSheets(graphStylesLink, nodeStylesLink);
         }
         private void AddGridBackground()
         {
@@ -157,5 +153,6 @@ namespace DialogueSystem.Window
             gridBackground.StretchToParentSize();
             Insert(0, gridBackground);
         }
+        #endregion
     }
 }

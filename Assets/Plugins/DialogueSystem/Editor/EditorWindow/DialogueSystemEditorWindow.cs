@@ -1,3 +1,4 @@
+using DialogueSystem.Utilities;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace DialogueSystem.Window
             AddStyles();
         }
 
+        #region Elements Addition
         private void AddGraphView()
         {
             DialogueSystemGraphView grathView = new DialogueSystemGraphView();
@@ -29,12 +31,14 @@ namespace DialogueSystem.Window
 
             rootVisualElement.Add(grathView);
         }
+        #endregion
 
+        #region Styles
         private void AddStyles()
         {
-            StyleSheet styleSheet = EditorGUIUtility.Load(stylesLink) as StyleSheet;
-            rootVisualElement.styleSheets.Add(styleSheet);
+            rootVisualElement.LoadAndAddStyleSheets(stylesLink);
         }
+        #endregion
 
     }
 }

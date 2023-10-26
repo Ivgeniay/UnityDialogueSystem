@@ -1,9 +1,10 @@
-﻿using UnityEditor.Experimental.GraphView;
+﻿using DialogueSystem.Utilities;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {
-    public class SingleChoiceNode : BaseNode
+    internal class SingleChoiceNode : BaseNode
     {
         internal override void Initialize(Vector2 position)
         {
@@ -17,8 +18,12 @@ namespace DialogueSystem.Nodes
             base.DrawInputOutputContainer();
             foreach (var choice in Choises)
             {
-                Port choicePort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(bool));
-                choicePort.portName = choice;
+                Port choicePort = this.CreatePort(
+                    choice, 
+                    Orientation.Horizontal, 
+                    Direction.Output, 
+                    Port.Capacity.Single, 
+                    type: typeof(bool));
                 outputContainer.Add(choicePort);
             }
         }

@@ -1,5 +1,5 @@
 ﻿using DialogueSystem.Dialogue;
-using System;
+using DialogueSystem.Utilities;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -9,7 +9,6 @@ namespace DialogueSystem.Nodes
 {
     public class BaseNode : Node
     {
-        //[field: SerializeField]
         public string DialogueName { get; set; }
         public List<string> Choises { get; set; }
         public string Text { get; set; }
@@ -33,20 +32,27 @@ namespace DialogueSystem.Nodes
 
         protected virtual void DrawTitleContainer()
         {
-            TextField dialogueNameTF = new TextField()
-            {
-                value = DialogueName,
-            };
-            dialogueNameTF.AddToClassList("ds-node__textfield");
-            dialogueNameTF.AddToClassList("ds-node__filename-textfield");
-            dialogueNameTF.AddToClassList("ds-node__textfield__hidden");
+            TextField dialogueNameTF = DialogueSystemUtilities.CreateTextField(
+                DialogueName,
+                styles: new string[]
+                    {
+                        "ds-node__textfield",
+                        "ds-node__filename-textfield",
+                        "ds-node__textfield__hidden"
+                    }
+                );
 
             titleContainer.Insert(0, dialogueNameTF);
         }
         protected virtual void DrawInputOutputContainer()
         {
-            Port inputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            inputPort.portName = "Dialogue Connection";
+            Port inputPort = this.CreatePort(
+                "Dialogue Connection", 
+                Orientation.Horizontal,
+                Direction.Input,
+                Port.Capacity.Multi,
+                type: typeof(bool)
+                );
             inputContainer.Add(inputPort);
         }
         protected virtual void DrawMainContainer()
@@ -56,21 +62,17 @@ namespace DialogueSystem.Nodes
         protected virtual void DrawExtensionContainer()
         {
             VisualElement customDataContainer = new VisualElement();
-
             customDataContainer.AddToClassList("ds-node__custom-data-container");
 
-            Foldout textFolout = new()
-            {
-                text = "DialogueText",
-                value = true
-            };
-            TextField textField = new()
-            {
-                value = Text,
-            };
-            textField.AddToClassList("ds-node__textfield");
-            textField.AddToClassList("ds-node__quote-textfield");
-            //textField.AddToClassList("ds-node__textfield__hidden");
+            Foldout textFolout = DialogueSystemUtilities.CreateFoldout("DialogueText", true);
+            TextField textField = DialogueSystemUtilities.CreateTextArea(
+                Text,
+                styles: new string[]
+                    {
+                        "ds-node__textfield",
+                        "ds-node__quote-textfield"
+                    }
+                );
 
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);
