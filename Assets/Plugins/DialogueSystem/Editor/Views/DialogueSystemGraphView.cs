@@ -1,5 +1,4 @@
-﻿using DialogueSystem.Dialogue;
-using DialogueSystem.Nodes;
+﻿using DialogueSystem.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +22,38 @@ namespace DialogueSystem.Window
             AddStyles();
         }
 
+        #region Ovverides
+        public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
+        {
+            List<Port> compatiblePorts = new List<Port>();
+
+            ports.ForEach(port =>
+            {
+                if (startPort == port)
+                {
+                    return;
+                }
+
+                if (startPort.node == port.node)
+                {
+                    return;
+                }
+
+                if (startPort.direction == port.direction)
+                {
+                    return;
+                }
+                compatiblePorts.Add(port);
+            });
+
+            return compatiblePorts;
+        }
+        #endregion
 
         private void AddManipulators()
         {
+            SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
+
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
@@ -33,9 +61,23 @@ namespace DialogueSystem.Window
             var listNodeTypes = GetListExtendedClasses(typeof(BaseNode));
             foreach (var item in listNodeTypes)
                 this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
-            
-            SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale);
+
+            this.AddManipulator(CreateGroupContextualMenu());
         }
+
+        #region ContextMenu
+        private IManipulator CreateGroupContextualMenu()
+        {
+            ContextualMenuManipulator contextualMenuManipulator = new(e =>
+            {
+                e.menu.AppendAction("Add Group", a =>
+                    AddElement(CreateGroup("DialogueGroup", a.eventInfo.mousePosition)));
+
+            });
+
+            return contextualMenuManipulator;
+        }
+
 
         private IManipulator CreateNodeContextMenu(string actionTitle, Type type)
         {
@@ -48,6 +90,9 @@ namespace DialogueSystem.Window
 
             return contextualMenuManipulator;
         }
+        #endregion
+
+        #region Entities
         private BaseNode CreateNode(Type type, Vector2 position)
         {
             if (typeof(BaseNode).IsAssignableFrom(type))
@@ -63,6 +108,19 @@ namespace DialogueSystem.Window
                 throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
             }
         }
+        private Group CreateGroup(string title, Vector2 mousePosition)
+        {
+            Group group = new Group()
+            {
+                title = title,
+
+            };
+            group.SetPosition(new Rect(mousePosition, Vector2.zero));
+            
+            
+            return group;
+        }
+        #endregion
 
         private List<Type> GetListExtendedClasses(Type baseType)
         {
@@ -72,7 +130,7 @@ namespace DialogueSystem.Window
 
             try
             {
-                Assembly assemblyCSharp = Assembly.Load("Assembly-CSharp");
+                Assembly assemblyCSharp = Assembly.Load("Assembly-CSharp-Editor");
                 List<Type> derivedTypesFromCSharp = assemblyCSharp.GetTypes()
                     .Where(t => t != baseType && baseType.IsAssignableFrom(t))
                     .ToList();
