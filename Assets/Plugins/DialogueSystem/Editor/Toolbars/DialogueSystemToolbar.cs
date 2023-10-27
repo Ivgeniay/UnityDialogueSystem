@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Utilities;
+﻿using DialogueSystem.Text;
+using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
 using UnityEditor.UIElements;
@@ -29,7 +30,12 @@ namespace DialogueSystem.Toolbars
             this.LoadAndAddStyleSheets(TOOLBAR_STYLE_LINK);
             this.AddToClassList("ds-toolbar");
 
-            textField = DialogueSystemUtilities.CreateTextField(fileName, label, styles: new string[]
+            textField = DialogueSystemUtilities.CreateTextField(fileName, label, callback =>
+            {
+                TextField target = callback.target as TextField;
+                target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+            },
+            styles: new string[]
             {
                 "ds-textField"
             });

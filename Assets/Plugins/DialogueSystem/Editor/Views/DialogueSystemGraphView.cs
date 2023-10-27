@@ -8,6 +8,7 @@ using System;
 using DialogueSystem.Database.Error;
 using DialogueSystem.SDictionary;
 using DialogueSystem.Groups;
+using DialogueSystem.Text;
 
 namespace DialogueSystem.Window
 {
@@ -264,9 +265,10 @@ namespace DialogueSystem.Window
             groupTitleChanged = (group, newTitle) =>
             {
                 BaseGroup baseGroup = (BaseGroup)group;
+                group.title = newTitle.RemoveWhitespaces().RemoveSpecialCharacters();
                 RemoveGroup(baseGroup);
 
-                baseGroup.OldTitle = newTitle;
+                baseGroup.OldTitle = group.title;
                 AddGroup(baseGroup);
             };
         }
@@ -276,7 +278,7 @@ namespace DialogueSystem.Window
 
         public void AddUngroupedNode(BaseNode node)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             if (!ungroupedNodes.ContainsKey(nodeName))
             {
@@ -299,7 +301,7 @@ namespace DialogueSystem.Window
         }
         public void RemoveUngroupedNode(BaseNode node)
         {
-            var nodeName = node.DialogueName;
+            var nodeName = node.DialogueName.ToLower();
             List<BaseNode> ungroupedNodeList = ungroupedNodes[nodeName].Nodes;
             ungroupedNodeList.Remove(node);
             node.ResetStyle();
@@ -319,7 +321,7 @@ namespace DialogueSystem.Window
         }
         public void AddGroupNode(BaseGroup group, BaseNode node)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             node.Group = group;
 
@@ -348,7 +350,7 @@ namespace DialogueSystem.Window
         }
         public void RemoveGroupedNode(BaseGroup group, BaseNode node)
         {
-            string nodeName = node.DialogueName;
+            string nodeName = node.DialogueName.ToLower();
 
             node.Group = null;
 
@@ -374,7 +376,7 @@ namespace DialogueSystem.Window
         }
         public void AddGroup(BaseGroup group)
         {
-            string groupName = group.title;
+            string groupName = group.title.ToLower();
             if (!groups.ContainsKey(groupName))
             {
                 DialogueSystemGroupErrorData error = new();
@@ -396,7 +398,7 @@ namespace DialogueSystem.Window
         }
         private void RemoveGroup(BaseGroup group)
         {
-            string oldGroupName = group.OldTitle;
+            string oldGroupName = group.OldTitle.ToLower();
             List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
 

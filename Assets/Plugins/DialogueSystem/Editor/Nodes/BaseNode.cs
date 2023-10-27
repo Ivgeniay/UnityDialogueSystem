@@ -7,6 +7,7 @@ using DialogueSystem.Groups;
 using DialogueSystem.Window;
 using UnityEngine;
 using System.Linq;
+using DialogueSystem.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -25,7 +26,7 @@ namespace DialogueSystem.Nodes
         {
             this.graphView = graphView;
 
-            DialogueName = "Dialogue Name";
+            DialogueName = "DialogueName";
             Choises = new List<string>();
             Text = "Dialogue text";
 
@@ -49,17 +50,20 @@ namespace DialogueSystem.Nodes
                 null,
                 callback =>
                 {
+                    TextField target = callback.target as TextField;
+                    target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+
                     if (Group is null)
                     {
                         graphView.RemoveUngroupedNode(this);
-                        DialogueName = callback.newValue;
+                        DialogueName = target.value;
                         graphView.AddUngroupedNode(this);
                     }
                     else
                     {
                         BaseGroup currentGroup = Group;
                         graphView.RemoveGroupedNode(Group, this);
-                        DialogueName = callback.newValue;
+                        DialogueName = target.value;
                         graphView.AddGroupNode(currentGroup, this);
                     }
                 },
