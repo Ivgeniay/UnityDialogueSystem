@@ -1,5 +1,6 @@
 ﻿using DialogueSystem.Dialogue;
 using DialogueSystem.Utilities;
+using DialogueSystem.Window;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -14,11 +15,19 @@ namespace DialogueSystem.Nodes
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
 
-        internal virtual void Initialize(Vector2 position)
+        private Color defaultbackgroundColor;
+        protected DialogueSystemGraphView graphView;
+        public Group Group { get; set; }
+
+        internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
+            this.graphView = graphView;
+
             DialogueName = "Dialogue Name";
             Choises = new List<string>();
             Text = "Dialogue text";
+
+            defaultbackgroundColor = new Color(29f/255f, 29f/255f, 30f/255f);
 
             this.SetPosition(new Rect(position, Vector2.zero));
             AddStyles();
@@ -34,6 +43,22 @@ namespace DialogueSystem.Nodes
         {
             TextField dialogueNameTF = DialogueSystemUtilities.CreateTextField(
                 DialogueName,
+                callback =>
+                {
+                    if (Group is null)
+                    {
+                        graphView.RemoveUngroupedNode(this);
+                        DialogueName = callback.newValue;
+                        graphView.AddUngroupedNode(this);
+                    }
+                    else
+                    {
+                        Group currentGroup = Group;
+                        graphView.RemoveGroupedNode(Group, this);
+                        DialogueName = callback.newValue;
+                        graphView.AddGroupNode(currentGroup, this);
+                    }
+                },
                 styles: new string[]
                     {
                         "ds-node__textfield",
@@ -89,6 +114,13 @@ namespace DialogueSystem.Nodes
             RefreshExpandedState();
         }
 
-
+        internal void SetErrorStyle(Color color)
+        {
+            mainContainer.style.backgroundColor = color;
+        }
+        internal void ResetStyle()
+        {
+            mainContainer.style.backgroundColor = defaultbackgroundColor;
+        }
     }
 }

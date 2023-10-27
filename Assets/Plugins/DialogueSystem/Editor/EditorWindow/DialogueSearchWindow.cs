@@ -39,7 +39,7 @@ namespace DialogueSystem.Window
 
         public bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
         {
-            var localMousePosition = graphView.GetLocalMousePosition(context.screenMousePosition);
+            var localMousePosition = graphView.GetLocalMousePosition(context.screenMousePosition, true);
             Type type = (Type)SearchTreeEntry.userData;
 
             if (type == typeof(Group))

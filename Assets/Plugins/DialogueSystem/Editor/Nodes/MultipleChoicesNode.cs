@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Utilities;
+using DialogueSystem.Window;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,9 +8,9 @@ namespace DialogueSystem.Nodes
 {
     internal class MultipleChoicesNode : BaseNode
     {
-        internal override void Initialize(Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
-            base.Initialize(position);
+            base.Initialize(graphView, position);
 
             DialogueType = Dialogue.DialogueType.MultipleChoice;
             Choises.Add("New Choice");
