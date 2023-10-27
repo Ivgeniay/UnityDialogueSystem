@@ -8,28 +8,33 @@ using System;
 using DialogueSystem.Database.Error;
 using DialogueSystem.SDictionary;
 using UnityEditor.Graphs;
+using DialogueSystem.Groups;
+using System.Text.RegularExpressions;
 
 namespace DialogueSystem.Window
 {
     public sealed class DialogueSystemGraphView : GraphView
     {
         public event Action<BaseNode> OnNodeDeletedEvent;
-        public event Action<Group, BaseNode> OnGroupAddedEvent;
-        public event Action<Group, BaseNode> OnGroupRemoveEvent;
+        public event Action<BaseGroup> OnGroupDeleteEvent;
+        public event Action<BaseGroup, BaseNode> OnGroupElementAddedEvent;
+        public event Action<BaseGroup, BaseNode> OnGroupElementRemoveEvent;
 
-        private string graphStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
-        private string nodeStylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
+        private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
+        private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
+
         private DialogueSearchWindow searchWindow;
         private DialogueSystemEditorWindow editorWindow;
 
-        //private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
-        private Dictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
-        private Dictionary<Group, Dictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
+        private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
+        private SerializableDictionary<BaseGroup, Dictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
 
         internal DialogueSystemGraphView(DialogueSystemEditorWindow editorWindow)
         {
             this.editorWindow = editorWindow;
             ungroupedNodes = new();
+            groups = new();
             groupedNodes = new();
 
             AddManipulators();
@@ -39,6 +44,7 @@ namespace DialogueSystem.Window
             OnElementDeleted();
             OnGroupElementAdded();
             OnGroupElementRemoved();
+            OnGroupRenamed();
 
             AddStyles();
         }
@@ -84,7 +90,7 @@ namespace DialogueSystem.Window
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
             {
                 e.menu.AppendAction("Add Group", a =>
-                    AddElement(CreateGroup(GetLocalMousePosition(a.eventInfo.mousePosition, false))));
+                    AddElement(CreateGroup(typeof(BaseGroup), GetLocalMousePosition(a.eventInfo.mousePosition, false))));
 
             });
 
@@ -120,11 +126,21 @@ namespace DialogueSystem.Window
             deleteSelection = (operationName, askUser) =>
             {
                 List<BaseNode> nodesToDelete = new();
+                List<BaseGroup> groupToDelete = new();
+
                 foreach (GraphElement element in selection)
                 {
                     if (element is BaseNode node)
+                    {
                         nodesToDelete.Add(node);
-                    
+                        continue;
+                    }
+                    if (element is BaseGroup group)
+                    {
+                        groupToDelete.Add(group);
+                        RemoveGroup(group);
+                        continue;
+                    }
                 }
 
                 nodesToDelete.ForEach(node =>
@@ -139,9 +155,12 @@ namespace DialogueSystem.Window
                     RemoveUngroupedNode(node);
                     RemoveElement(node);
                 });
+                groupToDelete.ForEach(group =>
+                {
+                    RemoveElement(group);
+                });
             };
         }
-
         private void OnGroupElementAdded()
         {
             elementsAddedToGroup = (group, elements) =>
@@ -150,9 +169,10 @@ namespace DialogueSystem.Window
                 {
                     if (element is BaseNode node)
                     {
+                        BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveUngroupedNode(node);
-                        AddGroupNode(group, node);
-                        OnGroupAddedEvent?.Invoke(group, node);
+                        AddGroupNode(nodeGroup, node);
+                        OnGroupElementAddedEvent?.Invoke(nodeGroup, node);
                     }
                     else continue;
                 }
@@ -166,44 +186,33 @@ namespace DialogueSystem.Window
                 {
                     if (element is BaseNode node)
                     {
-                        RemoveGroupedNode(group, node);
+                        BaseGroup nodeGroup = (BaseGroup)group;
+                        RemoveGroupedNode(nodeGroup, node);
                         AddUngroupedNode(node);
-                        OnGroupRemoveEvent?.Invoke(group, node);
+                        OnGroupElementRemoveEvent?.Invoke(nodeGroup, node);
                     }
                     else continue;
                 }
             };
         }
+        private void OnGroupRenamed()
+        {
+            groupTitleChanged = (group, newTitle) =>
+            {
+                BaseGroup baseGroup = (BaseGroup)group;
+                RemoveGroup(baseGroup);
+
+                baseGroup.OldTitle = newTitle;
+                AddGroup(baseGroup);
+            };
+        }
 
         #endregion
-        #region Entities
-        internal BaseNode CreateNode(Type type, Vector2 position)
-        {
-            if (typeof(BaseNode).IsAssignableFrom(type))
-            {
-                BaseNode node = (BaseNode)Activator.CreateInstance(type);
-                node.Initialize(this, position);
-                node.Draw();
-
-                AddUngroupedNode(node);
-
-                return node;
-            }
-            else
-                throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
-        }
-
-        internal Group CreateGroup(Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
-        {
-            Group group = new Group()
-            {
-                title = title,
-                tooltip = tooltip == null ? title : tooltip,
-            };
-            group.SetPosition(new Rect(mousePosition, Vector2.zero));
-            
-            return group;
-        }
+        #region Entities Manipulations
+        internal BaseNode CreateNode(Type type, Vector2 position) =>
+            DialogueSystemUtilities.CreateNode(this, type, position);
+        internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null) =>
+            DialogueSystemUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
 
         public void AddUngroupedNode(BaseNode node)
         {
@@ -219,7 +228,7 @@ namespace DialogueSystem.Window
             List<BaseNode> ungroupedNodeList = ungroupedNodes[nodeName].Nodes;
 
             ungroupedNodeList.Add(node);
-            Color errorColor = ungroupedNodes[nodeName].errorData.Color;
+            Color errorColor = ungroupedNodes[nodeName].ErrorData.Color;
             node.SetErrorStyle(errorColor);
 
             if (ungroupedNodeList.Count >= 2)
@@ -246,7 +255,7 @@ namespace DialogueSystem.Window
                 return;
             }
         }
-        public void AddGroupNode(Group group, BaseNode node)
+        public void AddGroupNode(BaseGroup group, BaseNode node)
         {
             string nodeName = node.DialogueName;
 
@@ -266,7 +275,7 @@ namespace DialogueSystem.Window
             }
             List<BaseNode> groupedNodesList = groupedNodes[group][nodeName].Nodes;
             groupedNodesList.Add(node);
-            Color errorColor = groupedNodes[group][nodeName].errorData.Color;
+            Color errorColor = groupedNodes[group][nodeName].ErrorData.Color;
             node.SetErrorStyle(errorColor);
 
             if (groupedNodesList.Count >= 2)
@@ -274,8 +283,7 @@ namespace DialogueSystem.Window
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
-
-        public void RemoveGroupedNode(Group group, BaseNode node)
+        public void RemoveGroupedNode(BaseGroup group, BaseNode node)
         {
             string nodeName = node.DialogueName;
 
@@ -298,12 +306,52 @@ namespace DialogueSystem.Window
                     groupedNodes.Remove(group);
             }
         }
+        public void AddGroup(BaseGroup group)
+        {
+            string groupName = group.title;
+            if (!groups.ContainsKey(groupName))
+            {
+                DialogueSystemGroupErrorData error = new();
+                error.Groups.Add(group);
+                groups.Add(groupName, error);
+                return;
+            }
+
+            List<BaseGroup> groupsList = groups[groupName].Groups;
+            groupsList.Add(group);
+            Color errorColor = groups[groupName].ErrorData.Color;
+            group.SetErrorStyle(errorColor);
+
+            if (groupsList.Count >= 2)
+            {
+                groupsList[0].SetErrorStyle(errorColor);
+            }
+        }
+        private void RemoveGroup(BaseGroup group)
+        {
+            string oldGroupName = group.OldTitle;
+            var groupList = groups[oldGroupName].Groups;
+            groupList.Remove(group);
+
+            group.ResetStyle();
+
+            if (groupList.Count == 1)
+            {
+                groupList[0].ResetStyle();
+            }
+            else if (groupList.Count == 0)
+            {
+                groups.Remove(oldGroupName);
+            }
+
+            OnGroupDeleteEvent?.Invoke(group);
+        }
 
         #endregion
         #region Styles
         private void AddStyles()
         {
-            this.LoadAndAddStyleSheets(graphStylesLink, nodeStylesLink);
+            this.LoadAndAddStyleSheets(GRAPH_STYLE_LINK, NODE_STYLE_LINK);
         }
         private void AddGridBackground()
         {
@@ -323,7 +371,8 @@ namespace DialogueSystem.Window
             var local = contentViewContainer.WorldToLocal(worldMP);
             return local;
         }
-        
+
+
         #endregion
     }
 }

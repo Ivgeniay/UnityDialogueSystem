@@ -1,4 +1,6 @@
-﻿using DialogueSystem.Nodes;
+﻿using DialogueSystem.Groups;
+using DialogueSystem.Nodes;
+using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +63,32 @@ namespace DialogueSystem.Utilities
 
             return port;
         }
+        public static BaseGroup CreateGroup(DialogueSystemGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
+        {
+            var group = new BaseGroup(title, mousePosition)
+            {
+                tooltip = tooltip == null ? title : tooltip,
+            };
+
+            graphView.AddGroup(group);
+            return group;
+        }
+        public static BaseNode CreateNode(DialogueSystemGraphView graphView, Type type, Vector2 position)
+        {
+            if (typeof(BaseNode).IsAssignableFrom(type))
+            {
+                BaseNode node = (BaseNode)Activator.CreateInstance(type);
+                node.Initialize(graphView, position);
+                node.Draw();
+
+                graphView.AddUngroupedNode(node);
+
+                return node;
+            }
+            else
+                throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
+        }
+
 
         public static List<Type> GetListExtendedClasses(Type baseType)
         {

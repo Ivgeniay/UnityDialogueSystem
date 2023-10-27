@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Dialogue;
+using DialogueSystem.Groups;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace DialogueSystem.Nodes
 
         private Color defaultbackgroundColor;
         protected DialogueSystemGraphView graphView;
-        public Group Group { get; set; }
+        public BaseGroup Group { get; set; }
 
         internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
@@ -53,7 +54,7 @@ namespace DialogueSystem.Nodes
                     }
                     else
                     {
-                        Group currentGroup = Group;
+                        BaseGroup currentGroup = Group;
                         graphView.RemoveGroupedNode(Group, this);
                         DialogueName = callback.newValue;
                         graphView.AddGroupNode(currentGroup, this);

@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Nodes;
+﻿using DialogueSystem.Groups;
+using DialogueSystem.Nodes;
 using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace DialogueSystem.Window
                 CreateMenuChoice(searchTreeEntries, t.Name, 2, t, indentationIcon);
             });
             CreateMenuItem(searchTreeEntries, "Dialogue Group", 1);
-            CreateMenuChoice(searchTreeEntries, "Simple Group", 2, typeof(Group), indentationIcon);
+            CreateMenuChoice(searchTreeEntries, "Simple Group", 2, typeof(BaseGroup), indentationIcon);
 
             return searchTreeEntries;
         }
@@ -42,9 +43,9 @@ namespace DialogueSystem.Window
             var localMousePosition = graphView.GetLocalMousePosition(context.screenMousePosition, true);
             Type type = (Type)SearchTreeEntry.userData;
 
-            if (type == typeof(Group))
+            if (type == typeof(BaseGroup))
             {
-                var group = graphView.CreateGroup(localMousePosition);
+                var group = graphView.CreateGroup(type, localMousePosition);
                 graphView.AddElement(group);
                 return true;
             }
