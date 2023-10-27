@@ -82,7 +82,6 @@ namespace DialogueSystem.Utilities
                 node.Draw();
 
                 graphView.AddUngroupedNode(node);
-
                 return node;
             }
             else

@@ -1,4 +1,6 @@
-﻿using UnityEditor.Experimental.GraphView;
+﻿using DialogueSystem.Nodes;
+using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace DialogueSystem.Groups
@@ -13,6 +15,7 @@ namespace DialogueSystem.Groups
         {
             title = groupTitle;
             OldTitle = groupTitle;
+
             SetPosition(new Rect(position, Vector2.zero));
 
             defaultBorderColor = contentContainer.style.borderBottomColor.value;
@@ -33,5 +36,16 @@ namespace DialogueSystem.Groups
         }
         #endregion
 
+        #region Mono
+        public virtual void OnCreate(List<BaseNode> innerNode)
+        {
+
+        }
+
+        public virtual void OnDestroy()
+        {
+
+        }
+        #endregion 
     }
 }

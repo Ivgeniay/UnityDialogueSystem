@@ -7,19 +7,14 @@ using UnityEngine;
 using System;
 using DialogueSystem.Database.Error;
 using DialogueSystem.SDictionary;
-using UnityEditor.Graphs;
 using DialogueSystem.Groups;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace DialogueSystem.Window
 {
     public sealed class DialogueSystemGraphView : GraphView
     {
-        public event Action<BaseNode> OnNodeDeletedEvent;
-        public event Action<BaseGroup> OnGroupDeleteEvent;
-        public event Action<BaseGroup, BaseNode> OnGroupElementAddedEvent;
-        public event Action<BaseGroup, BaseNode> OnGroupElementRemoveEvent;
-
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
 
@@ -29,6 +24,7 @@ namespace DialogueSystem.Window
         private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
         private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
         private SerializableDictionary<BaseGroup, Dictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        private List<BaseNode> _nodes = new List<BaseNode>();
 
         internal DialogueSystemGraphView(DialogueSystemEditorWindow editorWindow)
         {
@@ -85,12 +81,40 @@ namespace DialogueSystem.Window
         }
         #endregion
         #region CreatingElements
+        internal BaseNode CreateNode(Type type, Vector2 position)
+        {
+            var node = DialogueSystemUtilities.CreateNode(this, type, position);
+            _nodes.Add(node);
+            node.OnCreate();
+            return node;
+        }
+        internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
+        {
+            var group = DialogueSystemUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
+            
+            AddElement(group);
+            
+            List<BaseNode> innerNode = new List<BaseNode>();
+            foreach (GraphElement graphElement in selection)
+            {
+                if (graphElement is BaseNode node)
+                {
+                    innerNode.Add(node);
+                    group.AddElement(node);
+                }
+                else continue;
+            }
+
+            group.OnCreate(innerNode);
+            return group;
+        }
+
         private IManipulator CreateGroupContextualMenu()
         {
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
             {
                 e.menu.AppendAction("Add Group", a =>
-                    AddElement(CreateGroup(typeof(BaseGroup), GetLocalMousePosition(a.eventInfo.mousePosition, false))));
+                    CreateGroup(typeof(BaseGroup), GetLocalMousePosition(a.eventInfo.mousePosition, false)));
 
             });
 
@@ -127,6 +151,7 @@ namespace DialogueSystem.Window
             {
                 List<BaseNode> nodesToDelete = new();
                 List<BaseGroup> groupToDelete = new();
+                List<Edge> edgesToDelete = new();
 
                 foreach (GraphElement element in selection)
                 {
@@ -138,25 +163,51 @@ namespace DialogueSystem.Window
                     if (element is BaseGroup group)
                     {
                         groupToDelete.Add(group);
-                        RemoveGroup(group);
+                        continue;
+                    }
+                    if (element is Edge edge)
+                    {
+                        edgesToDelete.Add(edge);
                         continue;
                     }
                 }
 
+                //foreach (Edge edge in edgesToDelete)
+                //{
+                //    _nodes.ForEach(node =>
+                //    {
+                //        var inConnction = node.IsMyPort(edge.input);
+                //        var outConnction = node.IsMyPort(edge.output);
+                //        if (inConnction) node.OnDisconectedPort(edge.input);
+                //        if (outConnction) node.OnDisconectedPort(edge.output);
+                //    });
+                //}
+                DeleteElements(edgesToDelete);
+
                 nodesToDelete.ForEach(node =>
                 {
-                    OnNodeDeletedEvent?.Invoke(node);
-
+                    node.OnDestroy();
                     if (node.Group is not null)
-                    {
                         node.Group.RemoveElement(node);
-                    }
 
                     RemoveUngroupedNode(node);
+                    node.DisconectAllPorts();
+                    _nodes.Remove(node);
                     RemoveElement(node);
                 });
+
                 groupToDelete.ForEach(group =>
                 {
+                    List<BaseNode> nodes = new();
+                    foreach(GraphElement elem in group.containedElements)
+                    {
+                        if (elem is BaseNode node)
+                            nodes.Add(node);
+                    }
+
+                    group.OnDestroy();
+                    group.RemoveElements(nodes);
+                    RemoveGroup(group);
                     RemoveElement(group);
                 });
             };
@@ -172,7 +223,7 @@ namespace DialogueSystem.Window
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveUngroupedNode(node);
                         AddGroupNode(nodeGroup, node);
-                        OnGroupElementAddedEvent?.Invoke(nodeGroup, node);
+                        node.OnGroupUp(nodeGroup);
                     }
                     else continue;
                 }
@@ -189,7 +240,7 @@ namespace DialogueSystem.Window
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveGroupedNode(nodeGroup, node);
                         AddUngroupedNode(node);
-                        OnGroupElementRemoveEvent?.Invoke(nodeGroup, node);
+                        node.OnUnGroup(nodeGroup);
                     }
                     else continue;
                 }
@@ -209,10 +260,6 @@ namespace DialogueSystem.Window
 
         #endregion
         #region Entities Manipulations
-        internal BaseNode CreateNode(Type type, Vector2 position) =>
-            DialogueSystemUtilities.CreateNode(this, type, position);
-        internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null) =>
-            DialogueSystemUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
 
         public void AddUngroupedNode(BaseNode node)
         {
@@ -343,8 +390,6 @@ namespace DialogueSystem.Window
             {
                 groups.Remove(oldGroupName);
             }
-
-            OnGroupDeleteEvent?.Invoke(group);
         }
 
         #endregion

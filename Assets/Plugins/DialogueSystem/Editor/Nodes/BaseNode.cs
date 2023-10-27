@@ -1,11 +1,12 @@
-﻿using DialogueSystem.Dialogue;
-using DialogueSystem.Groups;
-using DialogueSystem.Utilities;
-using DialogueSystem.Window;
+﻿using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
+using DialogueSystem.Utilities;
+using DialogueSystem.Dialogue;
 using UnityEngine.UIElements;
+using DialogueSystem.Groups;
+using DialogueSystem.Window;
+using UnityEngine;
+using System.Linq;
 
 namespace DialogueSystem.Nodes
 {
@@ -40,6 +41,7 @@ namespace DialogueSystem.Nodes
             extensionContainer.AddToClassList("ds-node__extension-container");
         }
 
+        #region Draw
         protected virtual void DrawTitleContainer()
         {
             TextField dialogueNameTF = DialogueSystemUtilities.CreateTextField(
@@ -114,7 +116,19 @@ namespace DialogueSystem.Nodes
 
             RefreshExpandedState();
         }
+        #endregion
 
+        #region Overrided
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+            evt.menu.AppendAction("Disconnect Input Ports", e => DisconectInputPorts());
+            evt.menu.AppendAction("Disconnect Output Ports", e => DisconectOutputPorts());
+            evt.menu.AppendAction("Disconnect All", e => DisconectAllPorts());
+            base.BuildContextualMenu(evt);
+        }
+        #endregion
+
+        #region Style
         internal void SetErrorStyle(Color color)
         {
             mainContainer.style.backgroundColor = color;
@@ -123,5 +137,49 @@ namespace DialogueSystem.Nodes
         {
             mainContainer.style.backgroundColor = defaultbackgroundColor;
         }
+        #endregion
+
+        #region Utilits
+        internal void DisconectAllPorts()
+        {
+            DisconectInputPorts();
+            DisconectOutputPorts();
+        }
+
+        internal void DisconectInputPorts()
+        {
+            DisconectPort(inputContainer);
+        }
+
+        internal void DisconectOutputPorts()
+        {
+            DisconectPort(outputContainer);
+        }
+
+        internal void DisconectPort(VisualElement container)
+        {
+            foreach (Port port in container.Children())
+            {
+                if (port.connected)
+                {
+                    //OnDisconectedPort(port);
+                    graphView.DeleteElements(port.connections);
+                }
+            }
+        }
+        #endregion
+
+        internal bool IsMyPort(Port port) =>
+            inputContainer.Children().Any(e => e == port) || outputContainer.Children().Any(e => e == port);
+        
+
+        //internal virtual void OnDisconectedPort(Port port) 
+        //{
+        //    Debug.Log(port);
+        //}
+        public virtual void OnCreate() {}
+        public virtual void OnDestroy() {}
+        public virtual void OnGroupUp(BaseGroup group) {}
+        public virtual void OnUnGroup(BaseGroup group) {}
     }
 }

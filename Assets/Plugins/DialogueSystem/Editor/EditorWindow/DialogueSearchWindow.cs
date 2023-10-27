@@ -45,13 +45,13 @@ namespace DialogueSystem.Window
 
             if (type == typeof(BaseGroup))
             {
-                var group = graphView.CreateGroup(type, localMousePosition);
-                graphView.AddElement(group);
+                graphView.CreateGroup(type, localMousePosition);
                 return true;
             }
             else if (typeof(BaseNode).IsAssignableFrom(type))
             {
-                var node = graphView.CreateNode(type, localMousePosition);
+                var node =
+                    graphView.CreateNode(type, localMousePosition);
                 graphView.AddElement(node);
                 return true;
             }
