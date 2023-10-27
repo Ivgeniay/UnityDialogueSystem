@@ -13,11 +13,12 @@ namespace DialogueSystem.Utilities
 {
     public static class DialogueSystemUtilities
     {
-        public static TextField CreateTextField (string value = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        public static TextField CreateTextField (string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = new()
             {
                 value = value,
+                label = label,
             };
 
             if (onChange is not null)
@@ -25,9 +26,9 @@ namespace DialogueSystem.Utilities
             textField.AddToClassList(styles);
             return textField;
         }
-        public static TextField CreateTextArea (string value = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        public static TextField CreateTextArea (string value = null, string label = null, EventCallback < ChangeEvent<string>> onChange = null, string[] styles = null)
         {
-            TextField textField = CreateTextField(value, onChange, styles);
+            TextField textField = CreateTextField(value, label, onChange, styles);
             textField.multiline = true;
             return textField;
         }

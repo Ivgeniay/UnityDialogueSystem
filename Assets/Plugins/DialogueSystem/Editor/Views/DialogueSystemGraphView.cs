@@ -8,13 +8,13 @@ using System;
 using DialogueSystem.Database.Error;
 using DialogueSystem.SDictionary;
 using DialogueSystem.Groups;
-using System.Text.RegularExpressions;
-using System.Linq;
 
 namespace DialogueSystem.Window
 {
     public sealed class DialogueSystemGraphView : GraphView
     {
+        public event Action<bool> OnCanSaveGraphEvent;
+
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
 
@@ -23,8 +23,21 @@ namespace DialogueSystem.Window
 
         private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
         private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
-        private SerializableDictionary<BaseGroup, Dictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        private SerializableDictionary<BaseGroup, SerializableDictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
         private List<BaseNode> _nodes = new List<BaseNode>();
+
+        private int repeatedNameAmount;
+        private int RepeatedNameAmount
+        {
+            get => repeatedNameAmount;
+            set
+            {
+                repeatedNameAmount = value;
+                if (repeatedNameAmount > 0) OnCanSaveGraphEvent?.Invoke(false);
+                else OnCanSaveGraphEvent?.Invoke(true);
+            }
+        }
+        internal bool IsCanSave { get => repeatedNameAmount == 0; }
 
         internal DialogueSystemGraphView(DialogueSystemEditorWindow editorWindow)
         {
@@ -59,7 +72,7 @@ namespace DialogueSystem.Window
                     return;
                 if (startPort.direction == port.direction)
                     return;
-                
+
                 compatiblePorts.Add(port);
             });
 
@@ -91,9 +104,9 @@ namespace DialogueSystem.Window
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             var group = DialogueSystemUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
-            
+
             AddElement(group);
-            
+
             List<BaseNode> innerNode = new List<BaseNode>();
             foreach (GraphElement graphElement in selection)
             {
@@ -128,7 +141,7 @@ namespace DialogueSystem.Window
             {
                 e.menu.AppendAction(actionTitle, a =>
                     AddElement(CreateNode(type, GetLocalMousePosition(a.eventInfo.mousePosition, false))));
-                
+
             });
 
             return contextualMenuManipulator;
@@ -199,7 +212,7 @@ namespace DialogueSystem.Window
                 groupToDelete.ForEach(group =>
                 {
                     List<BaseNode> nodes = new();
-                    foreach(GraphElement elem in group.containedElements)
+                    foreach (GraphElement elem in group.containedElements)
                     {
                         if (elem is BaseNode node)
                             nodes.Add(node);
@@ -278,8 +291,9 @@ namespace DialogueSystem.Window
             Color errorColor = ungroupedNodes[nodeName].ErrorData.Color;
             node.SetErrorStyle(errorColor);
 
-            if (ungroupedNodeList.Count >= 2)
+            if (ungroupedNodeList.Count == 2)
             {
+                ++RepeatedNameAmount;
                 ungroupedNodeList[0].SetErrorStyle(errorColor);
             }
         }
@@ -292,6 +306,7 @@ namespace DialogueSystem.Window
 
             if (ungroupedNodeList.Count == 1)
             {
+                --RepeatedNameAmount;
                 ungroupedNodeList[0].ResetStyle();
                 return;
             }
@@ -310,7 +325,7 @@ namespace DialogueSystem.Window
 
             if (!groupedNodes.ContainsKey(group))
             {
-                groupedNodes.Add(group, new Dictionary<string, DialogueSystemNodeErrorData>());
+                groupedNodes.Add(group, new SerializableDictionary<string, DialogueSystemNodeErrorData>());
             }
 
             if (!groupedNodes[group].ContainsKey(nodeName))
@@ -325,8 +340,9 @@ namespace DialogueSystem.Window
             Color errorColor = groupedNodes[group][nodeName].ErrorData.Color;
             node.SetErrorStyle(errorColor);
 
-            if (groupedNodesList.Count >= 2)
+            if (groupedNodesList.Count == 2)
             {
+                ++RepeatedNameAmount;
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
@@ -342,6 +358,7 @@ namespace DialogueSystem.Window
             node.ResetStyle();
             if (groupedNodeList.Count == 1)
             {
+                --RepeatedNameAmount;
                 groupedNodeList[0].ResetStyle();
                 return;
             }
@@ -350,7 +367,9 @@ namespace DialogueSystem.Window
             {
                 groupedNodes[group].Remove(nodeName);
                 if (groupedNodes[group].Count == 0)
+                {
                     groupedNodes.Remove(group);
+                }
             }
         }
         public void AddGroup(BaseGroup group)
@@ -369,24 +388,28 @@ namespace DialogueSystem.Window
             Color errorColor = groups[groupName].ErrorData.Color;
             group.SetErrorStyle(errorColor);
 
-            if (groupsList.Count >= 2)
+            if (groupsList.Count == 2)
             {
+                ++RepeatedNameAmount;
                 groupsList[0].SetErrorStyle(errorColor);
             }
         }
         private void RemoveGroup(BaseGroup group)
         {
             string oldGroupName = group.OldTitle;
-            var groupList = groups[oldGroupName].Groups;
+            List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
 
             group.ResetStyle();
 
             if (groupList.Count == 1)
             {
+                --RepeatedNameAmount;
                 groupList[0].ResetStyle();
+                return;
             }
-            else if (groupList.Count == 0)
+
+            if (groupList.Count == 0)
             {
                 groups.Remove(oldGroupName);
             }
@@ -412,12 +435,12 @@ namespace DialogueSystem.Window
 
             if (isSearchWindow)
                 worldMP -= editorWindow.position.position;
-            
+
             var local = contentViewContainer.WorldToLocal(worldMP);
             return local;
         }
 
-
+        
         #endregion
     }
 }

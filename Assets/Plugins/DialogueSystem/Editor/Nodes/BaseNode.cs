@@ -46,6 +46,7 @@ namespace DialogueSystem.Nodes
         {
             TextField dialogueNameTF = DialogueSystemUtilities.CreateTextField(
                 DialogueName,
+                null,
                 callback =>
                 {
                     if (Group is null)
@@ -169,10 +170,7 @@ namespace DialogueSystem.Nodes
         }
         #endregion
 
-        internal bool IsMyPort(Port port) =>
-            inputContainer.Children().Any(e => e == port) || outputContainer.Children().Any(e => e == port);
-        
-
+        //internal bool IsMyPort(Port port) => inputContainer.Children().Any(e => e == port) || outputContainer.Children().Any(e => e == port);
         //internal virtual void OnDisconectedPort(Port port) 
         //{
         //    Debug.Log(port);
