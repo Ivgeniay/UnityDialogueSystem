@@ -11,6 +11,7 @@ using DialogueSystem.Groups;
 using DialogueSystem.Text;
 using DialogueSystem.Database.Save;
 using System.Linq;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Window
 {
@@ -102,7 +103,6 @@ namespace DialogueSystem.Window
         {
             var node = DialogueSystemUtilities.CreateNode(this, type, position);
             _nodes.Add(node);
-            node.OnCreate();
             return node;
         }
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
@@ -164,7 +164,7 @@ namespace DialogueSystem.Window
         #region Callbacks
         private void OnElementDeleted()
         {
-            deleteSelection = (operationName, askUser) =>
+            deleteSelection += (operationName, askUser) =>
             {
                 List<BaseNode> nodesToDelete = new();
                 List<BaseGroup> groupToDelete = new();
@@ -221,7 +221,7 @@ namespace DialogueSystem.Window
         }
         private void OnGroupElementAdded()
         {
-            elementsAddedToGroup = (group, elements) =>
+            elementsAddedToGroup += (group, elements) =>
             {
                 foreach (GraphElement element in elements)
                 {
@@ -229,8 +229,8 @@ namespace DialogueSystem.Window
                     {
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveUngroupedNode(node);
-                        AddGroupNode(nodeGroup, node);
                         node.OnGroupUp(nodeGroup);
+                        AddGroupNode(nodeGroup, node);
                     }
                     else continue;
                 }
@@ -238,7 +238,7 @@ namespace DialogueSystem.Window
         }
         private void OnGroupElementRemoved()
         {
-            elementsRemovedFromGroup = (group, elements) =>
+            elementsRemovedFromGroup += (group, elements) =>
             {
                 foreach (GraphElement element in elements)
                 {
@@ -246,8 +246,8 @@ namespace DialogueSystem.Window
                     {
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveGroupedNode(nodeGroup, node);
-                        AddUngroupedNode(node);
                         node.OnUnGroup(nodeGroup);
+                        AddUngroupedNode(node);
                     }
                     else continue;
                 }
@@ -255,19 +255,19 @@ namespace DialogueSystem.Window
         }
         private void OnGroupRenamed()
         {
-            groupTitleChanged = (group, newTitle) =>
+            groupTitleChanged += (group, newTitle) =>
             {
                 BaseGroup baseGroup = (BaseGroup)group;
                 group.title = newTitle.RemoveWhitespaces().RemoveSpecialCharacters();
                 RemoveGroup(baseGroup);
 
-                baseGroup.OldTitle = group.title;
+                baseGroup.OnTitleChanged(group.title);
                 AddGroup(baseGroup);
             };
         }
         private void OnGraphViewChanged()
         {
-            graphViewChanged = (changes) =>
+            graphViewChanged += (changes) =>
             {
                 if (changes.edgesToCreate != null)
                 {
@@ -276,40 +276,24 @@ namespace DialogueSystem.Window
                         BaseNode nextNode = edge.input.node as BaseNode;
                         BaseNode prevNode = edge.output.node as BaseNode;
 
-                        prevNode.OnConnectOutputPort(edge.input, edge);
-                        nextNode.OnConnectInputPort(edge.output, edge);
-                        //DialogueSystemChoiceModel choiceData = edge.output.userData as DialogueSystemChoiceModel;
-                        //DialogueSystemChoiceData choiceData = edge.output.userData as DialogueSystemChoiceData;
-                        //if (choiceData != null)
-                        //{
-                        //    if (!string.IsNullOrWhiteSpace(choiceData.NodeID) && choiceData.NodeID != prevNode.ID)
-                        //    {
-                        //        BaseNode prevEdgesNode = _nodes.Where(el => el.ID == choiceData.NodeID).FirstOrDefault();
-                        //        if (prevEdgesNode != null)
-                        //        {
-                        //            prevEdgesNode.OnDestroyConnectionInput(edge.input, edge);
-                        //        }
-                        //    }
-                        //}
-                        //choiceData.NodeID = nextNode.ID;
+                        prevNode.OnConnectOutputPort(edge.output as BasePort, edge);
+                        nextNode.OnConnectInputPort(edge.input as BasePort, edge);
                     }
                 }
-
                 if (changes.movedElements != null)
                 {
                     foreach (var elem in changes.movedElements)
                     {
                         if (elem is BaseNode node)
                         {
-                            node.OnChangePosition(elem.GetPosition().position);
+                            node.OnChangePosition(elem.GetPosition().position, changes.moveDelta);
                         }
                         if (elem is BaseGroup group)
                         {
-                            group.OnChangePosition(elem.GetPosition().position);
+                            group.OnChangePosition(elem.GetPosition().position, changes.moveDelta);
                         }
                     }
                 }
-
                 if (changes.elementsToRemove != null)
                 {
                     foreach (var elem in changes.elementsToRemove)
@@ -319,8 +303,8 @@ namespace DialogueSystem.Window
                             BaseNode nextNode = edge.input.node as BaseNode;
                             BaseNode prevNode = edge.output.node as BaseNode;
 
-                            prevNode.OnDestroyConnectionOutput(edge.input, edge);
-                            nextNode.OnDestroyConnectionInput(edge.output, edge);
+                            prevNode.OnDestroyConnectionOutput(edge.output as BasePort, edge);
+                            nextNode.OnDestroyConnectionInput(edge.input as BasePort, edge);
                         }
                     }
                 }
@@ -377,8 +361,6 @@ namespace DialogueSystem.Window
         {
             string nodeName = node.DialogueName.ToLower();
 
-            node.Group = group;
-
             if (!groupedNodes.ContainsKey(group))
             {
                 groupedNodes.Add(group, new SerializableDictionary<string, DialogueSystemNodeErrorData>());
@@ -405,8 +387,6 @@ namespace DialogueSystem.Window
         public void RemoveGroupedNode(BaseGroup group, BaseNode node)
         {
             string nodeName = node.DialogueName.ToLower();
-
-            node.Group = null;
 
             List<BaseNode> groupedNodeList = groupedNodes[group][nodeName].Nodes;
             groupedNodeList.Remove(node);

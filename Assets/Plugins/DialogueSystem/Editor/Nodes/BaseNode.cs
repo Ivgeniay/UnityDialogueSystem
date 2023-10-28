@@ -6,10 +6,11 @@ using UnityEngine.UIElements;
 using DialogueSystem.Groups;
 using DialogueSystem.Window;
 using UnityEngine;
-using System.Linq;
 using DialogueSystem.Text;
 using System;
 using DialogueSystem.Database.Save;
+using DialogueSystem.Ports;
+using Random = UnityEngine.Random;
 
 namespace DialogueSystem.Nodes
 {
@@ -18,12 +19,11 @@ namespace DialogueSystem.Nodes
         public string ID { get; set; }
         public string DialogueName { get; set; }
         public List<DialogueSystemChoiceData> Choises { get; set; }
+        public BaseGroup Group { get; private set; }
         public string Text { get; set; }
-        public DialogueType DialogueType { get; set; }
 
+        protected DialogueSystemGraphView graphView { get; set; }
         private Color defaultbackgroundColor;
-        protected DialogueSystemGraphView graphView;
-        public BaseGroup Group { get; set; }
 
         internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
@@ -39,7 +39,6 @@ namespace DialogueSystem.Nodes
             this.SetPosition(new Rect(position, Vector2.zero));
             AddStyles();
         }
-
         private void AddStyles()
         {
             mainContainer.AddToClassList("ds-node__main-container");
@@ -83,13 +82,15 @@ namespace DialogueSystem.Nodes
         }
         protected virtual void DrawInputOutputContainer()
         {
-            Port inputPort = this.CreatePort(
+            BasePort inputPort = this.CreatePort(
                 "Dialogue Connection", 
                 Orientation.Horizontal,
                 Direction.Input,
                 Port.Capacity.Multi,
-                type: typeof(bool)
+                type: typeof(bool),
+                defaultValue: Random.Range(0, 10)
                 );
+
             inputContainer.Add(inputPort);
         }
         protected virtual void DrawMainContainer()
@@ -115,8 +116,7 @@ namespace DialogueSystem.Nodes
             customDataContainer.Add(textFolout);
             extensionContainer.Add(customDataContainer);
         }
-
-        internal virtual void Draw()
+        protected virtual void Draw()
         {
             DrawTitleContainer();
             DrawMainContainer();
@@ -128,11 +128,13 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Overrided
+        public override Port InstantiatePort(Orientation orientation, Direction direction, Port.Capacity capacity, Type type) =>
+            BasePort.CreateBasePort<Edge>(orientation, direction, capacity, type);
+        
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             evt.menu.AppendAction("Disconnect Input Ports", e => DisconectInputPorts());
             evt.menu.AppendAction("Disconnect Output Ports", e => DisconectOutputPorts());
-            evt.menu.AppendAction("Disconnect All", e => DisconectAllPorts());
             base.BuildContextualMenu(evt);
         }
         #endregion
@@ -154,21 +156,14 @@ namespace DialogueSystem.Nodes
             DisconectInputPorts();
             DisconectOutputPorts();
         }
-        internal void DisconectInputPorts()
-        {
-            DisconectPort(inputContainer);
-        }
-        internal void DisconectOutputPorts()
-        {
-            DisconectPort(outputContainer);
-        }
-        internal void DisconectPort(VisualElement container)
+        private void DisconectInputPorts() => DisconectPort(inputContainer);
+        private void DisconectOutputPorts() => DisconectPort(outputContainer);
+        private void DisconectPort(VisualElement container)
         {
             foreach (Port port in container.Children())
             {
                 if (port.connected)
                 {
-                    //OnDisconectedPort(port);
                     graphView.DeleteElements(port.connections);
                 }
             }
@@ -176,29 +171,28 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Mono
-        public virtual void OnConnectOutputPort(Port port, Edge edge)
+        public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
-            Debug.Log($"On output {this.DialogueName}");
+            Debug.Log($"On output {this.DialogueName} value:{port.Value}");
         }
-        public virtual void OnConnectInputPort(Port port, Edge edge)
+        public virtual void OnConnectInputPort(BasePort port, Edge edge)
         {
-            Debug.Log($"On input {this.DialogueName}");
+            Debug.Log($"On input {this.DialogueName} value:{port.Value}");
+        }
+        public virtual void OnDestroyConnectionOutput(BasePort port, Edge edge)
+        {
+            Debug.Log($"OnDestroyOutput {this.DialogueName} value:{port.Value}");
+        }
+        public virtual void OnDestroyConnectionInput(BasePort port, Edge edge)
+        {
+            Debug.Log($"OnDestroyInput {this.DialogueName} value:{port.Value}");
         }
 
-        public virtual void OnDestroyConnectionOutput(Port port, Edge edge)
-        {
-            Debug.Log($"OnDestroyOutput {this.DialogueName}");
-        }
-        public virtual void OnDestroyConnectionInput(Port port, Edge edge)
-        {
-            Debug.Log($"OnDestroyInput {this.DialogueName}");
-        }
-
-        public virtual void OnChangePosition(Vector2 position){}
-        public virtual void OnCreate() {}
+        public virtual void OnChangePosition(Vector2 position, Vector2 delta){}
+        public virtual void OnCreate() => Draw();
         public virtual void OnDestroy() {}
-        public virtual void OnGroupUp(BaseGroup group) {}
-        public virtual void OnUnGroup(BaseGroup group) {}
+        public virtual void OnGroupUp(BaseGroup group) => Group = group;
+        public virtual void OnUnGroup(BaseGroup group) => Group = null;
         #endregion
     }
 }

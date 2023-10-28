@@ -10,7 +10,6 @@ namespace DialogueSystem.Nodes
     {
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
-            DialogueType = Dialogue.DialogueType.SingleChoice;
             base.Initialize(graphView, position);
             Choises.Add(new DialogueSystemChoiceData()
             {
@@ -29,7 +28,8 @@ namespace DialogueSystem.Nodes
                     Orientation.Horizontal, 
                     Direction.Output, 
                     Port.Capacity.Single, 
-                    type: typeof(bool));
+                    type: typeof(bool),
+                    defaultValue: Random.Range(0, 10));
 
                 choicePort.userData = choice;
 

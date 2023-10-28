@@ -1,5 +1,6 @@
 ﻿using DialogueSystem.Groups;
 using DialogueSystem.Nodes;
+using DialogueSystem.Ports;
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
@@ -52,18 +53,21 @@ namespace DialogueSystem.Utilities
             btn.AddToClassList(styles);
             return btn;
         }
-        public static Port CreatePort(this BaseNode baseNode, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, bool portCapLit = false)
+        public static BasePort CreatePort(this BaseNode baseNode, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, bool portCapLit = false, object defaultValue = null)
         {
             Type _type = typeof(bool);
             if (color == default) color = Color.white;
             if (type != null) _type = type;
-            Port port = baseNode.InstantiatePort(orientation, direction, capacity, _type);
+            BasePort port = baseNode.InstantiatePort(orientation, direction, capacity, _type) as BasePort;
             port.portName = portname;
             port.portColor = color;
             port.portCapLit = portCapLit; 
+            port.Value = defaultValue;
 
             return port;
         }
+       
+
         public static BaseGroup CreateGroup(DialogueSystemGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             var group = new BaseGroup(title, mousePosition)
@@ -80,7 +84,7 @@ namespace DialogueSystem.Utilities
             {
                 BaseNode node = (BaseNode)Activator.CreateInstance(type);
                 node.Initialize(graphView, position);
-                node.Draw();
+                node.OnCreate();
 
                 graphView.AddUngroupedNode(node);
                 return node;

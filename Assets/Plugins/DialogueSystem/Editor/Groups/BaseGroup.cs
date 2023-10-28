@@ -9,7 +9,7 @@ namespace DialogueSystem.Groups
     public class BaseGroup : Group
     {
         public string ID { get; set; }
-        public string OldTitle { get; set; }
+        public string OldTitle { get; protected set; }
         private Color defaultBorderColor;
         private float defaultBorderWidth;
 
@@ -41,9 +41,10 @@ namespace DialogueSystem.Groups
         #endregion
 
         #region Mono
+        public virtual void OnTitleChanged(string title) { OldTitle = title;}
         public virtual void OnCreate(List<BaseNode> innerNode){}
         public virtual void OnDestroy(){}
-        public void OnChangePosition(Vector2 position){}
+        public void OnChangePosition(Vector2 position, Vector2 delta) {}
         #endregion
     }
 }

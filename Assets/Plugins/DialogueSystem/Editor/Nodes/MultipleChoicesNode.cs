@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Database.Save;
+using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using UnityEditor.Experimental.GraphView;
@@ -13,7 +14,6 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            DialogueType = Dialogue.DialogueType.MultipleChoice;
             Choises.Add(new DialogueSystemChoiceData()
             {
                 NodeID = ID,
@@ -60,12 +60,13 @@ namespace DialogueSystem.Nodes
         #region ElementsCreation
         private Port CreateChoicePort(object userData)
         {
-            Port choicePort = this.CreatePort(
+            BasePort choicePort = this.CreatePort(
             "",
             Orientation.Horizontal,
             Direction.Output,
             Port.Capacity.Single,
-            type: typeof(bool));
+            type: typeof(bool),
+            defaultValue: Random.Range(0, 10));
 
             choicePort.userData = userData;
             DialogueSystemChoiceData choiceData = userData as DialogueSystemChoiceData;
@@ -82,8 +83,8 @@ namespace DialogueSystem.Nodes
                         {
                             var input = edge.input.node as BaseNode;
                             var ouptut = edge.output.node as BaseNode;
-                            input?.OnDestroyConnectionInput(edge.input, edge);
-                            ouptut?.OnDestroyConnectionOutput(edge.output, edge);
+                            input?.OnDestroyConnectionInput(edge.input as BasePort, edge);
+                            ouptut?.OnDestroyConnectionOutput(edge.output as BasePort, edge);
                         }
                         graphView.DeleteElements(choicePort.connections);
                     }
