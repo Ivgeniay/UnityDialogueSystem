@@ -1,5 +1,6 @@
 ﻿using DialogueSystem.Utilities;
 using DialogueSystem.Window;
+using DialogueSystem.Database.Save;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -11,20 +12,27 @@ namespace DialogueSystem.Nodes
         {
             DialogueType = Dialogue.DialogueType.SingleChoice;
             base.Initialize(graphView, position);
-            Choises.Add("NextDialogue");
+            Choises.Add(new DialogueSystemChoiceData()
+            {
+                Text = "Next Dialogue",
+
+            });
         }
 
         protected override void DrawInputOutputContainer()
         {
             base.DrawInputOutputContainer();
-            foreach (var choice in Choises)
+            foreach (DialogueSystemChoiceData choice in Choises)
             {
                 Port choicePort = this.CreatePort(
-                    choice, 
+                    choice.Text, 
                     Orientation.Horizontal, 
                     Direction.Output, 
                     Port.Capacity.Single, 
                     type: typeof(bool));
+
+                choicePort.userData = choice;
+
                 outputContainer.Add(choicePort);
             }
         }

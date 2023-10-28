@@ -9,6 +9,8 @@ using DialogueSystem.Database.Error;
 using DialogueSystem.SDictionary;
 using DialogueSystem.Groups;
 using DialogueSystem.Text;
+using DialogueSystem.Database.Save;
+using System.Linq;
 
 namespace DialogueSystem.Window
 {
@@ -55,6 +57,7 @@ namespace DialogueSystem.Window
             OnGroupElementAdded();
             OnGroupElementRemoved();
             OnGroupRenamed();
+            OnGraphViewChanged();
 
             AddStyles();
         }
@@ -186,16 +189,6 @@ namespace DialogueSystem.Window
                     }
                 }
 
-                //foreach (Edge edge in edgesToDelete)
-                //{
-                //    _nodes.ForEach(node =>
-                //    {
-                //        var inConnction = node.IsMyPort(edge.input);
-                //        var outConnction = node.IsMyPort(edge.output);
-                //        if (inConnction) node.OnDisconectedPort(edge.input);
-                //        if (outConnction) node.OnDisconectedPort(edge.output);
-                //    });
-                //}
                 DeleteElements(edgesToDelete);
 
                 nodesToDelete.ForEach(node =>
@@ -272,7 +265,68 @@ namespace DialogueSystem.Window
                 AddGroup(baseGroup);
             };
         }
+        private void OnGraphViewChanged()
+        {
+            graphViewChanged = (changes) =>
+            {
+                if (changes.edgesToCreate != null)
+                {
+                    foreach (Edge edge in changes.edgesToCreate)
+                    {
+                        BaseNode nextNode = edge.input.node as BaseNode;
+                        BaseNode prevNode = edge.output.node as BaseNode;
 
+                        prevNode.OnConnectOutputPort(edge.input, edge);
+                        nextNode.OnConnectInputPort(edge.output, edge);
+                        //DialogueSystemChoiceModel choiceData = edge.output.userData as DialogueSystemChoiceModel;
+                        //DialogueSystemChoiceData choiceData = edge.output.userData as DialogueSystemChoiceData;
+                        //if (choiceData != null)
+                        //{
+                        //    if (!string.IsNullOrWhiteSpace(choiceData.NodeID) && choiceData.NodeID != prevNode.ID)
+                        //    {
+                        //        BaseNode prevEdgesNode = _nodes.Where(el => el.ID == choiceData.NodeID).FirstOrDefault();
+                        //        if (prevEdgesNode != null)
+                        //        {
+                        //            prevEdgesNode.OnDestroyConnectionInput(edge.input, edge);
+                        //        }
+                        //    }
+                        //}
+                        //choiceData.NodeID = nextNode.ID;
+                    }
+                }
+
+                if (changes.movedElements != null)
+                {
+                    foreach (var elem in changes.movedElements)
+                    {
+                        if (elem is BaseNode node)
+                        {
+                            node.OnChangePosition(elem.GetPosition().position);
+                        }
+                        if (elem is BaseGroup group)
+                        {
+                            group.OnChangePosition(elem.GetPosition().position);
+                        }
+                    }
+                }
+
+                if (changes.elementsToRemove != null)
+                {
+                    foreach (var elem in changes.elementsToRemove)
+                    {
+                        if (elem is Edge edge)
+                        {
+                            BaseNode nextNode = edge.input.node as BaseNode;
+                            BaseNode prevNode = edge.output.node as BaseNode;
+
+                            prevNode.OnDestroyConnectionOutput(edge.input, edge);
+                            nextNode.OnDestroyConnectionInput(edge.output, edge);
+                        }
+                    }
+                }
+                return changes;
+            };
+        }
         #endregion
         #region Entities Manipulations
 

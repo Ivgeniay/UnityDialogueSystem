@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Utilities;
+﻿using DialogueSystem.Database.Save;
+using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -13,18 +14,27 @@ namespace DialogueSystem.Nodes
             base.Initialize(graphView, position);
 
             DialogueType = Dialogue.DialogueType.MultipleChoice;
-            Choises.Add("New Choice");
+            Choises.Add(new DialogueSystemChoiceData()
+            {
+                NodeID = ID,
+                Text = "Next Choice"
+            });
         }
 
         protected override void DrawMainContainer()
         {
             base.DrawMainContainer();
+            DialogueSystemChoiceData choiceData = new DialogueSystemChoiceData()
+            {
+                NodeID = ID,
+                Text = "Next Choice"
+            };
             Button addChoiceBtn = DialogueSystemUtilities.CreateButton(
                 "Add Choice", 
                 () =>
                 {
-                    Port choicePort = CreateChoicePort("New Choice");
-                    Choises.Add("New Choice");
+                    Port choicePort = CreateChoicePort(choiceData);
+                    Choises.Add(choiceData);
                     outputContainer.Add(choicePort);
                 },
                 styles: new string[]
@@ -39,7 +49,7 @@ namespace DialogueSystem.Nodes
         {
             base.DrawInputOutputContainer();
 
-            foreach (var choice in Choises)
+            foreach (DialogueSystemChoiceData choice in Choises)
             {
                 Port choicePort = CreateChoicePort(choice);
                 outputContainer.Add(choicePort);
@@ -48,24 +58,46 @@ namespace DialogueSystem.Nodes
         }
 
         #region ElementsCreation
-        private Port CreateChoicePort(string choice)
+        private Port CreateChoicePort(object userData)
         {
             Port choicePort = this.CreatePort(
             "",
             Orientation.Horizontal,
             Direction.Output,
             Port.Capacity.Single,
-            type: typeof(bool)
-        );
+            type: typeof(bool));
+
+            choicePort.userData = userData;
+            DialogueSystemChoiceData choiceData = userData as DialogueSystemChoiceData;
+
             Button deleteChoiceBtn = DialogueSystemUtilities.CreateButton(
                 "X",
+                () =>
+                {
+                    if (Choises.Count == 1) return;
+                    if (choicePort.connected)
+                    {
+                        var edges = choicePort.connections;
+                        foreach (Edge edge in edges)
+                        {
+                            var input = edge.input.node as BaseNode;
+                            var ouptut = edge.output.node as BaseNode;
+                            input?.OnDestroyConnectionInput(edge.input, edge);
+                            ouptut?.OnDestroyConnectionOutput(edge.output, edge);
+                        }
+                        graphView.DeleteElements(choicePort.connections);
+                    }
+
+                    Choises.Remove(choiceData);
+                    graphView.RemoveElement(choicePort);
+                },
                 styles: new string[]
                 {
-                        "ds-node__button"
+                    "ds-node__button"
                 }
             );
             TextField choiceText = DialogueSystemUtilities.CreateTextField(
-                choice,
+                choiceData.Text,
                 styles: new string[]
                     {
                             "ds-node__textfield",

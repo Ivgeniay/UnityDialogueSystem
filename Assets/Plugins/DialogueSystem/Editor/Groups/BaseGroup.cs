@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Nodes;
+using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -7,12 +8,15 @@ namespace DialogueSystem.Groups
 {
     public class BaseGroup : Group
     {
+        public string ID { get; set; }
         public string OldTitle { get; set; }
         private Color defaultBorderColor;
         private float defaultBorderWidth;
 
         public BaseGroup(string groupTitle, Vector2 position)
         {
+            ID = Guid.NewGuid().ToString();
+
             title = groupTitle;
             OldTitle = groupTitle;
 
@@ -37,15 +41,9 @@ namespace DialogueSystem.Groups
         #endregion
 
         #region Mono
-        public virtual void OnCreate(List<BaseNode> innerNode)
-        {
-
-        }
-
-        public virtual void OnDestroy()
-        {
-
-        }
-        #endregion 
+        public virtual void OnCreate(List<BaseNode> innerNode){}
+        public virtual void OnDestroy(){}
+        public void OnChangePosition(Vector2 position){}
+        #endregion
     }
 }

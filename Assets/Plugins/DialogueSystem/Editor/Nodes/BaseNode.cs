@@ -8,13 +8,16 @@ using DialogueSystem.Window;
 using UnityEngine;
 using System.Linq;
 using DialogueSystem.Text;
+using System;
+using DialogueSystem.Database.Save;
 
 namespace DialogueSystem.Nodes
 {
     public class BaseNode : Node
     {
+        public string ID { get; set; }
         public string DialogueName { get; set; }
-        public List<string> Choises { get; set; }
+        public List<DialogueSystemChoiceData> Choises { get; set; }
         public string Text { get; set; }
         public DialogueType DialogueType { get; set; }
 
@@ -24,10 +27,11 @@ namespace DialogueSystem.Nodes
 
         internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
-            this.graphView = graphView;
+            ID = Guid.NewGuid().ToString();
 
+            this.graphView = graphView;
             DialogueName = "DialogueName";
-            Choises = new List<string>();
+            Choises = new List<DialogueSystemChoiceData>();
             Text = "Dialogue text";
 
             defaultbackgroundColor = new Color(29f/255f, 29f/255f, 30f/255f);
@@ -150,17 +154,14 @@ namespace DialogueSystem.Nodes
             DisconectInputPorts();
             DisconectOutputPorts();
         }
-
         internal void DisconectInputPorts()
         {
             DisconectPort(inputContainer);
         }
-
         internal void DisconectOutputPorts()
         {
             DisconectPort(outputContainer);
         }
-
         internal void DisconectPort(VisualElement container)
         {
             foreach (Port port in container.Children())
@@ -174,14 +175,30 @@ namespace DialogueSystem.Nodes
         }
         #endregion
 
-        //internal bool IsMyPort(Port port) => inputContainer.Children().Any(e => e == port) || outputContainer.Children().Any(e => e == port);
-        //internal virtual void OnDisconectedPort(Port port) 
-        //{
-        //    Debug.Log(port);
-        //}
+        #region Mono
+        public virtual void OnConnectOutputPort(Port port, Edge edge)
+        {
+            Debug.Log($"On output {this.DialogueName}");
+        }
+        public virtual void OnConnectInputPort(Port port, Edge edge)
+        {
+            Debug.Log($"On input {this.DialogueName}");
+        }
+
+        public virtual void OnDestroyConnectionOutput(Port port, Edge edge)
+        {
+            Debug.Log($"OnDestroyOutput {this.DialogueName}");
+        }
+        public virtual void OnDestroyConnectionInput(Port port, Edge edge)
+        {
+            Debug.Log($"OnDestroyInput {this.DialogueName}");
+        }
+
+        public virtual void OnChangePosition(Vector2 position){}
         public virtual void OnCreate() {}
         public virtual void OnDestroy() {}
         public virtual void OnGroupUp(BaseGroup group) {}
         public virtual void OnUnGroup(BaseGroup group) {}
+        #endregion
     }
 }

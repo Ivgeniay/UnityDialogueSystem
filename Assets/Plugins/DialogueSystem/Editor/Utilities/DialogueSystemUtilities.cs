@@ -60,7 +60,7 @@ namespace DialogueSystem.Utilities
             Port port = baseNode.InstantiatePort(orientation, direction, capacity, _type);
             port.portName = portname;
             port.portColor = color;
-            port.portCapLit = portCapLit;
+            port.portCapLit = portCapLit; 
 
             return port;
         }
