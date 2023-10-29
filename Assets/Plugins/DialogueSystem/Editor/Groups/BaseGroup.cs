@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Nodes;
+﻿using DialogueSystem.Database.Save;
+using DialogueSystem.Nodes;
 using System;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
@@ -8,17 +9,20 @@ namespace DialogueSystem.Groups
 {
     public class BaseGroup : Group
     {
-        public string ID { get; set; }
-        public string OldTitle { get; protected set; }
         private Color defaultBorderColor;
         private float defaultBorderWidth;
+        public DialogueSystemGroupModel Model { get; protected set; }
 
         public BaseGroup(string groupTitle, Vector2 position)
         {
-            ID = Guid.NewGuid().ToString();
-
             title = groupTitle;
-            OldTitle = groupTitle;
+
+            Model = new()
+            {
+                ID = Guid.NewGuid().ToString(),
+                GroupName = groupTitle,
+                Position = this.GetPosition().position
+            };
 
             SetPosition(new Rect(position, Vector2.zero));
 
@@ -41,10 +45,16 @@ namespace DialogueSystem.Groups
         #endregion
 
         #region Mono
-        public virtual void OnTitleChanged(string title) { OldTitle = title;}
+        public virtual void OnTitleChanged(string title) 
+        {
+            Model.GroupName = title;
+        }
         public virtual void OnCreate(List<BaseNode> innerNode){}
         public virtual void OnDestroy(){}
-        public void OnChangePosition(Vector2 position, Vector2 delta) {}
+        public void OnChangePosition(Vector2 position, Vector2 delta) 
+        {
+            Model.Position = position;
+        }
         #endregion
     }
 }

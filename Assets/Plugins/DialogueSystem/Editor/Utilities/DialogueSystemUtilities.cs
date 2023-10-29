@@ -14,6 +14,41 @@ namespace DialogueSystem.Utilities
 {
     public static class DialogueSystemUtilities
     {
+        public static Label CreateLabel (string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
+        {
+            Label label = new Label()
+            {
+                text = value,
+            };
+            if (onClick is not null) label.RegisterCallback(onClick);
+            label.AddToClassList(styles);
+            return label;
+        }
+
+        public static FloatField CreateFloatField(float value = 0, string label = null, EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
+        {
+            FloatField floatField = new FloatField()
+            {
+                value = value,
+                label = label
+            };
+            if (onChange is not null)
+                floatField.RegisterValueChangedCallback(onChange);
+            floatField.AddToClassList(styles);
+            return floatField;
+        }
+        public static IntegerField CreateIntegerField(int value = 0, string label = null, EventCallback<ChangeEvent<int>> onChange = null, string[] styles = null)
+        {
+            IntegerField integerField = new IntegerField()
+            {
+                value = value,
+                label = label
+            };
+            if (onChange is not null)
+                integerField.RegisterValueChangedCallback(onChange);
+            integerField.AddToClassList(styles);
+            return integerField;
+        }
         public static TextField CreateTextField (string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = new()
@@ -53,16 +88,16 @@ namespace DialogueSystem.Utilities
             btn.AddToClassList(styles);
             return btn;
         }
-        public static BasePort CreatePort(this BaseNode baseNode, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, bool portCapLit = false, object defaultValue = null)
+        public static BasePort CreatePort(this BaseNode baseNode, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, object defaultValue = null)
         {
-            Type _type = typeof(bool);
             if (color == default) color = Color.white;
-            if (type != null) _type = type;
-            BasePort port = baseNode.InstantiatePort(orientation, direction, capacity, _type) as BasePort;
+            type = type == null ? typeof(bool) : type;
+            BasePort port = baseNode.InstantiatePort(orientation, direction, capacity, type) as BasePort;
+
             port.portName = portname;
             port.portColor = color;
-            port.portCapLit = portCapLit; 
             port.Value = defaultValue;
+            port.portType = type;
 
             return port;
         }
@@ -108,12 +143,26 @@ namespace DialogueSystem.Utilities
                     .ToList();
 
                 foreach (Type type in derivedTypesFromCSharp)
-                {
                     nodeTypes.Add(type);
-                }
+                
             }
             catch { }
             return nodeTypes;
+        }
+        public static string GenerateWindowSearchNameFromType(Type t)
+        {
+            var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);
+            name = name.Replace("base", "", StringComparison.OrdinalIgnoreCase);
+            name = char.ToUpper(name[0]) + name.Substring(1);
+            for (int i = 1; i < name.Length; i++)
+            {
+                if (char.IsUpper(name[i]))
+                {
+                    name = name.Insert(i, " ");
+                    i++;
+                }
+            }
+            return name;
         }
     }
 }

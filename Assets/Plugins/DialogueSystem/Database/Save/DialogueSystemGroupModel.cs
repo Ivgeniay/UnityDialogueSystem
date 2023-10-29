@@ -8,7 +8,7 @@ namespace DialogueSystem.Database.Save
     public class DialogueSystemGroupModel
     {
         [field: SerializeField] public string ID { get; set; }
-        [field: SerializeField] public string Name { get; set; }
+        [field: SerializeField] public string GroupName { get; set; }
         [field: SerializeField] public Vector2 Position { get; set; }
     }
 }

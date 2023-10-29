@@ -24,6 +24,7 @@
 	--ds-metrics-window-pixels-25: 25px;
 	--ds-metrics-window-pixels-35: 35px;
 	--ds-metrics-window-pixels-50: 50px;
+	--ds-metrics-window-pixels-90: 90px;
 	--ds-metrics-window-pixels-160: 160px;
 	--ds-metrics-window-pixels-240: 240px;
 	--ds-metrics-window-pixels-350: 350px;

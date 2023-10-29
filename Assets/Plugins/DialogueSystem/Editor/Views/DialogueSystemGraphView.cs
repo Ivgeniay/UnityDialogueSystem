@@ -12,12 +12,14 @@ using DialogueSystem.Text;
 using DialogueSystem.Database.Save;
 using System.Linq;
 using DialogueSystem.Ports;
+using DialogueSystem.Manipulations;
 
 namespace DialogueSystem.Window
 {
-    public sealed class DialogueSystemGraphView : GraphView
+    public class DialogueSystemGraphView : GraphView
     {
         public event Action<bool> OnCanSaveGraphEvent;
+        public DialogueSystemGraphModel Model { get; protected set; }
 
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
@@ -28,7 +30,9 @@ namespace DialogueSystem.Window
         private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
         private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
         private SerializableDictionary<BaseGroup, SerializableDictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        
         private List<BaseNode> _nodes = new List<BaseNode>();
+        private List<BaseGroup> _groups = new List<BaseGroup>();
 
         private int repeatedNameAmount;
         private int RepeatedNameAmount
@@ -92,6 +96,8 @@ namespace DialogueSystem.Window
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
+
+            //this.AddManipulator(new StartDragManipulator());
 
             var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
             foreach (var item in listNodeTypes) this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
@@ -198,7 +204,7 @@ namespace DialogueSystem.Window
                         node.Group.RemoveElement(node);
 
                     RemoveUngroupedNode(node);
-                    node.DisconectAllPorts();
+                    node.DisconnectAllPorts();
                     _nodes.Remove(node);
                     RemoveElement(node);
                 });
@@ -274,10 +280,13 @@ namespace DialogueSystem.Window
                     foreach (Edge edge in changes.edgesToCreate)
                     {
                         BaseNode nextNode = edge.input.node as BaseNode;
-                        BaseNode prevNode = edge.output.node as BaseNode;
+                        BaseNode outputNode = edge.output.node as BaseNode;
 
-                        prevNode.OnConnectOutputPort(edge.output as BasePort, edge);
+                        outputNode.OnConnectOutputPort(edge.output as BasePort, edge);
                         nextNode.OnConnectInputPort(edge.input as BasePort, edge);
+
+                        //DialogueSystemChoiceModel choiceModel = (DialogueSystemChoiceModel)edge.output.userData;
+                        //choiceModel.NodeID = nextNode.Model.ID;
                     }
                 }
                 if (changes.movedElements != null)
@@ -305,6 +314,9 @@ namespace DialogueSystem.Window
 
                             prevNode.OnDestroyConnectionOutput(edge.output as BasePort, edge);
                             nextNode.OnDestroyConnectionInput(edge.input as BasePort, edge);
+
+                            //DialogueSystemChoiceModel choiceModel = (DialogueSystemChoiceModel)edge.output.userData;
+                            //choiceModel.NodeID = "";
                         }
                     }
                 }
@@ -316,7 +328,7 @@ namespace DialogueSystem.Window
 
         public void AddUngroupedNode(BaseNode node)
         {
-            string nodeName = node.DialogueName.ToLower();
+            string nodeName = node.Model.NodeName.ToLower();
 
             if (!ungroupedNodes.ContainsKey(nodeName))
             {
@@ -339,7 +351,7 @@ namespace DialogueSystem.Window
         }
         public void RemoveUngroupedNode(BaseNode node)
         {
-            var nodeName = node.DialogueName.ToLower();
+            var nodeName = node.Model.NodeName.ToLower();
             List<BaseNode> ungroupedNodeList = ungroupedNodes[nodeName].Nodes;
             ungroupedNodeList.Remove(node);
             node.ResetStyle();
@@ -359,7 +371,7 @@ namespace DialogueSystem.Window
         }
         public void AddGroupNode(BaseGroup group, BaseNode node)
         {
-            string nodeName = node.DialogueName.ToLower();
+            string nodeName = node.Model.NodeName.ToLower();
 
             if (!groupedNodes.ContainsKey(group))
             {
@@ -386,7 +398,7 @@ namespace DialogueSystem.Window
         }
         public void RemoveGroupedNode(BaseGroup group, BaseNode node)
         {
-            string nodeName = node.DialogueName.ToLower();
+            string nodeName = node.Model.NodeName.ToLower();
 
             List<BaseNode> groupedNodeList = groupedNodes[group][nodeName].Nodes;
             groupedNodeList.Remove(node);
@@ -432,7 +444,7 @@ namespace DialogueSystem.Window
         }
         private void RemoveGroup(BaseGroup group)
         {
-            string oldGroupName = group.OldTitle.ToLower();
+            string oldGroupName = group.Model.GroupName.ToLower();
             List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
 
@@ -476,7 +488,14 @@ namespace DialogueSystem.Window
             return local;
         }
 
-        
+        internal void Save(string value)
+        {
+            Model = new();
+            Model.Init(value);
+
+            _nodes.ForEach(el => { Model.Nodes.Add(el.Model); });
+            _groups.ForEach(el => { Model.Groups.Add(el.Model); });
+        }
         #endregion
     }
 }

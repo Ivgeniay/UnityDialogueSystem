@@ -3,6 +3,7 @@ using DialogueSystem.Nodes;
 using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -25,14 +26,41 @@ namespace DialogueSystem.Window
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
             var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
+            var dtos = GenerateExtendedDOList(typeof(BaseNode), listNodeTypes);
+
             List<SearchTreeEntry> searchTreeEntries = new();
+
             CreateMenuTitle(searchTreeEntries, "Create Element");
-            CreateMenuItem(searchTreeEntries, "Dialogue Node", 1);
-            listNodeTypes.ForEach(t =>
+            CreateMenuItem(searchTreeEntries, "Nodes", 1);
+
+            foreach (ExtendedDO dto in dtos)
             {
-                CreateMenuChoice(searchTreeEntries, t.Name, 2, t, indentationIcon);
-            });
-            CreateMenuItem(searchTreeEntries, "Dialogue Group", 1);
+                if (dto.IsAbstract)
+                {
+                    CreateMenuItem(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(dto.Type), dto.Depth);
+                    foreach (ExtendedDO items in dtos)
+                    {
+                        if (items.FatherType == dto.Type && !items.IsAbstract)
+                        {
+                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, items.Type, indentationIcon);
+                        }    
+                    }
+                }
+                else if (!dto.IsAbstract && dto.Types.Count > 0)
+                {
+                    CreateMenuItem(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(dto.Type) + " Based", dto.Depth);
+                    foreach (ExtendedDO items in dtos)
+                    {
+                        if (items.FatherType == dto.Type && !items.IsAbstract)
+                        {
+                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, items.Type, indentationIcon);
+                        }
+                    }
+                }
+            }
+
+
+            CreateMenuItem(searchTreeEntries, "Group", 1);
             CreateMenuChoice(searchTreeEntries, "Simple Group", 2, typeof(BaseGroup), indentationIcon);
 
             return searchTreeEntries;
@@ -79,5 +107,46 @@ namespace DialogueSystem.Window
             return entries;
         }
 
+        static List<ExtendedDO> GenerateExtendedDOList(Type baseType, List<Type> types)
+        {
+            List<ExtendedDO> extendedDOList = new List<ExtendedDO>();
+            foreach (Type type in types)
+            {
+                int depth = 2;
+                Type currentType = type.BaseType;
+
+                while (currentType != baseType)
+                {
+                    depth++;
+                    currentType = currentType.BaseType;
+                }
+
+                List<Type> derivedTypes = types
+                    .Where(t => t.BaseType == type)
+                    .ToList();
+
+                ExtendedDO extendedDO = new ExtendedDO
+                {
+                    IsAbstract = type.IsAbstract,
+                    Depth = depth,
+                    Type = type,
+                    FatherType = type.BaseType,
+                    Types = derivedTypes
+                };
+
+                extendedDOList.Add(extendedDO);
+            }
+
+            return extendedDOList;
+        }
+    }
+
+    public class ExtendedDO
+    {
+        public int Depth { get; set; }
+        public bool IsAbstract { get; set; } = false;
+        public Type Type { get; set; }
+        public Type FatherType { get; set; }
+        public List<Type> Types { get; set; } = new List<Type>();
     }
 }

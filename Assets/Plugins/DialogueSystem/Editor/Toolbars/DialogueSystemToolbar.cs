@@ -52,19 +52,7 @@ namespace DialogueSystem.Toolbars
         {
             if (graphView.IsCanSave)
             {
-                Debug.Log("Save");
-            }
-            else
-            {
-                Debug.Log("Dont save");
-            }
-        }
-
-        private void Safe(ClickEvent evt)
-        {
-            if (graphView.IsCanSave)
-            {
-                Debug.Log("Save");
+                graphView.Save(textField.value);
             }
             else
             {

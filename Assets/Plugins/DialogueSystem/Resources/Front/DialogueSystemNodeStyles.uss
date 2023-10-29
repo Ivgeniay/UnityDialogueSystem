@@ -127,6 +127,30 @@ TextField
 	margin-top: var(--ds-metrics-window-pixels-8);
 }
 
+FloatField
+{
+	margin-left: var(--ds-metrics-window-pixels-4);
+}
+
+IntegerField
+{
+	margin-left: var(--ds-metrics-window-pixels-4);
+}
+
+.ds-node__floatfield
+{
+	margin-left: var(--ds-metrics-window-pixels-4);
+	max-width: var(--ds-metrics-window-pixels-90);
+	min-width: var(--ds-metrics-window-pixels-50);
+}
+.ds-node__integerfield
+{
+	margin-left: var(--ds-metrics-window-pixels-4);
+	max-width: var(--ds-metrics-window-pixels-90);
+	min-width: var(--ds-metrics-window-pixels-50);
+}
+
+
 /* BUILD-IN */
 
 .unity-toggle__text
