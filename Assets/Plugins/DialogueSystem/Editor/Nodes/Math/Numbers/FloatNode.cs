@@ -25,10 +25,9 @@ namespace DialogueSystem.Nodes
 
         protected override BasePort CreateOutputPort(object userData)
         {
+            DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel;
+            
             var choicePort = base.CreateOutputPort(userData);
-            choicePort.portType = typeof(float);
-
-            DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel; 
 
             FloatField floatField = DialogueSystemUtilities.CreateFloatField(
                 0,

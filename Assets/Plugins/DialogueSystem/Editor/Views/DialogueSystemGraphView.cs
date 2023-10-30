@@ -1,18 +1,16 @@
-﻿using DialogueSystem.Nodes;
-using UnityEditor.Experimental.GraphView;
+﻿using UnityEditor.Experimental.GraphView;
+using DialogueSystem.Database.Error;
+using DialogueSystem.Database.Save;
+using DialogueSystem.SDictionary;
 using System.Collections.Generic;
 using DialogueSystem.Utilities;
 using UnityEngine.UIElements;
+using DialogueSystem.Groups;
+using DialogueSystem.Nodes;
+using DialogueSystem.Ports;
+using DialogueSystem.Text;
 using UnityEngine;
 using System;
-using DialogueSystem.Database.Error;
-using DialogueSystem.SDictionary;
-using DialogueSystem.Groups;
-using DialogueSystem.Text;
-using DialogueSystem.Database.Save;
-using System.Linq;
-using DialogueSystem.Ports;
-using DialogueSystem.Manipulations;
 
 namespace DialogueSystem.Window
 {
@@ -283,9 +281,6 @@ namespace DialogueSystem.Window
 
                         outputNode.OnConnectOutputPort(edge.output as BasePort, edge);
                         nextNode.OnConnectInputPort(edge.input as BasePort, edge);
-
-                        //DialogueSystemChoiceModel choiceModel = (DialogueSystemChoiceModel)edge.output.userData;
-                        //choiceModel.NodeID = nextNode.Model.ID;
                     }
                 }
                 if (changes.movedElements != null)

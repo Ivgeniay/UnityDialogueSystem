@@ -125,8 +125,9 @@ namespace DialogueSystem.Nodes
                 choiceData.PortText,
                 Orientation.Horizontal,
                 Direction.Input,
-                Port.Capacity.Multi);
-
+                Port.Capacity.Multi,
+                type: choiceData.Type);
+            inputPort.Value = choiceData.Value;
             return inputPort;
         }
         protected virtual BasePort CreateOutputPort(object userData)
@@ -174,6 +175,19 @@ namespace DialogueSystem.Nodes
         public DialogueSystemNodeModel GetConnections()
         {
             return null;
+        }
+        internal virtual string GetLetterFromNumber(int number)
+        {
+            number = Math.Abs(number);
+
+            string result = "";
+            do
+            {
+                result = (char)('A' + (number % 26)) + result;
+                number /= 26;
+            } while (number-- > 0);
+
+            return result;
         }
 
         #endregion
@@ -238,7 +252,7 @@ namespace DialogueSystem.Nodes
             Group = null;
         }
 
-        public virtual void OnUpdate()
+        public virtual void UpdateValue()
         {
 
         }

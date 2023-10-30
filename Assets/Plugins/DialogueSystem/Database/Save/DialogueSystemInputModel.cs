@@ -8,6 +8,8 @@ namespace DialogueSystem.Database.Save
     {
         [field: SerializeField] public string NodeID { get; set; }
         [field: SerializeField] public string PortText { get; set; }
-        public DialogueSystemInputModel(string NodeID, string Text = null) { }
+        [field: SerializeField] public Type Type { get; set; }
+        [field: SerializeField] public object Value { get; set; }
+        public DialogueSystemInputModel(string nodeID, Type type = null, string text = null) { }
     }
 }

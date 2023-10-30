@@ -2,6 +2,7 @@
 using UnityEngine.UIElements;
 using System.Reflection;
 using System;
+using UnityEngine;
 
 namespace DialogueSystem.Ports
 {
@@ -12,14 +13,10 @@ namespace DialogueSystem.Ports
         public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) 
         { }
 
-        public override void OnStartEdgeDragging()
-        {
-            base.OnStartEdgeDragging();
-        }
-
         public override void OnStopEdgeDragging()
         {
             base.OnStopEdgeDragging();
+            //Debug.Log($"Stop drug {this}");
         }
 
         public static BasePort CreateBasePort<TEdge>(Orientation orientation, Direction direction, Capacity capacity, Type type) where TEdge : Edge, new()
@@ -46,6 +43,14 @@ namespace DialogueSystem.Ports
             return port;
         }
 
-       
+        internal void ChangeType(Type type)
+        {
+            portType = type;
+        }
+
+        internal void ChangeName(string name)
+        {
+            portName = name;
+        }
     }
 }
