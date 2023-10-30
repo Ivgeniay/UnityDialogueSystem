@@ -91,7 +91,6 @@ namespace DialogueSystem.Nodes
             foreach (var input in Inputs)
             {
                 Port choicePort = CreateInputPort(input);
-                input.Port = choicePort as BasePort;
                 container.Add(choicePort);
             }
         }
@@ -100,7 +99,6 @@ namespace DialogueSystem.Nodes
             foreach (DialogueSystemOutputModel choice in Outputs)
             {
                 Port choicePort = CreateOutputPort(choice);
-                choice.Port = choicePort as BasePort;
                 container.Add(choicePort);
             }
         }
@@ -124,14 +122,14 @@ namespace DialogueSystem.Nodes
             DialogueSystemInputModel choiceData = userData as DialogueSystemInputModel;
 
             BasePort inputPort = this.CreatePort(
-                choiceData.Text,
+                choiceData.PortText,
                 Orientation.Horizontal,
                 Direction.Input,
                 Port.Capacity.Multi);
 
             return inputPort;
         }
-        protected virtual Port CreateOutputPort(object userData)
+        protected virtual BasePort CreateOutputPort(object userData)
         {
             return null;
         }
@@ -171,24 +169,53 @@ namespace DialogueSystem.Nodes
                 }
             }
         }
+        protected List<BasePort> GetInputPorts() => inputContainer.Children().Cast<BasePort>().ToList();
+        protected List<BasePort> GetOutputPorts() => outputContainer.Children().Cast<BasePort>().ToList();
+        public DialogueSystemNodeModel GetConnections()
+        {
+            return null;
+        }
+
         #endregion
 
-        #region Mono
+        #region MonoEvents
         public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
-            //Debug.Log($"On output {this.Model.DialogueName} value:{port.Value}");
+            if (Outputs != null && Outputs.Count > 0)
+            {
+                var output1 = edge.output.node as BaseNode;
+                var tt = Outputs.Where(el => string.IsNullOrEmpty(el.NodeID)).FirstOrDefault();
+                if(tt != null) tt.NodeID = output1.Model.ID;
+            }
         }
         public virtual void OnConnectInputPort(BasePort port, Edge edge)
         {
-            //Debug.Log($"On input {this.Model.DialogueName} value:{port.Value}");
+            if (Inputs != null && Inputs.Count > 0)
+            {
+                var output1 = edge.output.node as BaseNode;
+                var tt = Inputs.Where(el => el.PortText == port.portName).FirstOrDefault();
+                if (tt != null) tt.NodeID = output1.Model.ID;
+            }
         }
         public virtual void OnDestroyConnectionOutput(BasePort port, Edge edge)
         {
-            //Debug.Log($"OnDestroyOutput {this.Model.DialogueName} value:{port.Value}");
+            if (Outputs != null && Outputs.Count > 0)
+            {
+                var outputNode = edge.output.node as BaseNode;
+                var tt = Outputs.Where(el => el.NodeID == outputNode.Model.ID).FirstOrDefault();
+                if (tt != null)
+                    tt.NodeID = string.Empty;
+            }
         }
         public virtual void OnDestroyConnectionInput(BasePort port, Edge edge)
         {
-            //Debug.Log($"OnDestroyInput {this.Model.DialogueName} value:{port.Value}");
+            if (Inputs != null && Inputs.Count > 0)
+            {
+                var outputNode = edge.output.node as BaseNode;
+                var tt = Inputs.Where(el => el.NodeID == outputNode.Model.ID).FirstOrDefault();
+                if (tt != null)
+                    tt.NodeID = string.Empty;
+            }
         }
 
         public virtual void OnChangePosition(Vector2 position, Vector2 delta)
@@ -211,9 +238,9 @@ namespace DialogueSystem.Nodes
             Group = null;
         }
 
-        public DialogueSystemNodeModel GetConnections()
+        public virtual void OnUpdate()
         {
-            return null;
+
         }
         #endregion
     }

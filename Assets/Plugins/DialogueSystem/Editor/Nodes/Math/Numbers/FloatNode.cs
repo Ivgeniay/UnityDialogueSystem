@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using UnityEngine;
 using System;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Nodes
 {
@@ -16,12 +17,13 @@ namespace DialogueSystem.Nodes
             Outputs.Add(new DialogueSystemOutputModel(ID)
             {
                 Value = 0f,
+                PortType = typeof(float),
             });
 
             Model.Value = 0;
         }
 
-        protected override Port CreateOutputPort(object userData)
+        protected override BasePort CreateOutputPort(object userData)
         {
             var choicePort = base.CreateOutputPort(userData);
             choicePort.portType = typeof(float);
@@ -36,6 +38,7 @@ namespace DialogueSystem.Nodes
                     target.value = callback.newValue;
                     choiceData.Value = callback.newValue;
                     Model.Value = callback.newValue;
+                    choicePort.Value = callback.newValue;
                 },
                 styles: new string[]
                     {

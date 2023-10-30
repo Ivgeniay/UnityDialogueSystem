@@ -67,7 +67,6 @@ namespace DialogueSystem.Window
             AddStyles();
         }
 
-
         #region Overrides
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {

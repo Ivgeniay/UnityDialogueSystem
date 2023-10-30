@@ -16,7 +16,7 @@ namespace DialogueSystem.Nodes
             Model.Text = "Dialogue text";
             Inputs.Add(new DialogueSystemInputModel(ID)
             {
-                Text = "Connection",
+                PortText = "Connection",
             });
         }
 
@@ -40,7 +40,7 @@ namespace DialogueSystem.Nodes
             container.Add(customDataContainer);
         }
 
-        protected override Port CreateOutputPort(object userData)
+        protected override BasePort CreateOutputPort(object userData)
         {
             DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel;
 

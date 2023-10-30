@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Database.Save;
+using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
@@ -18,12 +19,13 @@ namespace DialogueSystem.Nodes
             Outputs.Add(new DialogueSystemOutputModel(ID)
             {
                 Value = 0,
+                PortType = typeof(int)
             });
 
             Model.Value = 0;
         }
 
-        protected override Port CreateOutputPort(object userData)
+        protected override BasePort CreateOutputPort(object userData)
         {
             var choicePort = base.CreateOutputPort(userData);
             choicePort.portType = typeof(int);
@@ -38,6 +40,7 @@ namespace DialogueSystem.Nodes
                     target.value = callback.newValue;
                     choiceData.Value = callback.newValue;
                     Model.Value = callback.newValue;
+                    choicePort.Value = callback.newValue;
                 },
                 styles: new string[]
                     {

@@ -9,7 +9,7 @@ namespace DialogueSystem.Database.Save
     {
         [field: SerializeField] public string NodeID { get; set; }
         [field: SerializeField] public object Value { get; set; }
-        [field: SerializeField] public BasePort Port { get; set; }
+        [field: SerializeField] public Type PortType { get; set; }
         public DialogueSystemOutputModel(string nodeID, object value = null) 
         { 
             this.NodeID = nodeID;

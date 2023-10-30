@@ -7,7 +7,7 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseNumbersNode : BaseMathNode
     {
-        protected override Port CreateOutputPort(object userData)
+        protected override BasePort CreateOutputPort(object userData)
         {
             DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel;
 
@@ -15,7 +15,9 @@ namespace DialogueSystem.Nodes
             "",
             Orientation.Horizontal,
             Direction.Output,
-            Port.Capacity.Single);
+            Port.Capacity.Single,
+            type: choiceData.PortType);
+            choicePort.Value = choiceData.Value;
 
             return choicePort;
         }

@@ -32,8 +32,7 @@ namespace DialogueSystem.Utilities
                 value = value,
                 label = label
             };
-            if (onChange is not null)
-                floatField.RegisterValueChangedCallback(onChange);
+            if (onChange is not null) floatField.RegisterValueChangedCallback(onChange);
             floatField.AddToClassList(styles);
             return floatField;
         }
@@ -44,8 +43,7 @@ namespace DialogueSystem.Utilities
                 value = value,
                 label = label
             };
-            if (onChange is not null)
-                integerField.RegisterValueChangedCallback(onChange);
+            if (onChange is not null) integerField.RegisterValueChangedCallback(onChange);
             integerField.AddToClassList(styles);
             return integerField;
         }
@@ -57,8 +55,7 @@ namespace DialogueSystem.Utilities
                 label = label,
             };
 
-            if (onChange is not null)
-                textField.RegisterValueChangedCallback(onChange);
+            if (onChange is not null) textField.RegisterValueChangedCallback(onChange);
             textField.AddToClassList(styles);
             return textField;
         }
