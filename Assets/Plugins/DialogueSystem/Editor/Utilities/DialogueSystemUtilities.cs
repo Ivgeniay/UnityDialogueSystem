@@ -25,6 +25,17 @@ namespace DialogueSystem.Utilities
             return label;
         }
 
+        public static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null)
+        {
+            Toggle toggle = new Toggle
+            {
+                text = text,
+                label = label,
+            };
+            if (onChange is not null) toggle.RegisterValueChangedCallback(onChange);
+            toggle.AddToClassList(styles);
+            return toggle;
+        }
         public static FloatField CreateFloatField(float value = 0, string label = null, EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
         {
             FloatField floatField = new FloatField()
@@ -128,24 +139,30 @@ namespace DialogueSystem.Utilities
 
         public static List<Type> GetListExtendedClasses(Type baseType)
         {
-            var nodeTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t != baseType && baseType.IsAssignableFrom(t))
-                .ToList();
-
+            var nodeTypes = GetListExtendedClasses(baseType, Assembly.GetExecutingAssembly());
             try
             {
                 Assembly assemblyCSharp = Assembly.Load("Assembly-CSharp-Editor");
-                List<Type> derivedTypesFromCSharp = assemblyCSharp.GetTypes()
-                    .Where(t => t != baseType && baseType.IsAssignableFrom(t))
-                    .ToList();
-
+                List<Type> derivedTypesFromCSharp = GetListExtendedClasses(baseType, assemblyCSharp);
                 foreach (Type type in derivedTypesFromCSharp)
                     nodeTypes.Add(type);
-                
             }
             catch { }
             return nodeTypes;
         }
+
+        public static List<Type> GetListExtendedClasses(Type baseType, Assembly assembly) =>
+            assembly.GetTypes()
+                .Where(t => t != baseType && baseType.IsAssignableFrom(t))
+                .ToList();
+        
+
+        public static List<Type> GetListExtendedIntefaces(Type interfaceType, Assembly assembly) =>
+            assembly.GetTypes()
+                .Where(p => interfaceType.IsAssignableFrom(p) && p.IsClass)
+                .ToList();
+        
+
         public static string GenerateWindowSearchNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);

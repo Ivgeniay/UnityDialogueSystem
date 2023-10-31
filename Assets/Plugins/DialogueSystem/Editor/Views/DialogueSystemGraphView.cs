@@ -96,12 +96,18 @@ namespace DialogueSystem.Window
 
             //this.AddManipulator(new StartDragManipulator());
 
-            var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
-            foreach (var item in listNodeTypes) this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
+            //var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
+            //foreach (var item in listNodeTypes) this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
             this.AddManipulator(CreateGroupContextualMenu());
         }
         #endregion
         #region CreatingElements
+        internal T CreateNode<T>(Vector2 position) where T : BaseNode
+        {
+            var type = typeof(T);
+            return (T)CreateNode(type, position);
+        }
+
         internal BaseNode CreateNode(Type type, Vector2 position)
         {
             var node = DialogueSystemUtilities.CreateNode(this, type, position);

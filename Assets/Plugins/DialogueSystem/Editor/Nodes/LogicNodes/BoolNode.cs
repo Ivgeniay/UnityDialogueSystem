@@ -1,25 +1,22 @@
-﻿using DialogueSystem.Utilities;
-using DialogueSystem.Window;
-using DialogueSystem.Database.Save;
+﻿using DialogueSystem.Window;
 using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {
-    internal class SingleChoiceNode : BaseDialogueNode
+    internal class BoolNode : BaseLogicNode
     {
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
             base.Initialize(graphView, position);
-
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new(ID)
             {
-                Value = "Next Dialogue",
+                PortText = typeof(bool).Name,
                 Cross = false,
                 IsField = true,
                 IsInput = false,
                 IsSingle = false,
-                PortText = string.Empty,
-                Type = typeof(string),
+                Type = typeof(bool),
+                Value = false,
             });
         }
     }

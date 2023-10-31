@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
             var inpPorts = GetInputPorts();
             List<BasePort> matchingPorts = new List<BasePort>();
 
-            foreach (DialogueSystemInputModel input in Inputs)
+            foreach (DialogueSystemPortModel input in Inputs)
             {
                 foreach (BasePort port in inpPorts)
                 {
@@ -29,36 +29,34 @@ namespace DialogueSystem.Nodes
                 }
             }
 
-            //if (matchingPorts.Count >= 2)
-            //{
-                List<object> values = new List<object>();
+            List<object> values = new List<object>();
 
-                foreach (BasePort port in matchingPorts)
+            foreach (BasePort port in matchingPorts)
+            {
+                if (port.connections.Any())
                 {
-                    if (port.connections.Any())
+                    BasePort connectedPort = port.connections.First().output as BasePort;
+                    if (connectedPort != null && connectedPort.Value != null)
                     {
-                        BasePort connectedPort = port.connections.First().output as BasePort;
-                        if (connectedPort != null && connectedPort.Value != null)
-                        {
-                            object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
-                            values.Add(convertedValue);
-                        }
-                    }
-                    if (!port.connections.Any() && port == lastConnectedPort)
-                    {
-                        BasePort connectedPort = lastConnectedEdge.output as BasePort;
-                        if (connectedPort != null && connectedPort.Value != null)
-                        {
-                            object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
-                            values.Add(convertedValue);
-                        }
+                        object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
+                        values.Add(convertedValue);
                     }
                 }
-                if (values.Count > 0)
+                if (!port.connections.Any() && port == lastConnectedPort)
                 {
-                    Do(values);
+                    BasePort connectedPort = lastConnectedEdge.output as BasePort;
+                    if (connectedPort != null && connectedPort.Value != null)
+                    {
+                        object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
+                        values.Add(convertedValue);
+                    }
                 }
-            //}
+            }
+            if (values.Count > 0)
+            {
+                Do(values);
+            }
+            
         }
         public virtual void Do(List<object> values) { }
         public virtual void ChangeOutputPortType(Type type)
@@ -72,16 +70,6 @@ namespace DialogueSystem.Nodes
                     bport.ChangeName(type.Name);
                 }
             }
-        }
-
-        public virtual double StringToDouble(string str)
-        {
-            double result;
-            if (double.TryParse(str, out result))
-            {
-                return result;
-            }
-            return 0;
         }
 
         public override void OnConnectInputPort(BasePort port, Edge edge)
@@ -100,6 +88,17 @@ namespace DialogueSystem.Nodes
                 outputPort.Value = null;
         }
 
+
+        #region Convert
+        public double StringToDouble(string str)
+        {
+            double result;
+            if (double.TryParse(str, out result))
+            {
+                return result;
+            }
+            return 0;
+        }
         public float SafeConvertDoubleToFloat(double input)
         {
             if (input > float.MaxValue)
@@ -141,7 +140,6 @@ namespace DialogueSystem.Nodes
         }
         public float ConvertIntToFloat(int value) => (float)value;
         public float ConvertBoolToFloat(bool value) => value ? 1f : 0f;
-        
-
+        #endregion
     }
 }

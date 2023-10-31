@@ -2,12 +2,11 @@
 using DialogueSystem.Window;
 using DialogueSystem.Ports;
 using UnityEngine;
-using UnityEngine.Windows;
 using System;
 
 namespace DialogueSystem.Nodes
 {
-    internal class ToBoolnode : BaseConvertNode
+    internal class ToBoolNode : BaseConvertNode
     {
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
@@ -15,14 +14,24 @@ namespace DialogueSystem.Nodes
 
             Inputs.Add(new(ID)
             {
-                PortText = $"{typeof(float).Name}/{typeof(double).Name}/{typeof(string).Name}/{typeof(int).Name}/{typeof(bool).Name}",
+                PortText = $"All",
                 Value = 0,
+                Cross = false,
+                IsField = false,
+                IsInput = true,
+                IsSingle = true,
+                Type = typeof(bool)
             });
 
             Outputs.Add(new(ID)
             {
-                PortType = typeof(bool),
+                Type = typeof(bool),
                 Value = 0f,
+                Cross = false,
+                IsField = false,
+                IsInput = false,
+                IsSingle = false,
+                PortText = typeof(bool).Name,
             });
         }
 

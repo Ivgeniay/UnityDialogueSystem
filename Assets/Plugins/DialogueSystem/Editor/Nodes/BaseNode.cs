@@ -16,8 +16,8 @@ namespace DialogueSystem.Nodes
 {
     public class BaseNode : Node
     {
-        public List<DialogueSystemOutputModel> Outputs { get; set; }
-        public List<DialogueSystemInputModel> Inputs { get; set; }
+        public List<DialogueSystemPortModel> Outputs { get; set; }
+        public List<DialogueSystemPortModel> Inputs { get; set; }
         public DialogueSystemNodeModel Model { get; private set; }
         public BaseGroup Group { get; private set; }
         protected TextField titleTF { get; set; }
@@ -28,9 +28,9 @@ namespace DialogueSystem.Nodes
 
         internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
-            defaultbackgroundColor = new Color(29f/255f, 29f/255f, 30f/255f);
-            Outputs = new List<DialogueSystemOutputModel>();
-            Inputs = new List<DialogueSystemInputModel>();
+            defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
+            Outputs = new List<DialogueSystemPortModel>();
+            Inputs = new List<DialogueSystemPortModel>();
 
             this.graphView = graphView;
             ID = Guid.NewGuid().ToString();
@@ -38,6 +38,7 @@ namespace DialogueSystem.Nodes
             Model = new()
             {
                 ID = ID,
+                Minimal = 1,
                 NodeName = "NodeName",
                 DialogueType = this.GetType(),
             };
@@ -89,24 +90,18 @@ namespace DialogueSystem.Nodes
         protected virtual void DrawInputContainer(VisualElement container)
         {
             foreach (var input in Inputs)
-            {
-                Port choicePort = CreateInputPort(input);
-                container.Add(choicePort);
-            }
+                AddPortByType(input);
         }
-        protected virtual void DrawOutputContainer(VisualElement container) 
+        protected virtual void DrawOutputContainer(VisualElement container)
         {
-            foreach (DialogueSystemOutputModel choice in Outputs)
-            {
-                Port choicePort = CreateOutputPort(choice);
-                container.Add(choicePort);
-            }
+            foreach (DialogueSystemPortModel output in Outputs)
+                AddPortByType(output);
         }
         protected virtual void DrawMainContainer(VisualElement container)
         {
 
         }
-        protected virtual void DrawExtensionContainer(VisualElement container) {}
+        protected virtual void DrawExtensionContainer(VisualElement container) { }
         protected virtual void Draw()
         {
             DrawTitleContainer(titleContainer);
@@ -116,23 +111,6 @@ namespace DialogueSystem.Nodes
             DrawExtensionContainer(extensionContainer);
 
             RefreshExpandedState();
-        }
-        protected virtual BasePort CreateInputPort(object userData)
-        {
-            DialogueSystemInputModel choiceData = userData as DialogueSystemInputModel;
-
-            BasePort inputPort = this.CreatePort(
-                choiceData.PortText,
-                Orientation.Horizontal,
-                Direction.Input,
-                Port.Capacity.Multi,
-                type: choiceData.Type);
-            inputPort.Value = choiceData.Value;
-            return inputPort;
-        }
-        protected virtual BasePort CreateOutputPort(object userData)
-        {
-            return null;
         }
         #endregion
 
@@ -199,7 +177,7 @@ namespace DialogueSystem.Nodes
             {
                 var output1 = edge.output.node as BaseNode;
                 var tt = Outputs.Where(el => string.IsNullOrEmpty(el.NodeID)).FirstOrDefault();
-                if(tt != null) tt.NodeID = output1.Model.ID;
+                if (tt != null) tt.NodeID = output1.Model.ID;
             }
         }
         public virtual void OnConnectInputPort(BasePort port, Edge edge)
@@ -237,7 +215,7 @@ namespace DialogueSystem.Nodes
             Model.position = position;
         }
         public virtual void OnCreate() => Draw();
-        public virtual void OnDestroy() 
+        public virtual void OnDestroy()
         {
 
         }
@@ -256,6 +234,202 @@ namespace DialogueSystem.Nodes
         {
 
         }
+        #endregion
+
+        #region Ports
+
+        protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(object data) => AddPortByType(userData as DialogueSystemPortModel);
+        protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(string portText, Type type, object value, bool isInput, bool isSingle, bool isField = false, bool cross = false, int minimal = 1)
+        {
+            var data = new DialogueSystemPortModel(ID)
+            {
+                PortText = portText,
+                Type = type,
+                Value = value,
+                IsInput = isInput,
+                IsField = isField,
+                IsSingle = isSingle,
+                Cross = cross,
+            };
+
+            if (data.IsInput) Inputs.Add(data);
+            else Outputs.Add(data);
+            
+            return AddPortByType(data);
+        }
+        protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(DialogueSystemPortModel data)
+        {
+            BasePort port = null;
+            Port.Capacity capacity = data.IsSingle == true ? Port.Capacity.Single : Port.Capacity.Multi;
+            Direction direction = data.IsInput == true ? Direction.Input : Direction.Output;
+
+            port = this.CreatePort(
+                portname: data.PortText,
+                orientation: Orientation.Horizontal,
+                direction: direction,
+                capacity: capacity,
+                type: data.Type);
+            port.Value = data.Value;
+
+
+            if (data.IsField && data.Type != null)
+            {
+                switch (Type.GetTypeCode(data.Type))
+                {
+                    case TypeCode.Single:
+                        FloatField floatField = DialogueSystemUtilities.CreateFloatField(
+                        0,
+                        onChange: callback =>
+                        {
+                            FloatField target = callback.target as FloatField;
+                            target.value = callback.newValue;
+                            data.Value = callback.newValue;
+                            Model.Value = callback.newValue;
+                            port.Value = callback.newValue;
+                        },
+                        styles: new string[]
+                            {
+                                "ds-node__floatfield",
+                                "ds-node__choice-textfield",
+                                "ds-node__textfield__hidden"
+                            }
+                        );
+                        port.Add(floatField);
+                        break;
+
+                    case TypeCode.Boolean:
+                        Toggle toggle = DialogueSystemUtilities.CreateToggle(
+                            "",
+                            "",
+                            onChange: callBack =>
+                            {
+                                Toggle target = callBack.target as Toggle;
+                                target.value = callBack.newValue;
+                                data.Value = callBack.newValue;
+                                Model.Value = callBack.newValue;
+                                port.Value = callBack.newValue;
+                            },
+                            styles: new string[]
+                            {
+                                "ds-node__toglefield",
+                                "ds-node__choice-textfield",
+                                "ds-node__textfield__hidden"
+                            });
+                        port.Add(toggle);
+                        break;
+
+                    case TypeCode.Int32:
+                        IntegerField integetField = DialogueSystemUtilities.CreateIntegerField(
+                        0,
+                        onChange: callback =>
+                        {
+                            IntegerField target = callback.target as IntegerField;
+                            target.value = callback.newValue;
+                            data.Value = callback.newValue;
+                            Model.Value = callback.newValue;
+                            port.Value = callback.newValue;
+                        },
+                        styles: new string[]
+                            {
+                                "ds-node__integerfield",
+                                "ds-node__choice-textfield",
+                                "ds-node__textfield__hidden"
+                            }
+                        );
+                        port.Add(integetField);
+                        break;
+
+                    case TypeCode.String:
+                        TextField Text = DialogueSystemUtilities.CreateTextField(
+                        (string)data.Value,
+                        onChange: callback =>
+                        {
+                            TextField target = callback.target as TextField;
+                            target.value = callback.newValue;
+                            data.Value = callback.newValue;
+                            Model.Value = callback.newValue;
+                            port.Value = callback.newValue;
+                        },
+                        styles: new string[]
+                            {
+                                "ds-node__textfield",
+                                "ds-node__choice-textfield",
+                                "ds-node__textfield__hidden"
+                            }
+                        );
+                        port.Add(Text);
+                        break;
+
+                    case TypeCode.Double:
+                        FloatField floatField2 = DialogueSystemUtilities.CreateFloatField(
+                        0,
+                        onChange: callback =>
+                        {
+                            FloatField target = callback.target as FloatField;
+                            target.value = callback.newValue;
+                            data.Value = callback.newValue;
+                            Model.Value = callback.newValue;
+                            port.Value = callback.newValue;
+                        },
+                        styles: new string[]
+                            {
+                                "ds-node__floatfield",
+                                "ds-node__choice-textfield",
+                                "ds-node__textfield__hidden"
+                            }
+                        );
+                        port.Add(floatField2);
+                        break;
+
+                    default:
+                        Console.WriteLine("Неизвестный тип");
+                        break;
+                }
+            }
+            if (data.Cross)
+            {
+                Button crossBtn = DialogueSystemUtilities.CreateButton(
+                "X",
+                () =>
+                {
+                    if (data.IsInput)
+                    {
+                        if (Inputs.Count == Model.Minimal) return;
+                    }
+                    else
+                    {
+                        if (Outputs.Count == Model.Minimal) return;
+                    }
+                    if (port.connected)
+                    {
+                        var edges = port.connections;
+                        foreach (Edge edge in edges)
+                        {
+                            var input = edge.input.node as BaseNode;
+                            var ouptut = edge.output.node as BaseNode;
+                            input?.OnDestroyConnectionInput(edge.input as BasePort, edge);
+                            ouptut?.OnDestroyConnectionOutput(edge.output as BasePort, edge);
+                        }
+                        graphView.DeleteElements(port.connections);
+                    }
+                    if (data.IsInput) Inputs.Remove(data);
+                    else Outputs.Remove(data);
+                    graphView.RemoveElement(port);
+                },
+                styles: new string[]
+                {
+                    "ds-node__button"
+                });
+
+                port.Add(crossBtn);
+            }
+
+            if (data.IsInput) inputContainer.Add(port);
+            else outputContainer.Add(port);
+
+            return (port, data);
+        }
+
         #endregion
     }
 }

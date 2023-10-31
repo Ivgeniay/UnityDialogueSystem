@@ -1,7 +1,5 @@
 ﻿using DialogueSystem.Database.Save;
-using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using UnityEngine;
@@ -14,16 +12,22 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Outputs.Add(new DialogueSystemOutputModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID)
             {
-                Value = "Next Choice"
+                Value = "Next Choice",
+                Cross = false,
+                IsField = true,
+                IsInput = false,
+                IsSingle = false,
+                PortText = string.Empty,
+                Type = typeof(string),
             });
         }
         protected override void DrawMainContainer(VisualElement container)
         {
             base.DrawMainContainer(container);
 
-            DialogueSystemOutputModel choiceData = new DialogueSystemOutputModel(ID)
+            DialogueSystemPortModel choiceData = new DialogueSystemPortModel(ID)
             {
                 Value = "Next Choice",
             };
@@ -32,9 +36,14 @@ namespace DialogueSystem.Nodes
                 "Add Choice", 
                 () =>
                 {
-                    Port choicePort = CreateOutputPort(choiceData);
-                    Outputs.Add(choiceData);
-                    outputContainer.Add(choicePort);
+                    var t = AddPortByType(
+                        portText: "",
+                        type: typeof(string),
+                        value: "Next Choice",
+                        isInput: false,
+                        isSingle: false,
+                        isField: true,
+                        cross: true);
                 },
                 styles: new string[]
                 {

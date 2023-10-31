@@ -1,9 +1,11 @@
-﻿using DialogueSystem.Groups;
+﻿using DialogueSystem.Characters;
+using DialogueSystem.Groups;
 using DialogueSystem.Nodes;
 using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -42,8 +44,8 @@ namespace DialogueSystem.Window
                     {
                         if (items.FatherType == dto.Type && !items.IsAbstract)
                         {
-                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, items.Type, indentationIcon);
-                        }    
+                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
+                        }
                     }
                 }
                 else if (!dto.IsAbstract && dto.Types.Count > 0)
@@ -53,15 +55,24 @@ namespace DialogueSystem.Window
                     {
                         if (items.FatherType == dto.Type && !items.IsAbstract)
                         {
-                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, items.Type, indentationIcon);
+                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
                         }
                     }
                 }
             }
 
-
             CreateMenuItem(searchTreeEntries, "Group", 1);
-            CreateMenuChoice(searchTreeEntries, "Simple Group", 2, typeof(BaseGroup), indentationIcon);
+            CreateMenuChoice(searchTreeEntries, "Simple Group", 2, new Type[] { typeof(BaseGroup) }, indentationIcon);
+
+            var actors = DialogueSystemUtilities.GetListExtendedIntefaces(typeof(IDialogueActor), Assembly.Load("Assembly-CSharp"));
+            if (actors != null && actors.Count > 0)
+            {
+                CreateMenuItem(searchTreeEntries, "Actors", 1);
+                actors.ForEach(a =>
+                {
+                    CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(a), 2, new Type[] { typeof(IDialogueActor), a }, indentationIcon);
+                });
+            }
 
             return searchTreeEntries;
         }
@@ -69,11 +80,19 @@ namespace DialogueSystem.Window
         public bool OnSelectEntry(SearchTreeEntry SearchTreeEntry, SearchWindowContext context)
         {
             var localMousePosition = graphView.GetLocalMousePosition(context.screenMousePosition, true);
-            Type type = (Type)SearchTreeEntry.userData;
+            var data = SearchTreeEntry.userData as Type[];
+            Type type = data[0];
 
             if (type == typeof(BaseGroup))
             {
                 graphView.CreateGroup(type, localMousePosition);
+                return true;
+            }
+            else if (type == typeof(IDialogueActor))
+            {
+                var node = graphView.CreateNode<ActorNode>(localMousePosition);
+                node.Generate(data[1]);
+                graphView.AddElement(node);
                 return true;
             }
             else if (typeof(BaseNode).IsAssignableFrom(type))

@@ -18,44 +18,18 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Outputs.Add(new DialogueSystemOutputModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID)
             {
                 Value = string.Empty,
-                PortType = typeof(string)
+                Type = typeof(string),
+                Cross = false,
+                IsField = true,
+                IsInput = false,
+                IsSingle = false,
+                PortText = typeof(string).Name,
             });
         }
 
-        protected override BasePort CreateOutputPort(object userData)
-        {
-            DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel;
-
-            BasePort outputPort = this.CreatePort(
-                choiceData.PortType.Name,
-                orientation: Orientation.Horizontal,
-                direction: Direction.Output,
-                capacity: Port.Capacity.Multi,
-                type: choiceData.PortType);
-
-            TextField Text = DialogueSystemUtilities.CreateTextField(
-                (string)choiceData.Value,
-                onChange: callback =>
-                {
-                    TextField target = callback.target as TextField;
-                    target.value = callback.newValue;
-                    choiceData.Value = callback.newValue.ToString();
-                    outputPort.Value = callback.newValue.ToString();
-                },
-                styles: new string[]
-                    {
-                        "ds-node__textfield",
-                        "ds-node__choice-textfield",
-                        "ds-node__textfield__hidden"
-                    }
-                );
-
-            outputPort.Add(Text);
-
-            return outputPort;
-        }
+       
     }
 }

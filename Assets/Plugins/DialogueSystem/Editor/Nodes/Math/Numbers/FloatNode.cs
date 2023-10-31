@@ -14,41 +14,19 @@ namespace DialogueSystem.Nodes
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
             base.Initialize(graphView, position);
-            Outputs.Add(new DialogueSystemOutputModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID)
             {
                 Value = 0f,
-                PortType = typeof(float),
+                Type = typeof(float),
+                Cross = false,
+                IsField = true,
+                IsInput = false,
+                IsSingle = false,
+                PortText = typeof(float).Name,
             });
 
             Model.Value = 0;
         }
 
-        protected override BasePort CreateOutputPort(object userData)
-        {
-            DialogueSystemOutputModel choiceData = userData as DialogueSystemOutputModel;
-            
-            var choicePort = base.CreateOutputPort(userData);
-
-            FloatField floatField = DialogueSystemUtilities.CreateFloatField(
-                0,
-                onChange: callback =>
-                {
-                    FloatField target = callback.target as FloatField;
-                    target.value = callback.newValue;
-                    choiceData.Value = callback.newValue;
-                    Model.Value = callback.newValue;
-                    choicePort.Value = callback.newValue;
-                },
-                styles: new string[]
-                    {
-                        "ds-node__floatfield",
-                        "ds-node__choice-textfield",
-                        "ds-node__textfield__hidden"
-                    }
-                );
-
-            choicePort.Add(floatField);
-            return choicePort;
-        }
     }
 }

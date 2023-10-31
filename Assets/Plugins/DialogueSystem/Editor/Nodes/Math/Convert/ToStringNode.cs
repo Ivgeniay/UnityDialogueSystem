@@ -19,12 +19,22 @@ namespace DialogueSystem.Nodes
             {
                 PortText = $"All",
                 Value = 0,
+                Cross = false,
+                IsField = false,
+                IsInput = true,
+                IsSingle = true,
+                Type = typeof(bool)
             });
 
             Outputs.Add(new(ID)
             {
-                PortType = typeof(string),
+                Type = typeof(string),
                 Value = 0f,
+                Cross = false,
+                IsField = false,
+                IsInput = false,
+                IsSingle = false,
+                PortText = typeof(float).Name,
             });
         }
 
