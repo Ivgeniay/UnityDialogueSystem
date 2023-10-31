@@ -11,41 +11,44 @@ namespace DialogueSystem.Nodes
 {
     internal class ToStringNode : BaseConvertNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
+            base.Initialize(graphView, position, portsContext: portsContext);
 
-            Inputs.Add(new(ID, new Type[] 
+            if (portsContext == null)
             {
-                typeof(string),
-                typeof(int),
-                typeof(float),
-                typeof(double),
-                typeof(bool),
-            })
-            {
-                PortText = $"All",
-                Value = 0,
-                Cross = false,
-                IsField = false,
-                IsInput = true,
-                IsSingle = true,
-                Type = typeof(bool)
-            });
+                Inputs.Add(new(new Type[]
+                {
+                    typeof(string),
+                    typeof(int),
+                    typeof(float),
+                    typeof(double),
+                    typeof(bool),
+                })
+                {
+                    PortText = $"All",
+                    Value = 0,
+                    Cross = false,
+                    IsField = false,
+                    IsInput = true,
+                    IsSingle = true,
+                    Type = typeof(bool)
+                });
 
-            Outputs.Add(new(ID, new Type[] 
-            { 
-                typeof(string) 
-            })
-            {
-                Type = typeof(string),
-                Value = 0f,
-                Cross = false,
-                IsField = false,
-                IsInput = false,
-                IsSingle = false,
-                PortText = typeof(float).Name,
-            });
+                Outputs.Add(new(new Type[]
+                {
+                typeof(string)
+                })
+                {
+                    Type = typeof(string),
+                    Value = 0f,
+                    Cross = false,
+                    IsField = false,
+                    IsInput = false,
+                    IsSingle = false,
+                    PortText = typeof(float).Name,
+                });
+            }
         }
 
         public override void Do(List<object> values)

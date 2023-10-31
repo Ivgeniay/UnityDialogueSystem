@@ -20,7 +20,6 @@ namespace DialogueSystem.Nodes
                     var output = GetOutputPorts()[0];
                     output.Value = concatenatedValue;
                     Debug.Log("Результат конкатенации: " + concatenatedValue);
-
                 }
                 else
                 {

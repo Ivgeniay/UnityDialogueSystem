@@ -14,23 +14,26 @@ namespace DialogueSystem.Nodes
 {
     internal class StringNode : LetterNodeBase
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
+            base.Initialize(graphView, position, portsContext: portsContext);
 
-            Outputs.Add(new DialogueSystemPortModel(ID, new Type[] 
-            { 
-                typeof(string) 
-            })
+            if (portsContext == null)
             {
-                Value = string.Empty,
-                Type = typeof(string),
-                Cross = false,
-                IsField = true,
-                IsInput = false,
-                IsSingle = false,
-                PortText = typeof(string).Name,
-            });
+                Outputs.Add(new DialogueSystemPortModel(new Type[]
+                {
+                    typeof(string)
+                })
+                {
+                    Value = string.Empty,
+                    Type = typeof(string),
+                    Cross = false,
+                    IsField = true,
+                    IsInput = false,
+                    IsSingle = false,
+                    PortText = typeof(string).Name,
+                });
+            }
         }
 
        

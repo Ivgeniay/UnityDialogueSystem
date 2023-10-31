@@ -102,15 +102,15 @@ namespace DialogueSystem.Window
         }
         #endregion
         #region CreatingElements
-        internal T CreateNode<T>(Vector2 position) where T : BaseNode
+        internal T CreateNode<T>(Vector2 position, List<object> portsContext) where T : BaseNode
         {
             var type = typeof(T);
-            return (T)CreateNode(type, position);
+            return (T)CreateNode(type, position, portsContext);
         }
 
-        internal BaseNode CreateNode(Type type, Vector2 position)
+        internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
-            var node = DialogueSystemUtilities.CreateNode(this, type, position);
+            var node = DialogueSystemUtilities.CreateNode(this, type, position, portsContext);
             _nodes.Add(node);
             return node;
         }
@@ -153,7 +153,7 @@ namespace DialogueSystem.Window
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
             {
                 e.menu.AppendAction(actionTitle, a =>
-                    AddElement(CreateNode(type, GetLocalMousePosition(a.eventInfo.mousePosition, false))));
+                    AddElement(CreateNode(type, GetLocalMousePosition(a.eventInfo.mousePosition, false), null)));
 
             });
 
@@ -312,8 +312,8 @@ namespace DialogueSystem.Window
                             BaseNode nextNode = edge.input.node as BaseNode;
                             BaseNode prevNode = edge.output.node as BaseNode;
 
-                            prevNode.OnDestroyConnectionOutput(edge.output as BasePort, edge);
-                            nextNode.OnDestroyConnectionInput(edge.input as BasePort, edge);
+                            prevNode?.OnDestroyConnectionOutput(edge.output as BasePort, edge);
+                            nextNode?.OnDestroyConnectionInput(edge.input as BasePort, edge);
 
                             //DialogueSystemChoiceModel choiceModel = (DialogueSystemChoiceModel)edge.output.userData;
                             //choiceModel.NodeID = "";

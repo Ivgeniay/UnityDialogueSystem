@@ -11,54 +11,6 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseMathNode : BaseNode
     {
-        protected BasePort lastConnectedPort = null;
-        protected Edge lastConnectedEdge = null;
-        public override void UpdateValue()
-        {
-            base.UpdateValue();
-
-            var inpPorts = GetInputPorts();
-            List<BasePort> matchingPorts = new List<BasePort>();
-
-            foreach (DialogueSystemPortModel input in Inputs)
-            {
-                foreach (BasePort port in inpPorts)
-                {
-                    if (port.portName == input.PortText)
-                        matchingPorts.Add(port);
-                }
-            }
-
-            List<object> values = new List<object>();
-
-            foreach (BasePort port in matchingPorts)
-            {
-                if (port.connections.Any())
-                {
-                    BasePort connectedPort = port.connections.First().output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null)
-                    {
-                        object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
-                        values.Add(convertedValue);
-                    }
-                }
-                if (!port.connections.Any() && port == lastConnectedPort)
-                {
-                    BasePort connectedPort = lastConnectedEdge.output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null)
-                    {
-                        object convertedValue = Convert.ChangeType(connectedPort.Value, connectedPort.portType);
-                        values.Add(convertedValue);
-                    }
-                }
-            }
-            if (values.Count > 0)
-            {
-                Do(values);
-            }
-            
-        }
-        public virtual void Do(List<object> values) { }
         public virtual void ChangeOutputPortType(Type type)
         {
             var ports = outputContainer.Children();
@@ -72,14 +24,31 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void OnConnectInputPort(BasePort port, Edge edge)
+        public override void OnConnectInputPort(BasePort _port, Edge edge)
         {
-            base.OnConnectInputPort(port, edge);
-            lastConnectedPort = port;
-            lastConnectedEdge = edge;
+            base.OnConnectInputPort(_port, edge);
 
-            UpdateValue();
+            var inpPorts = GetInputPorts();
+            List<object> values = new List<object>();
+            foreach (BasePort port in inpPorts)
+            {
+                if (port.connected)
+                {
+                    BasePort connectedPort = port.connections.First().output as BasePort;
+                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+                }
+                if (!port.connected && port == _port)
+                {
+                    BasePort connectedPort = edge.output as BasePort;
+                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+                }
+            }
+            if (values.Count > 0)
+            {
+                Do(values);
+            }
         }
+
         public override void OnDestroyConnectionInput(BasePort port, Edge edge)
         {
             base.OnDestroyConnectionInput(port, edge);

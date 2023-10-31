@@ -27,7 +27,7 @@ namespace DialogueSystem.Nodes
         protected DialogueSystemGraphView graphView { get; set; }
         private Color defaultbackgroundColor;
 
-        internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal virtual void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
             defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
             Outputs = new List<DialogueSystemPortModel>();
@@ -231,10 +231,7 @@ namespace DialogueSystem.Nodes
             Group = null;
         }
 
-        public virtual void UpdateValue()
-        {
-
-        }
+        public virtual void Do(List<object> values) { }
         #endregion
 
         #region Ports
@@ -242,7 +239,7 @@ namespace DialogueSystem.Nodes
         protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(object data) => AddPortByType(userData as DialogueSystemPortModel);
         protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(string portText, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1)
         {
-            var data = new DialogueSystemPortModel(ID, availableTypes)
+            var data = new DialogueSystemPortModel(availableTypes)
             {
                 PortText = portText,
                 Type = type,
@@ -278,7 +275,6 @@ namespace DialogueSystem.Nodes
                 type: data.Type);
             port.AvailableTypes = data.AvailableTypes;
             port.Value = data.Value;
-
 
             if (data.IsField && data.Type != null)
             {
@@ -432,34 +428,20 @@ namespace DialogueSystem.Nodes
                 port.Add(crossBtn);
             }
 
-            if (data.IsInput) inputContainer.Add(port);
-            else outputContainer.Add(port);
+            if (data.IsIfPort)
+            {
+                var outputs = outputContainer.Children().ToList();
+                outputs[outputs.Count - 1].Add(port);
+            }
+            else
+            {
+                if (data.IsInput) inputContainer.Add(port);
+                else outputContainer.Add(port);
+            }
 
             return (port, data);
         }
-        //protected virtual BasePort AddIfPort(string portText, Type type, object value, bool isInput, bool isSingle, bool isField = false, bool cross = false, int minimal = 1)
-        //{
-        //    var ifPort = AddPortByType(
-        //        type: typeof(bool),
-        //        cross: false,
-        //        isField: false,
-        //        isInput: true,
-        //        isSingle: false,
-        //        portText: "If",
-        //        value: false);
-
-        //    var valuePort = AddPortByType(
-        //        type: type,
-        //        cross: cross,
-        //        isField: isField,
-        //        isInput: isInput,
-        //        isSingle: false,
-        //        portText: portText,
-        //        value: value);
-
-        //    if (isInput) inputContainer.Remove(ifPort.port);
-        //    valuePort.port.Add(ifPort.port);
-        //}
+        
 
         #endregion
     }

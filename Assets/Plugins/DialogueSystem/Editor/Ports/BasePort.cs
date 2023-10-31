@@ -49,20 +49,14 @@ namespace DialogueSystem.Ports
             if (edge.output != null && edge.input == this)
             {
                 var other = edge.output as BasePort;
-                if (BasePortManager.HaveCommonTypes(AvailableTypes, other.AvailableTypes))
+                if (!BasePortManager.HaveCommonTypes(AvailableTypes, other.AvailableTypes))
                 {
-                    var bNode = this.node as BaseNode;
-                    Debug.Log($"its ok from output {this.portName} with {bNode.Model.NodeName}");
-                }
-                else
-                {
-                    var bNode = this.node as BaseNode;
-                    Debug.Log($"its not ok from output {this.portName} with {bNode.Model.NodeName}");
+                    //var bNode = this.node as BaseNode;
+                    //Debug.Log($"its not ok from output {this.portName} with {bNode.Model.NodeName}");
                     Disconnect(edge);
                 }
             }
         }
-
         public override void Disconnect(Edge edge)
         {
             base.Disconnect(edge);
@@ -104,10 +98,6 @@ namespace DialogueSystem.Ports
         internal void ChangeName(string name)
         {
             portName = name;
-        }
-        public void UpdateCapColor()
-        {
-
         }
     }
 

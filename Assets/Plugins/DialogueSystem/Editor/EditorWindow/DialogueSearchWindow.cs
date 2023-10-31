@@ -94,7 +94,7 @@ namespace DialogueSystem.Window
             }
             else if (type == typeof(IDialogueActor))
             {
-                var node = graphView.CreateNode<ActorNode>(localMousePosition);
+                var node = graphView.CreateNode<ActorNode>(localMousePosition, null);
                 node.Generate(data[1]);
                 graphView.AddElement(node);
                 return true;
@@ -102,7 +102,7 @@ namespace DialogueSystem.Window
             else if (typeof(BaseNode).IsAssignableFrom(type))
             {
                 var node =
-                    graphView.CreateNode(type, localMousePosition);
+                    graphView.CreateNode(type, localMousePosition, null);
                 graphView.AddElement(node);
                 return true;
             }

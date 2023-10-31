@@ -134,12 +134,12 @@ namespace DialogueSystem.Utilities
             graphView.AddGroup(group);
             return group;
         }
-        public static BaseNode CreateNode(DialogueSystemGraphView graphView, Type type, Vector2 position)
+        public static BaseNode CreateNode(DialogueSystemGraphView graphView, Type type, Vector2 position, List<object> portsContext)
         {
             if (typeof(BaseNode).IsAssignableFrom(type))
             {
                 BaseNode node = (BaseNode)Activator.CreateInstance(type);
-                node.Initialize(graphView, position);
+                node.Initialize(graphView, position, portsContext: portsContext);
                 node.OnCreate();
 
                 graphView.AddUngroupedNode(node);

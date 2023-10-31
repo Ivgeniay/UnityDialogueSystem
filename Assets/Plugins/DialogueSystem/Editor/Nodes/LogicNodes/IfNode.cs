@@ -9,51 +9,45 @@ namespace DialogueSystem.Nodes
 {
     internal class IfNode : BaseLogicNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
-            Inputs.Add(new(ID, new Type[] { typeof(bool) })
+            base.Initialize(graphView, position, portsContext: portsContext);
+
+            if (portsContext != null )
             {
-                PortText = GetLetterFromNumber(Inputs.Count),
-                Value = false,
-                Type = typeof(bool),
-                IsInput = true,
-                IsField = false,
-                IsSingle = true,
-                Cross = false,
-            });
+                Inputs.Add(new(new Type[] { typeof(bool) })
+                {
+                    PortText = GetLetterFromNumber(Inputs.Count),
+                    Value = false,
+                    Type = typeof(bool),
+                    IsInput = true,
+                    IsField = false,
+                    IsSingle = true,
+                    Cross = false,
+                });
 
-            Inputs.Add(new(ID, new Type[] { typeof(bool) })
-            {
-                PortText = GetLetterFromNumber(Inputs.Count),
-                Value = false,
-                Type = typeof(bool),
-                IsInput = true,
-                IsField = false,
-                IsSingle = true,
-                Cross = false,
-            });
+                Inputs.Add(new(new Type[] { typeof(bool) })
+                {
+                    PortText = GetLetterFromNumber(Inputs.Count),
+                    Value = false,
+                    Type = typeof(bool),
+                    IsInput = true,
+                    IsField = false,
+                    IsSingle = true,
+                    Cross = false,
+                });
 
-            Outputs.Add(new(ID, new Type[] { typeof(bool) })
-            {
-                PortText = GetLetterFromNumber(Inputs.Count),
-                Value = false,
-                Type = typeof(bool),
-                IsInput = false,
-                IsField = false,
-                IsSingle = false,
-                Cross = false,
-            });
-        }
-
-        public override void OnConnectInputPort(BasePort port, Edge edge)
-        {
-            base.OnConnectInputPort(port, edge);
-        }
-
-        public override void OnDestroyConnectionInput(BasePort port, Edge edge)
-        {
-            base.OnDestroyConnectionInput(port, edge);
+                Outputs.Add(new(new Type[] { typeof(bool) })
+                {
+                    PortText = GetLetterFromNumber(Inputs.Count),
+                    Value = false,
+                    Type = typeof(bool),
+                    IsInput = false,
+                    IsField = false,
+                    IsSingle = false,
+                    Cross = false,
+                });
+            }
         }
 
         //public override void Do(List<object> values)

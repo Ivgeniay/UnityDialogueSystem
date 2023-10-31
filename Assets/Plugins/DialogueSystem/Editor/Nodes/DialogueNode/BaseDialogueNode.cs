@@ -1,6 +1,7 @@
 using DialogueSystem.Database.Save;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,27 +9,31 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseDialogueNode : BaseNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
-            Model.Text = "Dialogue text";
-            Inputs.Add(new DialogueSystemPortModel(ID, new System.Type[]
+            base.Initialize(graphView, position, portsContext: portsContext);
+
+            if (portsContext == null )
             {
-                typeof(string),
-                typeof(int),
-                typeof(float),
-                typeof(double),
-                typeof(bool),
-            })
-            {
-                PortText = "Connection",
-                Cross = false,
-                IsField = false,
-                IsInput = true,
-                IsSingle = false,
-                Type = typeof(string),
-                Value = false,
-            });
+                Model.Text = "Dialogue text";
+                Inputs.Add(new DialogueSystemPortModel(new System.Type[]
+                {
+                    typeof(string),
+                    typeof(int),
+                    typeof(float),
+                    typeof(double),
+                    typeof(bool),
+                })
+                {
+                    PortText = "Connection",
+                    Cross = false,
+                    IsField = false,
+                    IsInput = true,
+                    IsSingle = false,
+                    Type = typeof(string),
+                    Value = false,
+                });
+            }
         }
 
         protected override void DrawExtensionContainer(VisualElement container)

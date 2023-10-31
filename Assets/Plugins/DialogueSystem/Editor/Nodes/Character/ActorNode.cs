@@ -13,9 +13,9 @@ namespace DialogueSystem
         private Dictionary<string, Type> publicProperties = new(); 
         private Dictionary<string, Type> privateFields = new(); 
         private Dictionary<string, Type> privateProperties = new(); 
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
+            base.Initialize(graphView, position, portsContext: portsContext);
         }
 
         public void Generate(Type type)

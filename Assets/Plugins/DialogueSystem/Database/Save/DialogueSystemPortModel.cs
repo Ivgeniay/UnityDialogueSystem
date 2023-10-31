@@ -11,13 +11,13 @@ namespace DialogueSystem.Database.Save
         [field: SerializeField] public string PortText { get; set; }
         [field: SerializeField] public bool IsSingle { get; set; }
         [field: SerializeField] public bool IsInput { get; set; }
+        [field: SerializeField] public bool IsIfPort { get; set; }
         [field: SerializeField] public bool Cross { get; set; }
         [field: SerializeField] public bool IsField { get; set; }
         [field: SerializeField] public Type Type { get; set; }
         [field: SerializeField] public Type[] AvailableTypes { get; set; }
-        public DialogueSystemPortModel(string nodeID, Type[] availableTypes, Type type = null, string portText = null, object value = null) 
-        { 
-            this.NodeID = nodeID;
+        public DialogueSystemPortModel(Type[] availableTypes, Type type = null, string portText = null, object value = null) 
+        {
             this.Value = value;
             this.AvailableTypes = availableTypes;
             this.Type = type;

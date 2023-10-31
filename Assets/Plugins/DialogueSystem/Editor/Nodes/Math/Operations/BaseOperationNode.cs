@@ -14,59 +14,62 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseOperationNode : BaseMathNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
+            base.Initialize(graphView, position, portsContext: portsContext);
 
-            Inputs.Add(new DialogueSystemPortModel(ID, new Type[]
+            if (portsContext == null)
             {
+                Inputs.Add(new DialogueSystemPortModel(new Type[]
+                {
+                    typeof(string),
+                    typeof(int),
+                    typeof(float),
+                    typeof(double),
+                    typeof(bool),
+                })
+                {
+                    PortText = GetLetterFromNumber(Inputs.Count),
+                    Cross = false,
+                    IsField = false,
+                    IsInput = true,
+                    IsSingle = true,
+                    Type = typeof(bool),
+                    Value = false,
+                });
+
+                Inputs.Add(new DialogueSystemPortModel(new Type[]
+                {
                 typeof(string),
                 typeof(int),
                 typeof(float),
                 typeof(double),
                 typeof(bool),
-            })
-            {
-                PortText = GetLetterFromNumber(Inputs.Count),
-                Cross = false,
-                IsField = false,
-                IsInput = true,
-                IsSingle = true,
-                Type = typeof(bool),
-                Value = false,
-            });
+                })
+                {
+                    PortText = GetLetterFromNumber(Inputs.Count),
+                    Cross = false,
+                    IsField = false,
+                    IsInput = true,
+                    IsSingle = true,
+                    Type = typeof(bool),
+                    Value = false,
+                });
 
-            Inputs.Add(new DialogueSystemPortModel(ID, new Type[]
-            {
-                typeof(string),
-                typeof(int),
-                typeof(float),
-                typeof(double),
-                typeof(bool),
-            })
-            {
-                PortText = GetLetterFromNumber(Inputs.Count),
-                Cross = false,
-                IsField = false,
-                IsInput = true,
-                IsSingle = true,
-                Type = typeof(bool),
-                Value = false,
-            });
-
-            Outputs.Add(new DialogueSystemPortModel(ID, new Type[]
-            {
+                Outputs.Add(new DialogueSystemPortModel(new Type[]
+                {
                 typeof(double),
                 typeof(string),
-            })
-            {
-                Value = 0,
-                Cross = false,
-                IsField = false,
-                IsInput = false,
-                IsSingle = true,
-                Type = typeof(double),
-            });
+                })
+                {
+                    Value = 0,
+                    Cross = false,
+                    IsField = false,
+                    IsInput = false,
+                    IsSingle = true,
+                    Type = typeof(double),
+                });
+            }
         }
 
         protected override void DrawMainContainer(VisualElement container)

@@ -3,28 +3,32 @@ using DialogueSystem.Utilities;
 using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace DialogueSystem.Nodes
 {
     internal class MultipleChoicesNode : BaseDialogueNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
+        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position);
+            base.Initialize(graphView, position, portsContext: portsContext);
 
-            Outputs.Add(new DialogueSystemPortModel(ID, new System.Type[]
+            if (portsContext == null)
             {
-                typeof(string)
-            })
-            {
-                Value = "Next Choice",
-                Cross = false,
-                IsField = true,
-                IsInput = false,
-                IsSingle = false,
-                PortText = string.Empty,
-                Type = typeof(string),
-            });
+                Outputs.Add(new DialogueSystemPortModel(new System.Type[]
+                {
+                    typeof(string)
+                })
+                {
+                    Value = "Next Choice",
+                    Cross = false,
+                    IsField = true,
+                    IsInput = false,
+                    IsSingle = false,
+                    PortText = string.Empty,
+                    Type = typeof(string),
+                });
+            }
         }
         protected override void DrawMainContainer(VisualElement container)
         {
