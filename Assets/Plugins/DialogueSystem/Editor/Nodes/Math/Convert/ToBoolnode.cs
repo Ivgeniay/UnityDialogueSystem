@@ -12,7 +12,14 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Inputs.Add(new(ID)
+            Inputs.Add(new(ID, new Type[]
+            {
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+            })
             {
                 PortText = $"All",
                 Value = 0,
@@ -23,7 +30,10 @@ namespace DialogueSystem.Nodes
                 Type = typeof(bool)
             });
 
-            Outputs.Add(new(ID)
+            Outputs.Add(new(ID, new Type[] 
+            { 
+                typeof(bool) 
+            })
             {
                 Type = typeof(bool),
                 Value = 0f,

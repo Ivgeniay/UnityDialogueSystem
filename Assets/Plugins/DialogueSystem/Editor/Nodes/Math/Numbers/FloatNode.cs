@@ -14,7 +14,7 @@ namespace DialogueSystem.Nodes
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
             base.Initialize(graphView, position);
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID, new Type[] { typeof(float) })
             {
                 Value = 0f,
                 Type = typeof(float),

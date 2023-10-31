@@ -2,6 +2,7 @@
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace DialogueSystem.Nodes
@@ -11,7 +12,7 @@ namespace DialogueSystem.Nodes
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
             base.Initialize(graphView, position);
-            Inputs.Add(new(ID)
+            Inputs.Add(new(ID, new Type[] { typeof(bool) })
             {
                 PortText = GetLetterFromNumber(Inputs.Count),
                 Value = false,
@@ -22,7 +23,7 @@ namespace DialogueSystem.Nodes
                 Cross = false,
             });
 
-            Inputs.Add(new(ID)
+            Inputs.Add(new(ID, new Type[] { typeof(bool) })
             {
                 PortText = GetLetterFromNumber(Inputs.Count),
                 Value = false,
@@ -33,7 +34,7 @@ namespace DialogueSystem.Nodes
                 Cross = false,
             });
 
-            Outputs.Add(new(ID)
+            Outputs.Add(new(ID, new Type[] { typeof(bool) })
             {
                 PortText = GetLetterFromNumber(Inputs.Count),
                 Value = false,
@@ -43,6 +44,16 @@ namespace DialogueSystem.Nodes
                 IsSingle = false,
                 Cross = false,
             });
+        }
+
+        public override void OnConnectInputPort(BasePort port, Edge edge)
+        {
+            base.OnConnectInputPort(port, edge);
+        }
+
+        public override void OnDestroyConnectionInput(BasePort port, Edge edge)
+        {
+            base.OnDestroyConnectionInput(port, edge);
         }
 
         //public override void Do(List<object> values)

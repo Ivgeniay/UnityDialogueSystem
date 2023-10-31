@@ -37,6 +37,10 @@ namespace DialogueSystem.Window
 
             foreach (ExtendedDO dto in dtos)
             {
+                if (dto.Type.Name == "TestNodes")
+                {
+
+                }
                 if (dto.IsAbstract)
                 {
                     CreateMenuItem(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(dto.Type), dto.Depth);

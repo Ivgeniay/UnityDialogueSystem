@@ -12,9 +12,16 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Inputs.Add(new(ID)
+            Inputs.Add(new(ID, new Type[] 
             {
-                PortText = $"{typeof(double).Name}/{typeof(string).Name}/{typeof(int).Name}/{typeof(bool).Name}",
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+            })
+            {
+                PortText = $"All",
                 Value = 0,
                 Cross = false,
                 IsField = false,
@@ -23,7 +30,7 @@ namespace DialogueSystem.Nodes
                 Type = typeof(bool),
             });
 
-            Outputs.Add(new(ID)
+            Outputs.Add(new(ID, new Type[] { typeof(float) })
             {
                 PortText = typeof(float).Name,
                 Type = typeof(float),

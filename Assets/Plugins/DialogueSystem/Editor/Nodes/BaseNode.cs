@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using UnityEngine.Windows;
+using System.ComponentModel;
 
 namespace DialogueSystem.Nodes
 {
@@ -239,9 +240,9 @@ namespace DialogueSystem.Nodes
         #region Ports
 
         protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(object data) => AddPortByType(userData as DialogueSystemPortModel);
-        protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(string portText, Type type, object value, bool isInput, bool isSingle, bool isField = false, bool cross = false, int minimal = 1)
+        protected virtual (BasePort port, DialogueSystemPortModel data) AddPortByType(string portText, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1)
         {
-            var data = new DialogueSystemPortModel(ID)
+            var data = new DialogueSystemPortModel(ID, availableTypes)
             {
                 PortText = portText,
                 Type = type,
@@ -250,7 +251,13 @@ namespace DialogueSystem.Nodes
                 IsField = isField,
                 IsSingle = isSingle,
                 Cross = cross,
+                AvailableTypes = availableTypes == null ? new Type[] { type } : availableTypes
             };
+
+            if (!DialogueSystemUtilities.IsAvalilableType(type))
+            {
+                return (null, data);
+            }
 
             if (data.IsInput) Inputs.Add(data);
             else Outputs.Add(data);
@@ -269,6 +276,7 @@ namespace DialogueSystem.Nodes
                 direction: direction,
                 capacity: capacity,
                 type: data.Type);
+            port.AvailableTypes = data.AvailableTypes;
             port.Value = data.Value;
 
 
@@ -429,6 +437,29 @@ namespace DialogueSystem.Nodes
 
             return (port, data);
         }
+        //protected virtual BasePort AddIfPort(string portText, Type type, object value, bool isInput, bool isSingle, bool isField = false, bool cross = false, int minimal = 1)
+        //{
+        //    var ifPort = AddPortByType(
+        //        type: typeof(bool),
+        //        cross: false,
+        //        isField: false,
+        //        isInput: true,
+        //        isSingle: false,
+        //        portText: "If",
+        //        value: false);
+
+        //    var valuePort = AddPortByType(
+        //        type: type,
+        //        cross: cross,
+        //        isField: isField,
+        //        isInput: isInput,
+        //        isSingle: false,
+        //        portText: portText,
+        //        value: value);
+
+        //    if (isInput) inputContainer.Remove(ifPort.port);
+        //    valuePort.port.Add(ifPort.port);
+        //}
 
         #endregion
     }

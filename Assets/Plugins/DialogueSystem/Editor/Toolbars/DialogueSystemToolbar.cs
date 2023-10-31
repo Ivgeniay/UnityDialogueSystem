@@ -1,8 +1,6 @@
 ﻿using DialogueSystem.Text;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using System;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,7 +10,8 @@ namespace DialogueSystem.Toolbars
     {
         private const string TOOLBAR_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemToolbarStyles.uss";
         private TextField textField;
-        private Button button;
+        private Button saveButton;
+        private Button generateAssetButton;
         private DialogueSystemGraphView graphView;
         public DialogueSystemToolbar(DialogueSystemGraphView graphView) 
         {
@@ -22,7 +21,8 @@ namespace DialogueSystem.Toolbars
 
         private void OnCanSaveGraphHandler(bool obj)
         {
-            button.SetEnabled(obj);
+            saveButton.SetEnabled(obj);
+            generateAssetButton.SetEnabled(obj);
         }
 
         public void Initialize(string fileName, string label)
@@ -39,13 +39,17 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-textField"
             });
-            button = DialogueSystemUtilities.CreateButton("Save", Save, new string[]
+            saveButton = DialogueSystemUtilities.CreateButton("Save", Save, new string[]
             {
                 "ds-toolbar__button"
             });
-            //button.RegisterCallback<ClickEvent>(Safe);
+            generateAssetButton = DialogueSystemUtilities.CreateButton("Generate Asset", GenerateAsset, new string[]
+            {
+                "ds-toolbar__button"
+            });
             this.Add(textField);
-            this.Add(button);
+            this.Add(saveButton);
+            this.Add(generateAssetButton);
         }
 
         private void Save()
@@ -58,6 +62,11 @@ namespace DialogueSystem.Toolbars
             {
                 Debug.Log("Dont save");
             }
+        }
+
+        private void GenerateAsset()
+        {
+            Debug.Log("Asset was generated");
         }
     }
 }

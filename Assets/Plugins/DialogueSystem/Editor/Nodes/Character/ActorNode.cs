@@ -34,7 +34,11 @@ namespace DialogueSystem
                         isInput: false,
                         isSingle: false,
                         isField: false,
-                        cross: false);
+                        cross: false,
+                        availableTypes: new Type[]
+                        {
+                            item.Value
+                        });
             }
             foreach (var item in publicProperties)
             {
@@ -45,7 +49,11 @@ namespace DialogueSystem
                         isInput: false,
                         isSingle: false,
                         isField: false,
-                        cross: false);
+                        cross: false,
+                        availableTypes: new Type[]
+                        {
+                            item.Value
+                        });
             }
             foreach (var item in privateFields)
             {
@@ -56,7 +64,8 @@ namespace DialogueSystem
                         isInput: false,
                         isSingle: false,
                         isField: false,
-                        cross: false);
+                        cross: false, 
+                        availableTypes: new Type[] { item.Value });
             }
             foreach (var item in privateProperties)
             {
@@ -67,8 +76,11 @@ namespace DialogueSystem
                         isInput: false,
                         isSingle: false,
                         isField: false,
-                        cross: false);
+                        cross: false,
+                        availableTypes: new Type[] { item.Value });
             }
+
+            RefreshExpandedState();
         }
 
         public static Dictionary<string, Type> GetPublicFields(Type type)
@@ -114,6 +126,5 @@ namespace DialogueSystem
         }
 
         private static bool IsBackingFieldForProperty(string field) => field.StartsWith("<");
-        
     }
 }

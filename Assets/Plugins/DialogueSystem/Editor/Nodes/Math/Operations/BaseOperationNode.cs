@@ -18,7 +18,14 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Inputs.Add(new DialogueSystemPortModel(ID)
+            Inputs.Add(new DialogueSystemPortModel(ID, new Type[]
+            {
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+            })
             {
                 PortText = GetLetterFromNumber(Inputs.Count),
                 Cross = false,
@@ -29,7 +36,14 @@ namespace DialogueSystem.Nodes
                 Value = false,
             });
 
-            Inputs.Add(new DialogueSystemPortModel(ID)
+            Inputs.Add(new DialogueSystemPortModel(ID, new Type[]
+            {
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+            })
             {
                 PortText = GetLetterFromNumber(Inputs.Count),
                 Cross = false,
@@ -40,7 +54,11 @@ namespace DialogueSystem.Nodes
                 Value = false,
             });
 
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID, new Type[]
+            {
+                typeof(double),
+                typeof(string),
+            })
             {
                 Value = 0,
                 Cross = false,
@@ -61,12 +79,20 @@ namespace DialogueSystem.Nodes
                 {
                     var t = AddPortByType(
                         portText: GetLetterFromNumber(this.Inputs.Count),
-                        type: typeof(bool),
-                        value: "",
+                        type: typeof(float),
+                        value: 0,
                         isInput: true,
                         isSingle: true,
                         isField: false,
-                        cross: true);
+                        cross: true,
+                        availableTypes: new Type[]
+                        {
+                            typeof(string),
+                            typeof(int),
+                            typeof(float),
+                            typeof(double),
+                            typeof(bool),
+                        });
                 },
                 styles: new string[]
                 {
@@ -76,6 +102,6 @@ namespace DialogueSystem.Nodes
             container.Insert(1, addChoiceBtn);
         }
 
-       
+
     }
 }

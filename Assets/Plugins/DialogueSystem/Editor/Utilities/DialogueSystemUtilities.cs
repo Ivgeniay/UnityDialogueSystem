@@ -14,6 +14,19 @@ namespace DialogueSystem.Utilities
 {
     public static class DialogueSystemUtilities
     {
+        public readonly static List<Type> ListAvalilableTypes;
+        static DialogueSystemUtilities()
+        {
+            ListAvalilableTypes = new List<Type>
+            {
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool)
+            };
+        }
+
         public static Label CreateLabel (string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
         {
             Label label = new Label()
@@ -150,19 +163,16 @@ namespace DialogueSystem.Utilities
             catch { }
             return nodeTypes;
         }
-
         public static List<Type> GetListExtendedClasses(Type baseType, Assembly assembly) =>
             assembly.GetTypes()
                 .Where(t => t != baseType && baseType.IsAssignableFrom(t))
                 .ToList();
-        
-
         public static List<Type> GetListExtendedIntefaces(Type interfaceType, Assembly assembly) =>
             assembly.GetTypes()
                 .Where(p => interfaceType.IsAssignableFrom(p) && p.IsClass)
                 .ToList();
-        
 
+        public static bool IsAvalilableType(Type type) => ListAvalilableTypes.Contains(type);
         public static string GenerateWindowSearchNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);

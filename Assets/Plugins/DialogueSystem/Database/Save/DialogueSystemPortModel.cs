@@ -14,10 +14,14 @@ namespace DialogueSystem.Database.Save
         [field: SerializeField] public bool Cross { get; set; }
         [field: SerializeField] public bool IsField { get; set; }
         [field: SerializeField] public Type Type { get; set; }
-        public DialogueSystemPortModel(string nodeID, Type type = null, string text = null, object value = null) 
+        [field: SerializeField] public Type[] AvailableTypes { get; set; }
+        public DialogueSystemPortModel(string nodeID, Type[] availableTypes, Type type = null, string portText = null, object value = null) 
         { 
             this.NodeID = nodeID;
             this.Value = value;
+            this.AvailableTypes = availableTypes;
+            this.Type = type;
+            this.PortText = portText;
         }
     }
 }

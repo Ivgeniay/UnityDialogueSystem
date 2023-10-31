@@ -18,7 +18,10 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID, new Type[] 
+            { 
+                typeof(string) 
+            })
             {
                 Value = string.Empty,
                 Type = typeof(string),

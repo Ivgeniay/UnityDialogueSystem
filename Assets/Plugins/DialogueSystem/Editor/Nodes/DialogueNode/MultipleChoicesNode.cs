@@ -12,7 +12,10 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
 
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID, new System.Type[]
+            {
+                typeof(string)
+            })
             {
                 Value = "Next Choice",
                 Cross = false,
@@ -27,11 +30,6 @@ namespace DialogueSystem.Nodes
         {
             base.DrawMainContainer(container);
 
-            DialogueSystemPortModel choiceData = new DialogueSystemPortModel(ID)
-            {
-                Value = "Next Choice",
-            };
-
             Button addChoiceBtn = DialogueSystemUtilities.CreateButton(
                 "Add Choice", 
                 () =>
@@ -43,7 +41,11 @@ namespace DialogueSystem.Nodes
                         isInput: false,
                         isSingle: false,
                         isField: true,
-                        cross: true);
+                        cross: true,
+                        availableTypes: new System.Type[]
+                        {
+                            typeof(string),
+                        });
                 },
                 styles: new string[]
                 {

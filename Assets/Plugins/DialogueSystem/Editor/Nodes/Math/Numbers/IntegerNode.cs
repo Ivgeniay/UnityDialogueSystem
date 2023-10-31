@@ -1,13 +1,7 @@
 ﻿using DialogueSystem.Database.Save;
-using DialogueSystem.Ports;
-using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UIElements;
+using System;
 
 namespace DialogueSystem.Nodes
 {
@@ -16,7 +10,7 @@ namespace DialogueSystem.Nodes
         internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position)
         {
             base.Initialize(graphView, position);
-            Outputs.Add(new DialogueSystemPortModel(ID)
+            Outputs.Add(new DialogueSystemPortModel(ID, new Type[] { typeof(int) })
             {
                 Value = 0,
                 Type = typeof(int),

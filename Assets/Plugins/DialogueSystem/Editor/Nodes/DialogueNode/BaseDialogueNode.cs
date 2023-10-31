@@ -12,7 +12,14 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position);
             Model.Text = "Dialogue text";
-            Inputs.Add(new DialogueSystemPortModel(ID)
+            Inputs.Add(new DialogueSystemPortModel(ID, new System.Type[]
+            {
+                typeof(string),
+                typeof(int),
+                typeof(float),
+                typeof(double),
+                typeof(bool),
+            })
             {
                 PortText = "Connection",
                 Cross = false,
