@@ -17,7 +17,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Inputs.Add(new(new System.Type[]
+                Model.Inputs.Add(new(new System.Type[]
                 {
                     typeof(string),
                     typeof(bool),
@@ -32,7 +32,7 @@ namespace DialogueSystem.Nodes
                     IsIfPort = false,
                 });
 
-                Outputs.Add(new(new System.Type[] { typeof(string) })
+                Model.Outputs.Add(new(new System.Type[] { typeof(string) })
                 {
                     Cross = true,
                     IsField = true,
@@ -44,7 +44,7 @@ namespace DialogueSystem.Nodes
                     Value = "kuku"
                 });
 
-                Outputs.Add(new(new System.Type[] { typeof(bool) })
+                Model.Outputs.Add(new(new System.Type[] { typeof(bool) })
                 {
                     Cross = false,
                     IsField = false,

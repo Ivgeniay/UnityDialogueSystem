@@ -15,7 +15,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Outputs.Add(new DSPortModel(new Type[] { typeof(int) })
+                Model.Outputs.Add(new DSPortModel(new Type[] { typeof(int) })
                 {
                     Value = 0,
                     Type = typeof(int),
@@ -26,8 +26,6 @@ namespace DialogueSystem.Nodes
                     PortText = DSConstants.Int,
                 });
             }
-
-            Model.Value = 0;
         }
     }
 }

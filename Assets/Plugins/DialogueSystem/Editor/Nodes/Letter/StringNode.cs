@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Outputs.Add(new DSPortModel(new Type[]
+                Model.Outputs.Add(new DSPortModel(new Type[]
                 {
                     typeof(string)
                 })
@@ -31,7 +31,7 @@ namespace DialogueSystem.Nodes
                     IsField = true,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = typeof(string).Name,
+                    PortText = DSConstants.String,
                 });
             }
         }

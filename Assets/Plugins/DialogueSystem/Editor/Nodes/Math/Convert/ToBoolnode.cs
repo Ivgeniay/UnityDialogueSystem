@@ -3,6 +3,7 @@ using DialogueSystem.Window;
 using DialogueSystem.Ports;
 using UnityEngine;
 using System;
+using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Nodes
 {
@@ -14,14 +15,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Inputs.Add(new(new Type[]
-                {
-                    typeof(string),
-                    typeof(int),
-                    typeof(float),
-                    typeof(double),
-                    typeof(bool),
-                })
+                Model.Inputs.Add(new(DSConstants.AvalilableTypes)
                 {
                     PortText = $"All",
                     Value = 0,
@@ -32,9 +26,9 @@ namespace DialogueSystem.Nodes
                     Type = typeof(bool)
                 });
 
-                Outputs.Add(new(new Type[]
+                Model.Outputs.Add(new(new Type[]
                 {
-                typeof(bool)
+                    typeof(bool)
                 })
                 {
                     Type = typeof(bool),

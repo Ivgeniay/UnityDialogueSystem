@@ -11,6 +11,9 @@ using DialogueSystem.Ports;
 using DialogueSystem.Text;
 using UnityEngine;
 using System;
+using UnityEditor;
+using DialogueSystem.Save;
+using System.IO;
 
 namespace DialogueSystem.Window
 {
@@ -314,9 +317,6 @@ namespace DialogueSystem.Window
 
                             prevNode?.OnDestroyConnectionOutput(edge.output as BasePort, edge);
                             nextNode?.OnDestroyConnectionInput(edge.input as BasePort, edge);
-
-                            //DialogueSystemChoiceModel choiceModel = (DialogueSystemChoiceModel)edge.output.userData;
-                            //choiceModel.NodeID = "";
                         }
                     }
                 }
@@ -423,6 +423,7 @@ namespace DialogueSystem.Window
         public void AddGroup(BaseGroup group)
         {
             string groupName = group.title.ToLower();
+            _groups.Add(group);
             if (!groups.ContainsKey(groupName))
             {
                 DSGroupErrorData error = new();
@@ -447,7 +448,7 @@ namespace DialogueSystem.Window
             string oldGroupName = group.Model.GroupName.ToLower();
             List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
-
+            _groups.Remove(group);
             group.ResetStyle();
 
             if (groupList.Count == 1)
@@ -488,13 +489,46 @@ namespace DialogueSystem.Window
             return local;
         }
 
-        internal void Save(string value)
+        internal void Save(string fileName)
         {
-            Model = new();
-            Model.Init(value);
+            string path = $"Assets/{fileName}.asset";
 
-            _nodes.ForEach(el => { Model.Nodes.Add(el.Model); });
-            _groups.ForEach(el => { Model.Groups.Add(el.Model); });
+            if (File.Exists(path)) File.Delete(path);
+
+            GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
+            AssetDatabase.CreateAsset(newGraphSO, path);
+
+            newGraphSO.Init(fileName);
+
+            foreach (var node in _nodes) newGraphSO.NodeModels.Add(node.Model);
+            foreach (var group in _groups) newGraphSO.GroupModels.Add(group.Model);
+            AssetDatabase.SaveAssets();
+        }
+
+        internal void CleanGraph()
+        {
+            List<GraphElement> graphElements = new List<GraphElement>();
+            foreach (var item in _nodes) graphElements.Add(item);
+            foreach (var item in _groups) graphElements.Add(item);
+            foreach (var item in graphElements) AddToSelection(item);
+            deleteSelection?.Invoke("delete", AskUser.DontAskUser);
+            DeleteSelection();
+        }
+
+        internal void Load(string fileName)
+        {
+            string path = $"Assets/{fileName}.asset";
+
+            if (File.Exists(path)) File.Delete(path);
+
+            GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
+            AssetDatabase.CreateAsset(newGraphSO, path);
+
+            newGraphSO.Init(fileName);
+
+            foreach (var node in _nodes) newGraphSO.NodeModels.Add(node.Model);
+            foreach (var group in _groups) newGraphSO.GroupModels.Add(group.Model);
+            AssetDatabase.SaveAssets();
         }
         #endregion
     }

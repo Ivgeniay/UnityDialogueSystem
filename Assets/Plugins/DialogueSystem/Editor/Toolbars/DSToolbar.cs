@@ -11,6 +11,7 @@ namespace DialogueSystem.Toolbars
         private const string TOOLBAR_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemToolbarStyles.uss";
         private TextField textField;
         private Button saveButton;
+        private Button cleanButton;
         private Button generateAssetButton;
         private DSGraphView graphView;
         public DSToolbar(DSGraphView graphView) 
@@ -43,12 +44,17 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-toolbar__button"
             });
+            cleanButton = DSUtilities.CreateButton("Clean Graph", CleanGraph, new string[]
+            {
+                "ds-toolbar__button"
+            });
             generateAssetButton = DSUtilities.CreateButton("Generate Asset", GenerateAsset, new string[]
             {
                 "ds-toolbar__button"
             });
             this.Add(textField);
             this.Add(saveButton);
+            this.Add(cleanButton);
             this.Add(generateAssetButton);
         }
 
@@ -62,6 +68,10 @@ namespace DialogueSystem.Toolbars
             {
                 Debug.Log("Dont save");
             }
+        }
+        private void CleanGraph()
+        {
+            graphView.CleanGraph();
         }
 
         private void GenerateAsset()

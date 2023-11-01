@@ -14,7 +14,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Outputs.Add(new DSPortModel(new System.Type[]
+                Model.Outputs.Add(new DSPortModel(new System.Type[]
                 {
                     typeof(string)
                 })

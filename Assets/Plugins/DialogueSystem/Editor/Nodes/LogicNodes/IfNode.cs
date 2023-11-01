@@ -16,9 +16,9 @@ namespace DialogueSystem.Nodes
 
             if (portsContext != null )
             {
-                Inputs.Add(new(new Type[] { typeof(bool) })
+                Model.Inputs.Add(new(new Type[] { typeof(bool) })
                 {
-                    PortText = GetLetterFromNumber(Inputs.Count),
+                    PortText = GetLetterFromNumber(Model.Inputs.Count),
                     Value = false,
                     Type = typeof(bool),
                     IsInput = true,
@@ -27,9 +27,9 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                 });
 
-                Inputs.Add(new(new Type[] { typeof(bool) })
+                Model.Inputs.Add(new(new Type[] { typeof(bool) })
                 {
-                    PortText = GetLetterFromNumber(Inputs.Count),
+                    PortText = GetLetterFromNumber(Model.Inputs.Count),
                     Value = false,
                     Type = typeof(bool),
                     IsInput = true,
@@ -38,9 +38,9 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                 });
 
-                Outputs.Add(new(new Type[] { typeof(bool) })
+                Model.Outputs.Add(new(new Type[] { typeof(bool) })
                 {
-                    PortText = GetLetterFromNumber(Inputs.Count),
+                    PortText = GetLetterFromNumber(Model.Inputs.Count),
                     Value = false,
                     Type = typeof(bool),
                     IsInput = false,

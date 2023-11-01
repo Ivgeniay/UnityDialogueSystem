@@ -16,8 +16,6 @@ namespace DialogueSystem.Nodes
 {
     public class BaseNode : Node
     {
-        public List<DSPortModel> Outputs { get; set; }
-        public List<DSPortModel> Inputs { get; set; }
         public DSNodeModel Model { get; private set; }
         public BaseGroup Group { get; private set; }
         protected TextField titleTF { get; set; }
@@ -28,28 +26,19 @@ namespace DialogueSystem.Nodes
 
         internal virtual void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
-            Outputs = new List<DSPortModel>();
-            Inputs = new List<DSPortModel>();
-
-            this.graphView = graphView;
             ID = Guid.NewGuid().ToString();
-
             Model = new()
             {
                 ID = ID,
                 Minimal = 1,
-                NodeName = this.GetType().Name + Random.Range(0, 100).ToString(),
+                NodeName = this.GetType().Name + " " + Random.Range(0, 100).ToString(),
                 DialogueType = this.GetType(),
             };
 
+            defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
+            this.graphView = graphView;
             this.SetPosition(new Rect(position, Vector2.zero));
             AddStyles();
-        }
-        private void AddStyles()
-        {
-            mainContainer.AddToClassList("ds-node__main-container");
-            extensionContainer.AddToClassList("ds-node__extension-container");
         }
 
         #region Draw
@@ -89,12 +78,12 @@ namespace DialogueSystem.Nodes
         }
         protected virtual void DrawInputContainer(VisualElement container)
         {
-            foreach (var input in Inputs)
+            foreach (var input in Model.Inputs)
                 AddPortByType(input);
         }
         protected virtual void DrawOutputContainer(VisualElement container)
         {
-            foreach (DSPortModel output in Outputs)
+            foreach (DSPortModel output in Model.Outputs)
                 AddPortByType(output);
         }
         protected virtual void DrawMainContainer(VisualElement container)
@@ -126,6 +115,11 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Style
+        private void AddStyles()
+        {
+            mainContainer.AddToClassList("ds-node__main-container");
+            extensionContainer.AddToClassList("ds-node__extension-container");
+        }
         internal virtual void SetErrorStyle(Color color) => mainContainer.style.backgroundColor = color;
         internal virtual void ResetStyle() => mainContainer.style.backgroundColor = defaultbackgroundColor;
         #endregion
@@ -173,22 +167,22 @@ namespace DialogueSystem.Nodes
         #region MonoEvents
         public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
-            var tt = Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
+            var tt = Model.Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.AddPort(edge.input.node as BaseNode, edge.input as BasePort);
         }
         public virtual void OnConnectInputPort(BasePort port, Edge edge)
         {
-            var tt = Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
+            var tt = Model.Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.AddPort(edge.output.node as BaseNode, edge.output as BasePort);
         }
         public virtual void OnDestroyConnectionOutput(BasePort port, Edge edge)
         {
-            var tt = Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
+            var tt = Model.Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.RemovePort(edge.input.node as BaseNode, edge.input as BasePort);
         }
         public virtual void OnDestroyConnectionInput(BasePort port, Edge edge)
         {
-            var tt = Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
+            var tt = Model.Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.RemovePort(edge.output.node as BaseNode, edge.output as BasePort);
         }
 
@@ -234,8 +228,8 @@ namespace DialogueSystem.Nodes
             if (!DSUtilities.IsAvalilableType(type))
                 return (null, data);
 
-            if (data.IsInput) Inputs.Add(data);
-            else Outputs.Add(data);
+            if (data.IsInput) Model.Inputs.Add(data);
+            else Model.Outputs.Add(data);
             
             return AddPortByType(data);
         }
@@ -267,7 +261,6 @@ namespace DialogueSystem.Nodes
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            Model.Value = callback.newValue;
                             port.Value = callback.newValue;
                         },
                         styles: new string[]
@@ -289,7 +282,6 @@ namespace DialogueSystem.Nodes
                                 Toggle target = callBack.target as Toggle;
                                 target.value = callBack.newValue;
                                 data.Value = callBack.newValue;
-                                Model.Value = callBack.newValue;
                                 port.Value = callBack.newValue;
                             },
                             styles: new string[]
@@ -309,7 +301,6 @@ namespace DialogueSystem.Nodes
                             IntegerField target = callback.target as IntegerField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            Model.Value = callback.newValue;
                             port.Value = callback.newValue;
                         },
                         styles: new string[]
@@ -330,7 +321,6 @@ namespace DialogueSystem.Nodes
                             TextField target = callback.target as TextField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            Model.Value = callback.newValue;
                             port.Value = callback.newValue;
                         },
                         styles: new string[]
@@ -351,7 +341,6 @@ namespace DialogueSystem.Nodes
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            Model.Value = callback.newValue;
                             port.Value = callback.newValue;
                         },
                         styles: new string[]
@@ -377,11 +366,11 @@ namespace DialogueSystem.Nodes
                 {
                     if (data.IsInput)
                     {
-                        if (Inputs.Count == Model.Minimal) return;
+                        if (Model.Inputs.Count == Model.Minimal) return;
                     }
                     else
                     {
-                        if (Outputs.Count == Model.Minimal) return;
+                        if (Model.Outputs.Count == Model.Minimal) return;
                     }
                     if (port.connected)
                     {
@@ -395,8 +384,8 @@ namespace DialogueSystem.Nodes
                         }
                         graphView.DeleteElements(port.connections);
                     }
-                    if (data.IsInput) Inputs.Remove(data);
-                    else Outputs.Remove(data);
+                    if (data.IsInput) Model.Inputs.Remove(data);
+                    else Model.Outputs.Remove(data);
                     graphView.RemoveElement(port);
                 },
                 styles: new string[]

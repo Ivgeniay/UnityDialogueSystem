@@ -13,7 +13,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Outputs.Add(new(new System.Type[]
+                Model.Outputs.Add(new(new System.Type[]
                 {
                     typeof(bool)
                 })

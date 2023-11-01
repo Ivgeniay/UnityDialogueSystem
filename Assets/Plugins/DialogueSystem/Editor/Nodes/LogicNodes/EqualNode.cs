@@ -15,7 +15,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Inputs.Add(new(DSConstants.AvalilableTypes)
+                Model.Inputs.Add(new(DSConstants.AvalilableTypes)
                 {
                     Cross = false,
                     IsField = false,
@@ -27,7 +27,7 @@ namespace DialogueSystem.Nodes
                     Value = null,
                 });
 
-                Inputs.Add(new(DSConstants.AvalilableTypes)
+                Model.Inputs.Add(new(DSConstants.AvalilableTypes)
                 {
                     Cross = false,
                     IsField = false,
@@ -39,7 +39,7 @@ namespace DialogueSystem.Nodes
                     Value = null,
                 });
 
-                Outputs.Add(new(new Type[] { typeof(bool) })
+                Model.Outputs.Add(new(new Type[] { typeof(bool) })
                 {
                     Cross = false,
                     IsField = false,

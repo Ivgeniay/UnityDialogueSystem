@@ -16,14 +16,7 @@ namespace DialogueSystem.Nodes
             if (portsContext == null )
             {
                 Model.Text = "Dialogue text";
-                Inputs.Add(new DSPortModel(new System.Type[]
-                {
-                    typeof(string),
-                    typeof(int),
-                    typeof(float),
-                    typeof(double),
-                    typeof(bool),
-                })
+                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
                 {
                     PortText = "Connection",
                     Cross = false,

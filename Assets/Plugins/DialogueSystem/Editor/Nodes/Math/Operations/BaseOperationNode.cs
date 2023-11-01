@@ -29,9 +29,9 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
+                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
                 {
-                    PortText = GetLetterFromNumber(Inputs.Count) + DSConstants.All,
+                    PortText = GetLetterFromNumber(Model.Inputs.Count) + DSConstants.All,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -40,9 +40,9 @@ namespace DialogueSystem.Nodes
                     Value = false,
                 });
 
-                Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
+                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
                 {
-                    PortText = GetLetterFromNumber(Inputs.Count) + DSConstants.All,
+                    PortText = GetLetterFromNumber(Model.Inputs.Count) + DSConstants.All,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -51,7 +51,7 @@ namespace DialogueSystem.Nodes
                     Value = false,
                 });
 
-                Outputs.Add(new DSPortModel(new Type[]
+                Model.Outputs.Add(new DSPortModel(new Type[]
                 {
                 typeof(double),
                 typeof(string),
@@ -77,7 +77,7 @@ namespace DialogueSystem.Nodes
                 {
                     var t = AddPortByType(
                         ID: Guid.NewGuid().ToString(),
-                        portText: GetLetterFromNumber(this.Inputs.Count),
+                        portText: GetLetterFromNumber(this.Model.Inputs.Count),
                         type: typeof(float),
                         value: 0,
                         isInput: true,
