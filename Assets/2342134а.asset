@@ -10,12 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5429d05431c35444794b2b316bfd3cd7, type: 3}
-  m_Name: ScriptableObject
+  m_Name: "2342134\u0430"
   m_EditorClassIdentifier: 
   <FileName>k__BackingField: 
-  ungroupedNodes:
-    list: []
-  groups:
-    list: []
-  groupedNodes:
-    list: []
+  <NodeModels>k__BackingField: []
+  <GroupModels>k__BackingField: []

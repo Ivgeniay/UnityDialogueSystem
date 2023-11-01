@@ -14,7 +14,7 @@ namespace DialogueSystem.Database.Save
         [field: SerializeField] public List<DSPortModel> Inputs { get; set; }
         [field: SerializeField] public string GroupID { get; set; }
         [field: SerializeField] public string Text { get; set; }
-        [field: SerializeField] public Type DialogueType { get; set; }
+        [field: SerializeField] public string DialogueType { get; set; }
         [field: SerializeField] public Vector2 position { get; set; }
 
         public DSNodeModel() 

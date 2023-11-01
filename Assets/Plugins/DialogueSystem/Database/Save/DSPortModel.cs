@@ -31,13 +31,13 @@ namespace DialogueSystem.Database.Save
         //Тип порта
         [field: SerializeField] public Type Type { get; set; }
         //Список типов для присоединения порта
-        [field: SerializeField] public Type[] AvailableTypes { get; set; }
+        [field: SerializeField] public string[] AvailableTypes { get; set; }
         public DSPortModel(Type[] availableTypes, Type type = null, string portText = null, object value = null) 
         {
             PortID = Guid.NewGuid().ToString();
 
             this.Value = value;
-            this.AvailableTypes = availableTypes;
+            this.AvailableTypes = availableTypes.Select(el => el.ToString()).ToArray();
             this.Type = type;
             this.PortText = portText;
         }

@@ -127,7 +127,7 @@ namespace DialogueSystem.Utilities
             if (typeof(BaseNode).IsAssignableFrom(type))
             {
                 BaseNode node = (BaseNode)Activator.CreateInstance(type);
-                node.Initialize(graphView, position, portsContext: portsContext);
+                node.Initialize(graphView, position, context: portsContext);
                 node.OnCreate();
 
                 graphView.AddUngroupedNode(node);

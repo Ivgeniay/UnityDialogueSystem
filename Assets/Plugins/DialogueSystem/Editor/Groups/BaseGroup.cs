@@ -20,6 +20,7 @@ namespace DialogueSystem.Groups
             Model = new()
             {
                 ID = Guid.NewGuid().ToString(),
+                Type = GetType(),
                 GroupName = groupTitle,
                 Position = this.GetPosition().position
             };

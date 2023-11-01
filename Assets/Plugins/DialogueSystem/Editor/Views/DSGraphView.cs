@@ -14,6 +14,7 @@ using System;
 using UnityEditor;
 using DialogueSystem.Save;
 using System.IO;
+using System.Linq;
 
 namespace DialogueSystem.Window
 {
@@ -32,8 +33,8 @@ namespace DialogueSystem.Window
         private SerializableDictionary<string, DSGroupErrorData> groups;
         private SerializableDictionary<BaseGroup, SerializableDictionary<string, DSNodeErrorData>> groupedNodes;
         
-        private List<BaseNode> _nodes = new List<BaseNode>();
-        private List<BaseGroup> _groups = new List<BaseGroup>();
+        private List<BaseNode> _nodes { get; set; } = new List<BaseNode>();
+        private List<BaseGroup> _groups { get; set; } = new List<BaseGroup>();
 
         private int repeatedNameAmount;
         private int RepeatedNameAmount
@@ -50,6 +51,11 @@ namespace DialogueSystem.Window
 
         internal DSGraphView(DSEditorWindow editorWindow)
         {
+            Model = new DSGraphModel()
+            {
+                FileName = "DialogueFileName"
+            };
+
             this.editorWindow = editorWindow;
             ungroupedNodes = new();
             groups = new();
@@ -75,12 +81,9 @@ namespace DialogueSystem.Window
 
             ports.ForEach(port =>
             {
-                if (startPort == port)
-                    return;
-                if (startPort.node == port.node)
-                    return;
-                if (startPort.direction == port.direction)
-                    return;
+                if (startPort == port) return;
+                if (startPort.node == port.node) return;
+                if (startPort.direction == port.direction) return;
 
                 compatiblePorts.Add(port);
             });
@@ -110,7 +113,6 @@ namespace DialogueSystem.Window
             var type = typeof(T);
             return (T)CreateNode(type, position, portsContext);
         }
-
         internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
             var node = DSUtilities.CreateNode(this, type, position, portsContext);
@@ -135,6 +137,7 @@ namespace DialogueSystem.Window
             }
 
             group.OnCreate(innerNode);
+            _groups.Add(group);
             return group;
         }
 
@@ -423,7 +426,6 @@ namespace DialogueSystem.Window
         public void AddGroup(BaseGroup group)
         {
             string groupName = group.title.ToLower();
-            _groups.Add(group);
             if (!groups.ContainsKey(groupName))
             {
                 DSGroupErrorData error = new();
@@ -515,20 +517,76 @@ namespace DialogueSystem.Window
             DeleteSelection();
         }
 
-        internal void Load(string fileName)
+        internal string Load(string filePath)
         {
-            string path = $"Assets/{fileName}.asset";
+            if (!File.Exists(filePath)) throw new FileNotFoundException();
+            filePath = filePath.Substring(filePath.IndexOf("Assets"));
+            GraphSO graphSO = AssetDatabase.LoadAssetAtPath<GraphSO>(filePath);
 
-            if (File.Exists(path)) File.Delete(path);
+            if (graphSO == null) return graphSO.FileName;
 
-            GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
-            AssetDatabase.CreateAsset(newGraphSO, path);
+            CleanGraph();
+            Model.FileName = graphSO.FileName;
+            foreach (var groupModel in graphSO.GroupModels)
+            {
+                var group = CreateGroup(groupModel.Type, groupModel.Position, groupModel.GroupName);
+            }
+            
+            foreach (var nodeModel in graphSO.NodeModels)
+            {
+                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.position, new List<object> 
+                {
+                    nodeModel
+                });
+                AddElement(node);
+            }
+            foreach (var node in _nodes)
+            {
+                if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
+                foreach(var output in node.Model.Outputs)
+                {
+                    var ports = node.GetOutputPorts();
+                    var port = ports.Where(el => el.ID == output.PortID).FirstOrDefault();
+                    if (port != null)
+                    {
+                        foreach (var portIdModel in output.NodeIDs)
+                        {
+                            var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
+                            if (inputNode != null)
+                            {
+                                foreach (var portId in portIdModel.PortIDs)
+                                {
+                                    var neededInputPort = inputNode.GetInputPorts().Where(e => e.ID == portId).FirstOrDefault();
+                                    if (neededInputPort != null)
+                                    {
+                                        Edge edge = new Edge
+                                        {
+                                            output = port,
+                                            input = neededInputPort
+                                        };
 
-            newGraphSO.Init(fileName);
+                                        edge.input.Connect(edge);
+                                        edge.output.Connect(edge);
+                                        AddElement(edge);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                //Edge edge = new Edge
+                //{
+                //    output = sourcePort,
+                //    input = targetPort
+                //};
 
-            foreach (var node in _nodes) newGraphSO.NodeModels.Add(node.Model);
-            foreach (var group in _groups) newGraphSO.GroupModels.Add(group.Model);
-            AssetDatabase.SaveAssets();
+                //edge.input.Connect(edge);
+                //edge.output.Connect(edge);
+
+                //AddElement(edge);
+            }
+            
+            return Model.FileName;
         }
         #endregion
     }

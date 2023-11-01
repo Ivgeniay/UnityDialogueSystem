@@ -19,21 +19,27 @@ namespace DialogueSystem.Nodes
         public DSNodeModel Model { get; private set; }
         public BaseGroup Group { get; private set; }
         protected TextField titleTF { get; set; }
-        public string ID { get; protected set; }
 
         protected DSGraphView graphView { get; set; }
         private Color defaultbackgroundColor;
 
-        internal virtual void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
+        internal virtual void Initialize(DSGraphView graphView, Vector2 position, List<object> context)
         {
-            ID = Guid.NewGuid().ToString();
-            Model = new()
+            if (context == null)
             {
-                ID = ID,
-                Minimal = 1,
-                NodeName = this.GetType().Name + " " + Random.Range(0, 100).ToString(),
-                DialogueType = this.GetType(),
-            };
+                Model = new()
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    Minimal = 1,
+                    NodeName = this.GetType().Name + " " + Random.Range(0, 100).ToString(),
+                    DialogueType = this.GetType().ToString(),
+                    position = position,
+                };
+            }
+            else
+            {
+                Model = context[0] as DSNodeModel;
+            }
 
             defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
             this.graphView = graphView;
@@ -142,12 +148,8 @@ namespace DialogueSystem.Nodes
                 }
             }
         }
-        protected List<BasePort> GetInputPorts() => inputContainer.Children().Cast<BasePort>().ToList();
-        protected List<BasePort> GetOutputPorts() => outputContainer.Children().Cast<BasePort>().ToList();
-        public DSNodeModel GetConnections()
-        {
-            return null;
-        }
+        internal protected List<BasePort> GetInputPorts() => inputContainer.Children().Cast<BasePort>().ToList();
+        internal protected List<BasePort> GetOutputPorts() => outputContainer.Children().Cast<BasePort>().ToList();
         internal virtual string GetLetterFromNumber(int number)
         {
             number = Math.Abs(number);
@@ -222,7 +224,7 @@ namespace DialogueSystem.Nodes
                 IsField = isField,
                 IsSingle = isSingle,
                 Cross = cross,
-                AvailableTypes = availableTypes == null ? new Type[] { type } : availableTypes
+                AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
 
             if (!DSUtilities.IsAvalilableType(type))
@@ -246,7 +248,7 @@ namespace DialogueSystem.Nodes
                 direction: direction,
                 capacity: capacity,
                 type: data.Type);
-            port.AvailableTypes = data.AvailableTypes;
+            port.AvailableTypes = data.AvailableTypes.Select(el => Type.GetType(el)).ToArray();
             port.Value = data.Value;
 
             if (data.IsField && data.Type != null)

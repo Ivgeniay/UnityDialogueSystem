@@ -1,6 +1,7 @@
 ﻿using DialogueSystem.Text;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +12,7 @@ namespace DialogueSystem.Toolbars
         private const string TOOLBAR_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemToolbarStyles.uss";
         private TextField textField;
         private Button saveButton;
+        private Button loadButton;
         private Button cleanButton;
         private Button generateAssetButton;
         private DSGraphView graphView;
@@ -44,6 +46,10 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-toolbar__button"
             });
+            loadButton = DSUtilities.CreateButton("Load", Load, new string[]
+            {
+                "ds-toolbar__button"
+            });
             cleanButton = DSUtilities.CreateButton("Clean Graph", CleanGraph, new string[]
             {
                 "ds-toolbar__button"
@@ -54,6 +60,7 @@ namespace DialogueSystem.Toolbars
             });
             this.Add(textField);
             this.Add(saveButton);
+            this.Add(loadButton);
             this.Add(cleanButton);
             this.Add(generateAssetButton);
         }
@@ -69,6 +76,13 @@ namespace DialogueSystem.Toolbars
                 Debug.Log("Dont save");
             }
         }
+
+        private void Load()
+        {
+            string path = EditorUtility.OpenFilePanel("Select a graph file", Application.dataPath, "asset");
+            textField.value = graphView.Load(path);
+        }
+
         private void CleanGraph()
         {
             graphView.CleanGraph();

@@ -27,12 +27,10 @@ namespace DialogueSystem.Ports
                 {
                     if (HaveCommonTypes(p.AvailableTypes, port.AvailableTypes))
                     {
-                        //Debug.Log($"{p.portName} is enabled");
                         p.SetEnabled(true);
                     }
                     else
                     {
-                        //Debug.Log($"{p.portName} is diasabled");
                         p.SetEnabled(false);
                     }
                 }

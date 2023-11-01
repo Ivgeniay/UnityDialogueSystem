@@ -14,7 +14,7 @@ namespace DialogueSystem.Nodes
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
-            base.Initialize(graphView, position, portsContext: portsContext);
+            base.Initialize(graphView, position, context: portsContext);
 
             if (portsContext == null)
             {
