@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {
-    internal class LessNode : BaseLogicNode
+    internal class MoreNode : BaseLogicNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -67,8 +67,8 @@ namespace DialogueSystem.Nodes
                 var doub1 = Convert.ToDouble(values[0]);
                 var doub2 = Convert.ToDouble(values[1]);
                 var output = GetOutputPorts()[0];
-                output.Value = doub1 < doub2;
-                Debug.Log($"{values[0]} is less than {values[1]} = {output.Value}");
+                output.Value = doub1 > doub2;
+                Debug.Log($"{values[0]} is more than {values[1]} = {output.Value}");
             }
         }
     }

@@ -5,16 +5,16 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Window
 {
-    public class DialogueSystemEditorWindow : EditorWindow
+    public class DSEditorWindow : EditorWindow
     {
         private string stylesLink = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemVariables.uss";
-        DialogueSystemGraphView grathView;
+        DSGraphView grathView;
 
 
         [MenuItem("DES/Dialogue Graph")]
         public static void OpenWindow()
         {
-            GetWindow<DialogueSystemEditorWindow>("Dialogue Graph");
+            GetWindow<DSEditorWindow>("Dialogue Graph");
         }
 
         private void OnEnable()
@@ -28,14 +28,14 @@ namespace DialogueSystem.Window
         #region Elements Addition
         private void AddGraphView()
         {
-            grathView = new DialogueSystemGraphView(this);
+            grathView = new DSGraphView(this);
             grathView.StretchToParentSize();
 
             rootVisualElement.Add(grathView);
         }
         private void AddToolbar()
         {
-            DialogueSystemToolbar toolbar = new(grathView);
+            DSToolbar toolbar = new(grathView);
             toolbar.Initialize("DialogueFileName", "Filename: ");
             rootVisualElement.Add(toolbar);
         }

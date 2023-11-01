@@ -18,6 +18,7 @@ namespace DialogueSystem.Nodes
                 if (containsString)
                 {
                     ChangeOutputPortType(typeof(string));
+
                     string concatenatedValue = string.Join("", values);
                     var output = GetOutputPorts()[0];
                     output.Value = concatenatedValue;

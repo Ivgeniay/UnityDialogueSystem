@@ -4,18 +4,19 @@ using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace DialogueSystem.Nodes
 {
     internal class MultipleChoicesNode : BaseDialogueNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 
             if (portsContext == null)
             {
-                Outputs.Add(new DialogueSystemPortModel(new System.Type[]
+                Outputs.Add(new DSPortModel(new Type[]
                 {
                     typeof(string)
                 })
@@ -34,11 +35,12 @@ namespace DialogueSystem.Nodes
         {
             base.DrawMainContainer(container);
 
-            Button addChoiceBtn = DialogueSystemUtilities.CreateButton(
+            Button addChoiceBtn = DSUtilities.CreateButton(
                 "Add Choice", 
                 () =>
                 {
                     var t = AddPortByType(
+                        ID: Guid.NewGuid().ToString(),
                         portText: "",
                         type: typeof(string),
                         value: "Next Choice",

@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace DialogueSystem.Database.Error
 {
-    internal class DialogueSystemErrorData
+    internal class DSErrorData
     {
         internal Color Color { get; set; }
-        internal DialogueSystemErrorData()
+        internal DSErrorData()
         {
             GenerateRandomColor();
         }

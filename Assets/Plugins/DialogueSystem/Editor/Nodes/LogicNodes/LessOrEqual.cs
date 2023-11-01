@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Window;
+﻿using DialogueSystem.Utilities;
+using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,18 +8,13 @@ namespace DialogueSystem.Nodes
 {
     internal class LessOrEqual : BaseLogicNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext);
 
             if (portsContext == null)
             {
-                Inputs.Add(new Database.Save.DialogueSystemPortModel(new Type[]
-                {
-                    typeof(int),
-                    typeof(float),
-                    typeof(double)
-                })
+                Inputs.Add(new Database.Save.DSPortModel(DSConstants.NumberTypes)
                 {
                     Type = typeof(double),
                     Cross = false,
@@ -26,16 +22,11 @@ namespace DialogueSystem.Nodes
                     IsIfPort = false,
                     IsInput = true,
                     IsSingle = true,
-                    PortText = "Number",
+                    PortText = DSConstants.Number,
                     Value = 0
                 });
 
-                Inputs.Add(new Database.Save.DialogueSystemPortModel(new Type[]
-                {
-                    typeof(int),
-                    typeof(float),
-                    typeof(double)
-                })
+                Inputs.Add(new Database.Save.DSPortModel(DSConstants.NumberTypes)
                 {
                     Type = typeof(double),
                     Cross = false,
@@ -43,11 +34,11 @@ namespace DialogueSystem.Nodes
                     IsIfPort = false,
                     IsInput = true,
                     IsSingle = true,
-                    PortText = "Number",
+                    PortText = DSConstants.Number,
                     Value = 0
                 });
 
-                Outputs.Add(new Database.Save.DialogueSystemPortModel(new Type[]
+                Outputs.Add(new Database.Save.DSPortModel(new Type[]
                 {
                     typeof(bool)
                 })
@@ -58,7 +49,7 @@ namespace DialogueSystem.Nodes
                     IsIfPort = false,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = typeof(bool).Name,
+                    PortText = DSConstants.Bool,
                     Value = 0
                 });
             }

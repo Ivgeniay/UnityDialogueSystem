@@ -11,7 +11,7 @@ namespace DialogueSystem.Groups
     {
         private Color defaultBorderColor;
         private float defaultBorderWidth;
-        public DialogueSystemGroupModel Model { get; protected set; }
+        public DSGroupModel Model { get; protected set; }
 
         public BaseGroup(string groupTitle, Vector2 position)
         {

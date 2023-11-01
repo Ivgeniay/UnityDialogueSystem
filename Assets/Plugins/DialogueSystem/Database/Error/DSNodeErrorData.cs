@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace DialogueSystem.Database.Error
 {
-    internal class DialogueSystemNodeErrorData
+    internal class DSNodeErrorData
     {
-        internal DialogueSystemErrorData ErrorData { get; set; }
+        internal DSErrorData ErrorData { get; set; }
         internal List<BaseNode> Nodes { get; set; }
 
-        internal DialogueSystemNodeErrorData()
+        internal DSNodeErrorData()
         {
             ErrorData = new();
             Nodes = new List<BaseNode>();

@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Ports;
+using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
@@ -8,22 +9,15 @@ namespace DialogueSystem.Nodes
 {
     internal class ToFloatNode : BaseConvertNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 
             if (portsContext == null)
             {
-                Inputs.Add(new(new Type[]
+                Inputs.Add(new(DSConstants.AvalilableTypes)
                 {
-                    typeof(string),
-                    typeof(int),
-                    typeof(float),
-                    typeof(double),
-                    typeof(bool),
-                })
-                {
-                    PortText = $"All",
+                    PortText = DSConstants.All,
                     Value = 0,
                     Cross = false,
                     IsField = false,
@@ -34,7 +28,7 @@ namespace DialogueSystem.Nodes
 
                 Outputs.Add(new(new Type[] { typeof(float) })
                 {
-                    PortText = typeof(float).Name,
+                    PortText = DSConstants.Float,
                     Type = typeof(float),
                     Value = 0f,
                     Cross = false,

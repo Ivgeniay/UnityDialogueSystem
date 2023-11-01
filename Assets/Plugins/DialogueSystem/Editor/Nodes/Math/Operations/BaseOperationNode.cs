@@ -1,35 +1,37 @@
-﻿using UnityEditor.Experimental.GraphView;
-using DialogueSystem.Database.Save;
+﻿using DialogueSystem.Database.Save;
 using System.Collections.Generic;
 using DialogueSystem.Utilities;
+using UnityEngine.UIElements;
 using DialogueSystem.Window;
-using DialogueSystem.Ports;
-using System.Linq;
 using UnityEngine;
 using System;
-using UnityEngine.UIElements;
-using UnityEngine.Windows;
 
 namespace DialogueSystem.Nodes
 {
     public abstract class BaseOperationNode : BaseMathNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        protected void ChangeOutputPortType(Type type)
+        {
+            var outs= GetOutputPorts();
+            if (outs != null)
+            {
+                foreach (var outPort in outs)
+                {
+                    outPort.ChangeType(type);
+                    outPort.ChangeName(type.Name);
+                }
+            }
+        }
+
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 
             if (portsContext == null)
             {
-                Inputs.Add(new DialogueSystemPortModel(new Type[]
+                Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
                 {
-                    typeof(string),
-                    typeof(int),
-                    typeof(float),
-                    typeof(double),
-                    typeof(bool),
-                })
-                {
-                    PortText = GetLetterFromNumber(Inputs.Count),
+                    PortText = GetLetterFromNumber(Inputs.Count) + DSConstants.All,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -38,16 +40,9 @@ namespace DialogueSystem.Nodes
                     Value = false,
                 });
 
-                Inputs.Add(new DialogueSystemPortModel(new Type[]
+                Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
                 {
-                typeof(string),
-                typeof(int),
-                typeof(float),
-                typeof(double),
-                typeof(bool),
-                })
-                {
-                    PortText = GetLetterFromNumber(Inputs.Count),
+                    PortText = GetLetterFromNumber(Inputs.Count) + DSConstants.All,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -56,7 +51,7 @@ namespace DialogueSystem.Nodes
                     Value = false,
                 });
 
-                Outputs.Add(new DialogueSystemPortModel(new Type[]
+                Outputs.Add(new DSPortModel(new Type[]
                 {
                 typeof(double),
                 typeof(string),
@@ -76,11 +71,12 @@ namespace DialogueSystem.Nodes
         {
             base.DrawMainContainer(container);
 
-            Button addChoiceBtn = DialogueSystemUtilities.CreateButton(
+            Button addChoiceBtn = DSUtilities.CreateButton(
                 "AddInput",
                 () =>
                 {
                     var t = AddPortByType(
+                        ID: Guid.NewGuid().ToString(),
                         portText: GetLetterFromNumber(this.Inputs.Count),
                         type: typeof(float),
                         value: 0,

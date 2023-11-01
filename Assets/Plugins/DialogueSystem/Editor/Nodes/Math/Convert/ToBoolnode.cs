@@ -8,7 +8,7 @@ namespace DialogueSystem.Nodes
 {
     internal class ToBoolNode : BaseConvertNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 

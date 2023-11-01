@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Ports;
+using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace DialogueSystem.Nodes
 {
     internal class IfNode : BaseLogicNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 

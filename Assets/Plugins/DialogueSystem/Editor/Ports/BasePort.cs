@@ -11,6 +11,7 @@ namespace DialogueSystem.Ports
 {
     public class BasePort : Port
     {
+        public string ID { get; set; }
         public object Value;
         public Type[] AvailableTypes;
         public Color capColor;

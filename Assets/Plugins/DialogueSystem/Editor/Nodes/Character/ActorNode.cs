@@ -13,7 +13,7 @@ namespace DialogueSystem
         private Dictionary<string, Type> publicProperties = new(); 
         private Dictionary<string, Type> privateFields = new(); 
         private Dictionary<string, Type> privateProperties = new(); 
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
         }
@@ -22,62 +22,40 @@ namespace DialogueSystem
         {
             publicFields = GetPublicFields(type);
             publicProperties = GetPublicProperties(type);
-            privateFields = GetPrivateFields(type);
-            privateProperties = GetPrivateProperties(type);
 
             foreach (var item in publicFields)
             {
-                var t = AddPortByType(
-                        portText: $"{item.Key} ({item.Value.Name})",
-                        type: item.Value,
-                        value: null,
-                        isInput: false,
-                        isSingle: false,
-                        isField: false,
-                        cross: false,
-                        availableTypes: new Type[]
-                        {
-                            item.Value
-                        });
+                AddPortByType(
+                    ID: Guid.NewGuid().ToString(),
+                    portText: $"{item.Key} ({item.Value.Name})",
+                    type: item.Value,
+                    value: null,
+                    isInput: false,
+                    isSingle: false,
+                    isField: false,
+                    cross: false,
+                    availableTypes: new Type[]
+                    {
+                        item.Value
+                    }
+                );
             }
             foreach (var item in publicProperties)
             {
-                var t = AddPortByType(
-                        portText: $"{item.Key} ({item.Value.Name})",
-                        type: item.Value,
-                        value: null,
-                        isInput: false,
-                        isSingle: false,
-                        isField: false,
-                        cross: false,
-                        availableTypes: new Type[]
-                        {
-                            item.Value
-                        });
-            }
-            foreach (var item in privateFields)
-            {
-                var t = AddPortByType(
-                        portText: $"{item.Key} ({item.Value.Name})",
-                        type: item.Value,
-                        value: null,
-                        isInput: false,
-                        isSingle: false,
-                        isField: false,
-                        cross: false, 
-                        availableTypes: new Type[] { item.Value });
-            }
-            foreach (var item in privateProperties)
-            {
-                var t = AddPortByType(
-                        portText: $"{item.Key} ({item.Value.Name})",
-                        type: item.Value,
-                        value: null,
-                        isInput: false,
-                        isSingle: false,
-                        isField: false,
-                        cross: false,
-                        availableTypes: new Type[] { item.Value });
+                AddPortByType(
+                    ID: Guid.NewGuid().ToString(),
+                    portText: $"{item.Key} ({item.Value.Name})",
+                    type: item.Value,
+                    value: null,
+                    isInput: false,
+                    isSingle: false,
+                    isField: false,
+                    cross: false,
+                    availableTypes: new Type[]
+                    {
+                        item.Value
+                    }
+                );
             }
 
             RefreshExpandedState();

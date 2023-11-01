@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace DialogueSystem.Database.Save
 {
-    public class DialogueSystemContainerSO : ScriptableObject
+    public class DSContainerSO : ScriptableObject
     {
         [field: SerializeField] public string FileName {  get; set; }
-        [field: SerializeField] public SerializableDictionary<DialogueSystemGroupSO, List<DialogueSystemDialogueSO>> DialogueGroups { get; set; }
-        [field: SerializeField] public List<DialogueSystemDialogueSO> UngroupedDialogues { get; set; }
+        [field: SerializeField] public SerializableDictionary<DSGroupSO, List<DSDialogueSO>> DialogueGroups { get; set; }
+        [field: SerializeField] public List<DSDialogueSO> UngroupedDialogues { get; set; }
 
         public void Init(string fileName)
         {

@@ -12,13 +12,13 @@ namespace DialogueSystem.Nodes
 {
     public class FloatNode : BaseNumbersNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 
             if (portsContext == null)
             {
-                Outputs.Add(new DialogueSystemPortModel(new Type[] { typeof(float) })
+                Outputs.Add(new DSPortModel(new Type[] { typeof(float) })
                 {
                     Value = 0f,
                     Type = typeof(float),
@@ -26,7 +26,7 @@ namespace DialogueSystem.Nodes
                     IsField = true,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = typeof(float).Name,
+                    PortText = DSConstants.Float,
                 });
             }
             Model.Value = 0;

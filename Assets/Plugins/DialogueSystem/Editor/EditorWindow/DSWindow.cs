@@ -11,12 +11,12 @@ using UnityEngine;
 
 namespace DialogueSystem.Window
 {
-    internal class DialogueSearchWindow : ScriptableObject, ISearchWindowProvider
+    internal class DSWindow : ScriptableObject, ISearchWindowProvider
     {
-        private DialogueSystemGraphView graphView;
+        private DSGraphView graphView;
         private Texture2D indentationIcon;
 
-        public void Initialize(DialogueSystemGraphView graphView)
+        public void Initialize(DSGraphView graphView)
         {
             this.graphView = graphView;
 
@@ -27,7 +27,7 @@ namespace DialogueSystem.Window
 
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
+            var listNodeTypes = DSUtilities.GetListExtendedClasses(typeof(BaseNode));
             var dtos = GenerateExtendedDOList(typeof(BaseNode), listNodeTypes);
 
             List<SearchTreeEntry> searchTreeEntries = new();
@@ -43,23 +43,23 @@ namespace DialogueSystem.Window
                 }
                 if (dto.IsAbstract)
                 {
-                    CreateMenuItem(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(dto.Type), dto.Depth);
+                    CreateMenuItem(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(dto.Type), dto.Depth);
                     foreach (ExtendedDO items in dtos)
                     {
                         if (items.FatherType == dto.Type && !items.IsAbstract)
                         {
-                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
+                            CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
                         }
                     }
                 }
                 else if (!dto.IsAbstract && dto.Types.Count > 0)
                 {
-                    CreateMenuItem(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(dto.Type) + " Based", dto.Depth);
+                    CreateMenuItem(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(dto.Type) + " Based", dto.Depth);
                     foreach (ExtendedDO items in dtos)
                     {
                         if (items.FatherType == dto.Type && !items.IsAbstract)
                         {
-                            CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
+                            CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
                         }
                     }
                 }
@@ -68,13 +68,13 @@ namespace DialogueSystem.Window
             CreateMenuItem(searchTreeEntries, "Group", 1);
             CreateMenuChoice(searchTreeEntries, "Simple Group", 2, new Type[] { typeof(BaseGroup) }, indentationIcon);
 
-            var actors = DialogueSystemUtilities.GetListExtendedIntefaces(typeof(IDialogueActor), Assembly.Load("Assembly-CSharp"));
+            var actors = DSUtilities.GetListExtendedIntefaces(typeof(IDialogueActor), Assembly.Load("Assembly-CSharp"));
             if (actors != null && actors.Count > 0)
             {
                 CreateMenuItem(searchTreeEntries, "Actors", 1);
                 actors.ForEach(a =>
                 {
-                    CreateMenuChoice(searchTreeEntries, DialogueSystemUtilities.GenerateWindowSearchNameFromType(a), 2, new Type[] { typeof(IDialogueActor), a }, indentationIcon);
+                    CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(a), 2, new Type[] { typeof(IDialogueActor), a }, indentationIcon);
                 });
             }
 

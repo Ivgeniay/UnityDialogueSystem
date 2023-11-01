@@ -14,20 +14,20 @@ using System;
 
 namespace DialogueSystem.Window
 {
-    public class DialogueSystemGraphView : GraphView
+    public class DSGraphView : GraphView
     {
         public event Action<bool> OnCanSaveGraphEvent;
-        public DialogueSystemGraphModel Model { get; protected set; }
+        public DSGraphModel Model { get; protected set; }
 
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
 
-        private DialogueSearchWindow searchWindow;
-        private DialogueSystemEditorWindow editorWindow;
+        private DSWindow searchWindow;
+        private DSEditorWindow editorWindow;
 
-        private SerializableDictionary<string, DialogueSystemNodeErrorData> ungroupedNodes;
-        private SerializableDictionary<string, DialogueSystemGroupErrorData> groups;
-        private SerializableDictionary<BaseGroup, SerializableDictionary<string, DialogueSystemNodeErrorData>> groupedNodes;
+        private SerializableDictionary<string, DSNodeErrorData> ungroupedNodes;
+        private SerializableDictionary<string, DSGroupErrorData> groups;
+        private SerializableDictionary<BaseGroup, SerializableDictionary<string, DSNodeErrorData>> groupedNodes;
         
         private List<BaseNode> _nodes = new List<BaseNode>();
         private List<BaseGroup> _groups = new List<BaseGroup>();
@@ -45,7 +45,7 @@ namespace DialogueSystem.Window
         }
         internal bool IsCanSave { get => repeatedNameAmount == 0; }
 
-        internal DialogueSystemGraphView(DialogueSystemEditorWindow editorWindow)
+        internal DSGraphView(DSEditorWindow editorWindow)
         {
             this.editorWindow = editorWindow;
             ungroupedNodes = new();
@@ -110,13 +110,13 @@ namespace DialogueSystem.Window
 
         internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
-            var node = DialogueSystemUtilities.CreateNode(this, type, position, portsContext);
+            var node = DSUtilities.CreateNode(this, type, position, portsContext);
             _nodes.Add(node);
             return node;
         }
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
-            var group = DialogueSystemUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
+            var group = DSUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
 
             AddElement(group);
 
@@ -164,7 +164,7 @@ namespace DialogueSystem.Window
         {
             if (!searchWindow)
             {
-                searchWindow = ScriptableObject.CreateInstance<DialogueSearchWindow>();
+                searchWindow = ScriptableObject.CreateInstance<DSWindow>();
                 searchWindow.Initialize(this);
             }
             nodeCreationRequest = e => SearchWindow.Open(new SearchWindowContext(e.screenMousePosition), searchWindow);
@@ -332,7 +332,7 @@ namespace DialogueSystem.Window
 
             if (!ungroupedNodes.ContainsKey(nodeName))
             {
-                DialogueSystemNodeErrorData nodeErrorData = new();
+                DSNodeErrorData nodeErrorData = new();
                 nodeErrorData.Nodes.Add(node);
                 ungroupedNodes.Add(nodeName, nodeErrorData);
                 return;
@@ -375,12 +375,12 @@ namespace DialogueSystem.Window
 
             if (!groupedNodes.ContainsKey(group))
             {
-                groupedNodes.Add(group, new SerializableDictionary<string, DialogueSystemNodeErrorData>());
+                groupedNodes.Add(group, new SerializableDictionary<string, DSNodeErrorData>());
             }
 
             if (!groupedNodes[group].ContainsKey(nodeName))
             {
-                DialogueSystemNodeErrorData errorData = new();
+                DSNodeErrorData errorData = new();
                 errorData.Nodes.Add(node);
                 groupedNodes[group].Add(nodeName, errorData);
                 return;
@@ -425,7 +425,7 @@ namespace DialogueSystem.Window
             string groupName = group.title.ToLower();
             if (!groups.ContainsKey(groupName))
             {
-                DialogueSystemGroupErrorData error = new();
+                DSGroupErrorData error = new();
                 error.Groups.Add(group);
                 groups.Add(groupName, error);
                 return;

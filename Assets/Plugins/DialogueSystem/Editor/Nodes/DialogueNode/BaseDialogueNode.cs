@@ -9,14 +9,14 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseDialogueNode : BaseNode
     {
-        internal override void Initialize(DialogueSystemGraphView graphView, Vector2 position, List<object> portsContext)
+        internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext: portsContext);
 
             if (portsContext == null )
             {
                 Model.Text = "Dialogue text";
-                Inputs.Add(new DialogueSystemPortModel(new System.Type[]
+                Inputs.Add(new DSPortModel(new System.Type[]
                 {
                     typeof(string),
                     typeof(int),
@@ -41,8 +41,8 @@ namespace DialogueSystem.Nodes
             VisualElement customDataContainer = new VisualElement();
             customDataContainer.AddToClassList("ds-node__custom-data-container");
 
-            Foldout textFolout = DialogueSystemUtilities.CreateFoldout("DialogueText", true);
-            TextField textField = DialogueSystemUtilities.CreateTextArea(
+            Foldout textFolout = DSUtilities.CreateFoldout("DialogueText", true);
+            TextField textField = DSUtilities.CreateTextArea(
                 Model.Text.ToString(),
                 styles: new string[]
                     {

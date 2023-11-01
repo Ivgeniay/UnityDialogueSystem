@@ -1,6 +1,6 @@
 ﻿namespace DialogueSystem.Utilities
 {
-    public static class Extensions
+    public static class DSExtensions
     {
         
     }

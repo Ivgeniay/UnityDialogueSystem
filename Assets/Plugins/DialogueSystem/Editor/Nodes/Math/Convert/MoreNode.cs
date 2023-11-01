@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Window;
+﻿using DialogueSystem.Utilities;
+using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Inputs.Add(new Database.Save.DialogueSystemPortModel(new Type[]
-                {
-                    typeof(int),
-                    typeof(float),
-                    typeof(double)
-                })
+                Inputs.Add(new Database.Save.DialogueSystemPortModel(DialogueSystemConstants.ListNumberTypes)
                 {
                     Type = typeof(double),
                     Cross = false,

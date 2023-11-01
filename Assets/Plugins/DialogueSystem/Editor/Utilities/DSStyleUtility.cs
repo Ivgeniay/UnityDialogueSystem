@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Utilities
 {
-    internal static class DialogueSystemStyleUtility
+    internal static class DSStyleUtility
     {
         public static VisualElement LoadAndAddStyleSheets(this VisualElement element, params string[] links)
         {

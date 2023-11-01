@@ -5,7 +5,7 @@ using System;
 namespace DialogueSystem.Database.Save
 {
     [Serializable]
-    public class DialogueSystemGroupModel
+    public class DSGroupModel
     {
         [field: SerializeField] public string ID { get; set; }
         [field: SerializeField] public string GroupName { get; set; }

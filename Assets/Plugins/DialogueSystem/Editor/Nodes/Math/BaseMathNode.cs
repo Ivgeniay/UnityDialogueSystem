@@ -1,28 +1,26 @@
 ﻿using UnityEditor.Experimental.GraphView;
-using DialogueSystem.Database.Save;
 using System.Collections.Generic;
+using System.Globalization;
 using DialogueSystem.Ports;
-using UnityEngine.UI;
 using System.Linq;
 using System;
-using System.Globalization;
 
 namespace DialogueSystem.Nodes
 {
     public abstract class BaseMathNode : BaseNode
     {
-        public virtual void ChangeOutputPortType(Type type)
-        {
-            var ports = outputContainer.Children();
-            foreach (var port in ports)
-            {
-                if (port is BasePort bport)
-                {
-                    bport.ChangeType(type);
-                    bport.ChangeName(type.Name);
-                }
-            }
-        }
+        //public virtual void ChangeOutputPortType(Type type)
+        //{
+        //    var ports = outputContainer.Children();
+        //    foreach (var port in ports)
+        //    {
+        //        if (port is BasePort bport)
+        //        {
+        //            bport.ChangeType(type);
+        //            bport.ChangeName(type.Name);
+        //        }
+        //    }
+        //}
 
         public override void OnConnectInputPort(BasePort _port, Edge edge)
         {

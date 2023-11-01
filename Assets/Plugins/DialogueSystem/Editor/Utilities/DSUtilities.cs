@@ -12,20 +12,9 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Utilities
 {
-    public static class DialogueSystemUtilities
+    public static class DSUtilities
     {
-        public readonly static List<Type> ListAvalilableTypes;
-        static DialogueSystemUtilities()
-        {
-            ListAvalilableTypes = new List<Type>
-            {
-                typeof(string),
-                typeof(int),
-                typeof(float),
-                typeof(double),
-                typeof(bool)
-            };
-        }
+ 
 
         public static Label CreateLabel (string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
         {
@@ -37,7 +26,6 @@ namespace DialogueSystem.Utilities
             label.AddToClassList(styles);
             return label;
         }
-
         public static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null)
         {
             Toggle toggle = new Toggle
@@ -109,7 +97,7 @@ namespace DialogueSystem.Utilities
             btn.AddToClassList(styles);
             return btn;
         }
-        public static BasePort CreatePort(this BaseNode baseNode, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, object defaultValue = null)
+        public static BasePort CreatePort(this BaseNode baseNode, string ID, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, object defaultValue = null)
         {
             if (color == default) color = Color.white;
             type = type == null ? typeof(bool) : type;
@@ -119,12 +107,12 @@ namespace DialogueSystem.Utilities
             port.portColor = color;
             port.Value = defaultValue;
             port.portType = type;
+            port.ID = ID;
 
             return port;
         }
        
-
-        public static BaseGroup CreateGroup(DialogueSystemGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
+        public static BaseGroup CreateGroup(DSGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             var group = new BaseGroup(title, mousePosition)
             {
@@ -134,7 +122,7 @@ namespace DialogueSystem.Utilities
             graphView.AddGroup(group);
             return group;
         }
-        public static BaseNode CreateNode(DialogueSystemGraphView graphView, Type type, Vector2 position, List<object> portsContext)
+        public static BaseNode CreateNode(DSGraphView graphView, Type type, Vector2 position, List<object> portsContext)
         {
             if (typeof(BaseNode).IsAssignableFrom(type))
             {
@@ -172,7 +160,7 @@ namespace DialogueSystem.Utilities
                 .Where(p => interfaceType.IsAssignableFrom(p) && p.IsClass)
                 .ToList();
 
-        public static bool IsAvalilableType(Type type) => ListAvalilableTypes.Contains(type);
+        public static bool IsAvalilableType(Type type) => DSConstants.AvalilableTypes.Contains(type);
         public static string GenerateWindowSearchNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);

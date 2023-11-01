@@ -6,14 +6,14 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Toolbars
 {
-    internal class DialogueSystemToolbar : BaseToolbar
+    internal class DSToolbar : BaseToolbar
     {
         private const string TOOLBAR_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemToolbarStyles.uss";
         private TextField textField;
         private Button saveButton;
         private Button generateAssetButton;
-        private DialogueSystemGraphView graphView;
-        public DialogueSystemToolbar(DialogueSystemGraphView graphView) 
+        private DSGraphView graphView;
+        public DSToolbar(DSGraphView graphView) 
         {
             this.graphView = graphView;
             graphView.OnCanSaveGraphEvent += OnCanSaveGraphHandler;
@@ -30,7 +30,7 @@ namespace DialogueSystem.Toolbars
             this.LoadAndAddStyleSheets(TOOLBAR_STYLE_LINK);
             this.AddToClassList("ds-toolbar");
 
-            textField = DialogueSystemUtilities.CreateTextField(fileName, label, callback =>
+            textField = DSUtilities.CreateTextField(fileName, label, callback =>
             {
                 TextField target = callback.target as TextField;
                 target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
@@ -39,11 +39,11 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-textField"
             });
-            saveButton = DialogueSystemUtilities.CreateButton("Save", Save, new string[]
+            saveButton = DSUtilities.CreateButton("Save", Save, new string[]
             {
                 "ds-toolbar__button"
             });
-            generateAssetButton = DialogueSystemUtilities.CreateButton("Generate Asset", GenerateAsset, new string[]
+            generateAssetButton = DSUtilities.CreateButton("Generate Asset", GenerateAsset, new string[]
             {
                 "ds-toolbar__button"
             });

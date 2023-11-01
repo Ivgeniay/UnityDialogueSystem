@@ -2,7 +2,7 @@
 
 namespace DialogueSystem.Database.Save
 {
-    public class DialogueSystemGroupSO : ScriptableObject
+    public class DSGroupSO : ScriptableObject
     {
         [field: SerializeField] public string GroupName { get; set; }
 
