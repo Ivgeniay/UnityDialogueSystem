@@ -1,11 +1,10 @@
 ﻿using UnityEditor.Experimental.GraphView;
-using UnityEngine.UIElements;
-using System.Reflection;
-using System;
 using DialogueSystem.Manipulations;
-using UnityEngine.Profiling;
+using UnityEngine.UIElements;
+using DialogueSystem.Edges;
+using System.Reflection;
 using UnityEngine;
-using DialogueSystem.Nodes;
+using System;
 
 namespace DialogueSystem.Ports
 {
@@ -18,7 +17,7 @@ namespace DialogueSystem.Ports
         
         public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) 
         { }
-        public static BasePort CreateBasePort<TEdge>(Orientation orientation, Direction direction, Capacity capacity, Type type) where TEdge : Edge, new()
+        public static BasePort CreateBasePort<TEdge>(Orientation orientation, Direction direction, Capacity capacity, Type type) where TEdge : DSEdge, new()
         {
             //Type edgeConnectorType = typeof(EdgeConnector<>).MakeGenericType(typeof(TEdge));
             Type edgeConnectorType = typeof(CustomEdgeConnector<>).MakeGenericType(typeof(TEdge));

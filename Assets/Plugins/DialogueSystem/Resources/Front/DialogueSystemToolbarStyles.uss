@@ -7,6 +7,15 @@
 	justify-content: center;
 }
 
+.ds-progressBar
+{
+	max-width: var(--ds-metrics-window-pixels-350);
+	min-width: var(--ds-metrics-window-pixels-160);
+	border-color: var(--ds-colors-window-yellow);
+	border-radius: var(--ds-metrics-window-pixels-4);
+	/* display: none;  */
+}
+
 .ds-textField
 {
 	padding: var(--ds-metrics-window-pixels-4);

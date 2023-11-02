@@ -1,11 +1,6 @@
-﻿using DialogueSystem.Nodes;
-using DialogueSystem.Ports;
-using DialogueSystem.Window;
+﻿using DialogueSystem.Window;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace DialogueSystem.Nodes
 {
@@ -17,6 +12,18 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
+                Model.Outputs.Add(new(new System.Type[] { typeof(string) })
+                {
+                    Cross = true,
+                    IsField = true,
+                    IsIfPort = false,
+                    IsInput = false,
+                    IsSingle = false,
+                    PortText = typeof(string).Name,
+                    Type = typeof(string),
+                    Value = "kuku"
+                });
+
                 Model.Inputs.Add(new(new System.Type[]
                 {
                     typeof(string),
@@ -32,19 +39,7 @@ namespace DialogueSystem.Nodes
                     IsIfPort = false,
                 });
 
-                Model.Outputs.Add(new(new System.Type[] { typeof(string) })
-                {
-                    Cross = true,
-                    IsField = true,
-                    IsIfPort = false,
-                    IsInput = false,
-                    IsSingle = false,
-                    PortText = typeof(string).Name,
-                    Type = typeof(string),
-                    Value = "kuku"
-                });
-
-                Model.Outputs.Add(new(new System.Type[] { typeof(bool) })
+                Model.Inputs.Add(new(new System.Type[] { typeof(bool) })
                 {
                     Cross = false,
                     IsField = false,

@@ -6,9 +6,11 @@ namespace DialogueSystem.Utilities
     {
         public readonly static Type[] AvalilableTypes;
         public readonly static Type[] NumberTypes;
+        public readonly static Type[] DialogueTypes;
 
         public readonly static string All;
         public readonly static string Number;
+        public readonly static string Dialogue;
         public readonly static string Int;
         public readonly static string String;
         public readonly static string Float;
@@ -27,7 +29,8 @@ namespace DialogueSystem.Utilities
                 typeof(float),
                 typeof(Single),
                 typeof(double),
-                typeof(bool)
+                typeof(bool),
+                typeof(Dialogue),
             };
             NumberTypes = new Type[]
             {
@@ -39,6 +42,10 @@ namespace DialogueSystem.Utilities
                 typeof(Single),
                 typeof(double),
             };
+            DialogueTypes = new Type[]
+            {
+                typeof(Dialogue),
+            };
 
             All = "All";
             Int = typeof(int).Name;
@@ -47,6 +54,7 @@ namespace DialogueSystem.Utilities
             Double = typeof(double).Name;
             Bool = typeof(bool).Name;
             Number = "Number";
+            Dialogue = "Dialogue";
         }
     }
 }

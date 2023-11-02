@@ -12,11 +12,13 @@ namespace DialogueSystem.Save
         [SerializeField] public List<DSNodeModelSO> NodeModels;
         [SerializeField] public List<DSGroupModelSO> GroupModels;
 
-        public void Init(string fileName, List<DSNodeModel> nodes, List<DSGroupModel> groups)
+        public void Init(string fileName, List<DSNodeModel> nodes, List<DSGroupModel> groups, Action<float, float> callback = null)
         {
             FileName = fileName;
             NodeModels = new List<DSNodeModelSO>();
             GroupModels = new List<DSGroupModelSO>();
+            int counter = 0;
+            int counValues = nodes.Count + groups.Count;
 
             foreach (DSNodeModel node in nodes)
             {
@@ -27,6 +29,8 @@ namespace DialogueSystem.Save
                 this.NodeModels.Add(dSNodeModelSO);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
+                counter++;
+                callback?.Invoke(counter, counValues);
             }
 
             foreach (DSGroupModel group in groups)
@@ -38,6 +42,8 @@ namespace DialogueSystem.Save
                 this.GroupModels.Add(dSGroupModel);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
+                counter++;
+                callback?.Invoke(counter, counValues);
             }
         }
     }

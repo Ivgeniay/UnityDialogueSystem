@@ -16,15 +16,16 @@ namespace DialogueSystem.Nodes
             if (portsContext == null )
             {
                 Model.Text = "Dialogue text";
-                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
+                Model.Inputs.Add(new DSPortModel(DSConstants.DialogueTypes)
                 {
-                    PortText = "Connection",
+                    PortText = DSConstants.Dialogue,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
                     IsSingle = false,
-                    Type = typeof(string),
-                    Value = false,
+                    PlusIf = false,
+                    Type = DSConstants.DialogueTypes[0],
+                    Value = null,
                 });
             }
         }

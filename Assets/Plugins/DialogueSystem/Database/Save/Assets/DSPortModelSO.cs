@@ -13,6 +13,8 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsSingle;
         [SerializeField] public bool IsInput;
         [SerializeField] public bool IsIfPort;
+        [SerializeField] public string IfPortSourceId;
+        [SerializeField] public bool PlusIf;
         [SerializeField] public bool Cross;
         [SerializeField] public bool IsField;
         [SerializeField] public string Type;
@@ -32,12 +34,10 @@ namespace DialogueSystem.Database.Save
             IsField = dSPortModel.IsField;
             Type = dSPortModel.Type.ToString();
             AvailableTypes = dSPortModel.AvailableTypes;
+            IfPortSourceId = dSPortModel.IfPortSourceId;
+            PlusIf = dSPortModel.PlusIf;
 
-            if (dSPortModel.NodeIDs == null)
-            {
-
-            }
-            else
+            if (dSPortModel.NodeIDs != null)
             {
                 foreach (var o in dSPortModel.NodeIDs)
                 {

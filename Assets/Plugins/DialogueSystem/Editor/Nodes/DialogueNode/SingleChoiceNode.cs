@@ -14,18 +14,15 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new System.Type[]
+                Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
                 {
-                    typeof(string)
-                })
-                {
-                    Value = "Next Dialogue",
+                    Value = null,
                     Cross = false,
                     IsField = true,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = string.Empty,
-                    Type = typeof(string),
+                    PortText = DSConstants.Dialogue,
+                    Type = DSConstants.DialogueTypes[0],
                 });
             }
         }

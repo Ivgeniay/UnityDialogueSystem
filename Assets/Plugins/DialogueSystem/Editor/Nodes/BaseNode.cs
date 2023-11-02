@@ -11,6 +11,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using Random = UnityEngine.Random;
+using DialogueSystem.Edges;
 
 namespace DialogueSystem.Nodes
 {
@@ -102,8 +103,8 @@ namespace DialogueSystem.Nodes
         {
             DrawTitleContainer(titleContainer);
             DrawMainContainer(mainContainer);
-            DrawInputContainer(inputContainer);
             DrawOutputContainer(outputContainer);
+            DrawInputContainer(inputContainer);
             DrawExtensionContainer(extensionContainer);
 
             RefreshExpandedState();
@@ -112,7 +113,7 @@ namespace DialogueSystem.Nodes
 
         #region Overrided
         public override Port InstantiatePort(Orientation orientation, Direction direction, Port.Capacity capacity, Type type) =>
-            BasePort.CreateBasePort<Edge>(orientation, direction, capacity, type);
+            BasePort.CreateBasePort<DSEdge>(orientation, direction, capacity, type);
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
             evt.menu.AppendAction("Disconnect Input Ports", e => DisconnectInputPorts());
@@ -149,8 +150,64 @@ namespace DialogueSystem.Nodes
                 }
             }
         }
-        internal protected List<BasePort> GetInputPorts() => inputContainer.Children().Cast<BasePort>().ToList();
-        internal protected List<BasePort> GetOutputPorts() => outputContainer.Children().Cast<BasePort>().ToList();
+        internal protected List<BasePort> GetInputPorts()
+        {
+            //из-за того что if инпут порт находится в Output контейнере приходится делать такую замудренную шляпу
+            var inputs = inputContainer.Children().Cast<BasePort>().ToList();
+            var ifPortModel = Model.Inputs.Where(e => e.IsIfPort).ToList();
+            if (ifPortModel!= null && ifPortModel.Count > 0)
+            {
+                var outputs = GetOutputPorts();
+                if (outputs != null && outputs.Count > 0)
+                {
+                    foreach (var output in outputs)
+                    {
+                        foreach (var ifNode in ifPortModel)
+                        {
+                            if (output.ID == ifNode.PortID)
+                            {
+                                inputs.Add(output);
+                            }
+                        }
+                    }
+                }
+            }
+            return inputs;
+        }
+        internal protected List<BasePort> GetOutputPorts()
+        {
+            List<BasePort> outputPorts = new List<BasePort>();
+
+            foreach (VisualElement child in outputContainer.Children())
+            {
+                if (child is BasePort basePort)
+                    outputPorts.Add(basePort);
+                
+                if (child.childCount > 0)
+                    outputPorts.AddRange(GetAllOutputPortsRecursive(child));
+            }
+
+            return outputPorts;
+            //outputContainer.Children().Cast<BasePort>().ToList();
+        }
+        private List<BasePort> GetAllOutputPortsRecursive(VisualElement element)
+        {
+            List<BasePort> outputPorts = new List<BasePort>();
+
+            foreach (VisualElement child in element.Children())
+            {
+                if (child is BasePort basePort)
+                {
+                    outputPorts.Add(basePort);
+                }
+
+                if (child.childCount > 0)
+                {
+                    outputPorts.AddRange(GetAllOutputPortsRecursive(child));
+                }
+            }
+            return outputPorts;
+        }
         internal virtual string GetLetterFromNumber(int number)
         {
             number = Math.Abs(number);
@@ -213,7 +270,7 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, string ifPortSourceId = null)
         {
             var data = new DSPortModel(availableTypes)
             {
@@ -221,19 +278,32 @@ namespace DialogueSystem.Nodes
                 PortText = portText,
                 Type = type,
                 Value = value,
+                IsIfPort = isIfPort,
                 IsInput = isInput,
                 IsField = isField,
                 IsSingle = isSingle,
                 Cross = cross,
+                PlusIf = plusIf,
+                IfPortSourceId = ifPortSourceId,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
+
 
             if (!DSUtilities.IsAvalilableType(type))
                 return (null, data);
 
+            if (isIfPort)
+            {
+                data.IsInput = true;
+                var ifports = Model.Inputs.Where(e => e.IsIfPort).ToList();
+                var isIt = ifports.Any(e => e.IfPortSourceId == ifPortSourceId);
+                if (isIt)
+                    return (null, null);
+            }
+
             if (data.IsInput) Model.Inputs.Add(data);
             else Model.Outputs.Add(data);
-            
+
             return AddPortByType(data);
         }
         protected virtual (BasePort port, DSPortModel data) AddPortByType(DSPortModel data)
@@ -254,9 +324,9 @@ namespace DialogueSystem.Nodes
 
             if (data.IsField && data.Type != null)
             {
-                switch (Type.GetTypeCode(data.Type))
+                switch (data.Type)
                 {
-                    case TypeCode.Single:
+                    case Type t when t == typeof(float):
                         FloatField floatField = DSUtilities.CreateFloatField(
                         0,
                         onChange: callback =>
@@ -276,7 +346,7 @@ namespace DialogueSystem.Nodes
                         port.Add(floatField);
                         break;
 
-                    case TypeCode.Boolean:
+                    case Type t when t == typeof(bool):
                         Toggle toggle = DSUtilities.CreateToggle(
                             "",
                             "",
@@ -296,7 +366,7 @@ namespace DialogueSystem.Nodes
                         port.Add(toggle);
                         break;
 
-                    case TypeCode.Int32:
+                    case Type t when t == typeof(int):
                         IntegerField integetField = DSUtilities.CreateIntegerField(
                         0,
                         onChange: callback =>
@@ -316,7 +386,7 @@ namespace DialogueSystem.Nodes
                         port.Add(integetField);
                         break;
 
-                    case TypeCode.String:
+                    case Type t when t == typeof(string) ||  t == typeof(Dialogue):
                         TextField Text = DSUtilities.CreateTextField(
                         (string)data.Value,
                         onChange: callback =>
@@ -336,7 +406,7 @@ namespace DialogueSystem.Nodes
                         port.Add(Text);
                         break;
 
-                    case TypeCode.Double:
+                    case Type t when t == typeof(double):
                         FloatField floatField2 = DSUtilities.CreateFloatField(
                         0,
                         onChange: callback =>
@@ -378,13 +448,6 @@ namespace DialogueSystem.Nodes
                     if (port.connected)
                     {
                         var edges = port.connections;
-                        foreach (Edge edge in edges)
-                        {
-                            //var input = edge.input.node as BaseNode;
-                            //var ouptut = edge.output.node as BaseNode;
-                            //input?.OnDestroyConnectionInput(edge.input as BasePort, edge);
-                            //ouptut?.OnDestroyConnectionOutput(edge.output as BasePort, edge);
-                        }
                         graphView.DeleteElements(port.connections);
                     }
                     if (data.IsInput) Model.Inputs.Remove(data);
@@ -398,16 +461,58 @@ namespace DialogueSystem.Nodes
 
                 port.Add(crossBtn);
             }
+            if (data.PlusIf)
+            {
+                Button plusBtn = DSUtilities.CreateButton(
+                "+if",
+                () =>
+                {
+                    var t = AddPortByType(
+                        ID: Guid.NewGuid().ToString(),
+                        portText: $"If({DSConstants.Bool})",
+                        type: typeof(bool),
+                        value: "Choice",
+                        isInput: false,
+                        isSingle: false,
+                        isField: false,
+                        cross: true,
+                        isIfPort: true,
+                        availableTypes: new Type[] { typeof(bool) },
+                        ifPortSourceId: port.ID);
+                },
+                styles: new string[]
+                {
+                    "ds-node__button"
+                });
 
+                port.Add(plusBtn);
+            }
             if (data.IsIfPort)
             {
-                var outputs = outputContainer.Children().ToList();
-                outputs[outputs.Count - 1].Add(port);
+                if (string.IsNullOrEmpty(data.IfPortSourceId))
+                {
+                    var outputs = outputContainer.Children().ToList();
+                    var lastPort = outputs[outputs.Count - 1] as BasePort;
+                    lastPort.Add(port);
+                    data.IfPortSourceId = lastPort.ID;
+                }
+                else
+                {
+                    var outPort = GetOutputPorts().Where(x => x != null && x.ID == data.IfPortSourceId).FirstOrDefault();
+                    if (outPort != null) outPort.Add(port);
+                    
+                }
             }
             else
             {
-                if (data.IsInput) inputContainer.Add(port);
-                else outputContainer.Add(port);
+                if (data.IsInput)
+                {
+                    inputContainer.Add(port);
+                }
+                else
+                {
+                    outputContainer.Add(port);
+                }
             }
 
             return (port, data);

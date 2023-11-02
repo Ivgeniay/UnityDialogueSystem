@@ -1,14 +1,15 @@
 ﻿using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using UnityEngine;
+using DialogueSystem.Edges;
 
 namespace DialogueSystem.Ports
 {
-    public class CustomEdgeConnector<TEdge> : EdgeConnector where TEdge : Edge, new()
+    public class CustomEdgeConnector<TEdge> : EdgeConnector where TEdge : DSEdge, new()
     {
         private readonly EdgeDragHelper m_EdgeDragHelper;
 
-        private Edge m_EdgeCandidate;
+        private DSEdge m_EdgeCandidate;
 
         private bool m_Active;
 

@@ -15,12 +15,14 @@ using UnityEditor;
 using DialogueSystem.Save;
 using System.IO;
 using System.Linq;
+using DialogueSystem.Edges;
 
 namespace DialogueSystem.Window
 {
     public class DSGraphView : GraphView
     {
         public event Action<bool> OnCanSaveGraphEvent;
+        public event Action<float> OnSaveEvent;
         public DSGraphModel Model { get; protected set; }
 
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
@@ -505,7 +507,11 @@ namespace DialogueSystem.Window
 
             foreach (var node in _nodes) nodes.Add(node.Model);
             foreach (var group in _groups) groups.Add(group.Model);
-            newGraphSO.Init(fileName, nodes, groups);
+            newGraphSO.Init(fileName, nodes, groups,
+                callback: (cur, from) =>
+                {
+                    OnSaveEvent?.Invoke((float)cur/(float)from);
+                });
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
@@ -522,6 +528,7 @@ namespace DialogueSystem.Window
 
         internal string Load(string filePath)
         {
+            if (string.IsNullOrEmpty(filePath) || string.IsNullOrWhiteSpace(filePath)) return Model.FileName;
             if (!File.Exists(filePath)) throw new FileNotFoundException();
             filePath = filePath.Substring(filePath.IndexOf("Assets"));
             GraphSO graphSO = AssetDatabase.LoadAssetAtPath<GraphSO>(filePath);
@@ -547,40 +554,46 @@ namespace DialogueSystem.Window
             foreach (var node in _nodes)
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
+
                 foreach (var output in node.Model.Outputs)
                 {
-                    var ports = node.GetOutputPorts();
-                    var port = ports.Where(el => el.ID == output.PortID).FirstOrDefault();
-                    if (port != null)
-                    {
-                        foreach (var portIdModel in output.NodeIDs)
-                        {
-                            var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
-                            if (inputNode != null)
-                            {
-                                foreach (var portId in portIdModel.PortIDs)
-                                {
-                                    var neededInputPort = inputNode.GetInputPorts().Where(e => e.ID == portId).FirstOrDefault();
-                                    if (neededInputPort != null)
-                                    {
-                                        Edge edge = new Edge
-                                        {
-                                            output = port,
-                                            input = neededInputPort
-                                        };
+                    ToMakeConnections(output, node.GetOutputPorts());
+                }
+            }
 
-                                        edge.input.Connect(edge);
-                                        edge.output.Connect(edge);
-                                        AddElement(edge);
-                                    }
-                                }
+            return Model.FileName;
+        }
+
+        private void ToMakeConnections(DSPortModel portModel, List<BasePort> ports)
+        {
+            var port = ports.Where(el => el.ID == portModel.PortID).FirstOrDefault();
+            if (port != null)
+            {
+                foreach (var portIdModel in portModel.NodeIDs)
+                {
+                    var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
+                    if (inputNode != null)
+                    {
+                        foreach (var portId in portIdModel.PortIDs)
+                        {
+                            var inp = inputNode.GetInputPorts();
+                            var neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
+                            if (neededInputPort != null)
+                            {
+                                DSEdge edge = new DSEdge
+                                {
+                                    output = port,
+                                    input = neededInputPort
+                                };
+
+                                edge.input.Connect(edge);
+                                edge.output.Connect(edge);
+                                AddElement(edge);
                             }
                         }
                     }
                 }
             }
-
-            return Model.FileName;
         }
         #endregion
     }

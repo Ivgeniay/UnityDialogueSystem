@@ -24,8 +24,12 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsInput;
         //Является ли порт присоединяемым к другому порту (IfPort)
         [SerializeField] public bool IsIfPort;
+        //Output id для к которому ifPort присоединен
+        [SerializeField] public string IfPortSourceId;
         //Нужен ли этому порту кнопка удаления
         [SerializeField] public bool Cross;
+        //Нужен для кнопки добавления if поля
+        [SerializeField] public bool PlusIf;
         //Нужно ли поле для этого порта
         [SerializeField] public bool IsField;
         //Тип порта

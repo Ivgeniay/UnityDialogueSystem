@@ -59,6 +59,19 @@ namespace DialogueSystem.Utilities
             integerField.AddToClassList(styles);
             return integerField;
         }
+        public static ProgressBar CreateProgressBar (float value = 0, float lowValue = 0, float maxValue = 1, string title = "", EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
+        {
+            ProgressBar progressBar = new ProgressBar()
+            {
+                lowValue = lowValue,
+                highValue = maxValue,
+                value = value,
+                title = title,
+            };
+            if (onChange is not null) progressBar.RegisterValueChangedCallback(onChange);
+            progressBar.AddToClassList(styles);
+            return progressBar;
+        }
         public static TextField CreateTextField (string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = new()

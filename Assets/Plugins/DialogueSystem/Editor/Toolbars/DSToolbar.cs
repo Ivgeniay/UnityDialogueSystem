@@ -1,6 +1,7 @@
 ﻿using DialogueSystem.Text;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,6 +11,7 @@ namespace DialogueSystem.Toolbars
     internal class DSToolbar : BaseToolbar
     {
         private const string TOOLBAR_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemToolbarStyles.uss";
+        private ProgressBar progressBar;
         private TextField textField;
         private Button saveButton;
         private Button loadButton;
@@ -20,7 +22,9 @@ namespace DialogueSystem.Toolbars
         {
             this.graphView = graphView;
             graphView.OnCanSaveGraphEvent += OnCanSaveGraphHandler;
+            graphView.OnSaveEvent += OnSaveHandler;
         }
+
 
         private void OnCanSaveGraphHandler(bool obj)
         {
@@ -32,6 +36,27 @@ namespace DialogueSystem.Toolbars
         {
             this.LoadAndAddStyleSheets(TOOLBAR_STYLE_LINK);
             this.AddToClassList("ds-toolbar");
+
+            progressBar = DSUtilities.CreateProgressBar(0, 0, 1, "SAVING", callBack =>
+            {
+                ProgressBar progressBar = callBack.target as ProgressBar;
+                progressBar.value = callBack.newValue;
+
+                if (callBack.newValue >= 1f)
+                {
+                    Debug.Log("Dialogue Graph asset was saved");
+                    //progressBar.style.visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    progressBar.style.visibility = Visibility.Visible;
+                }
+                MarkDirtyRepaint();
+            }, styles: new string[]
+            {
+                "ds-progressBar"
+            });
+            progressBar.style.visibility = Visibility.Hidden;
 
             textField = DSUtilities.CreateTextField(fileName, label, callback =>
             {
@@ -58,6 +83,7 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-toolbar__button"
             });
+            this.Add(progressBar);
             this.Add(textField);
             this.Add(saveButton);
             this.Add(loadButton);
@@ -67,14 +93,8 @@ namespace DialogueSystem.Toolbars
 
         private void Save()
         {
-            if (graphView.IsCanSave)
-            {
-                graphView.Save(textField.value);
-            }
-            else
-            {
-                Debug.Log("Dont save");
-            }
+            if (graphView.IsCanSave) graphView.Save(textField.value);
+            else Debug.Log("Dont save");
         }
 
         private void Load()
@@ -91,6 +111,11 @@ namespace DialogueSystem.Toolbars
         private void GenerateAsset()
         {
             Debug.Log("Asset was generated");
+        }
+
+        private void OnSaveHandler(float obj)
+        {
+            progressBar.value = obj;
         }
     }
 }

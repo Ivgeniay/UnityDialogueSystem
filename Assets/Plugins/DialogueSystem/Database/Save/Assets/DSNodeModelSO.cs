@@ -69,6 +69,7 @@ namespace DialogueSystem.Database.Save
                 Minimal = this.Minimal,
                 NodeName = this.NodeName,
                 Text = this.Text,
+                
             };
 
             DecompForDsPortModelList(Model.Outputs, this.Outputs);
@@ -88,12 +89,13 @@ namespace DialogueSystem.Database.Save
                     Cross = outputsSO.Cross,
                     IsField = outputsSO.IsField,
                     IsIfPort = outputsSO.IsIfPort,
+                    IfPortSourceId = outputsSO.IfPortSourceId,
                     IsInput = outputsSO.IsInput,
                     IsSingle = outputsSO.IsSingle,
                     PortText = outputsSO.PortText,
                     Type = Type.GetType(outputsSO.Type),
                     Value = outputsSO.Value,
-                    NodeIDs = new()
+                    NodeIDs = new(),
                 };
 
                 foreach (NodePortModelSO nodeIds in outputsSO.NodeIDs)

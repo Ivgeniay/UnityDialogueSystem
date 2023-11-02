@@ -16,18 +16,16 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new Type[]
-                {
-                    typeof(string)
-                })
+                Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
                 {
                     Value = "Next Choice",
                     Cross = false,
                     IsField = true,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = string.Empty,
-                    Type = typeof(string),
+                    PlusIf = true,
+                    PortText = DSConstants.Dialogue,
+                    Type = DSConstants.DialogueTypes[0],
                 });
             }
         }
@@ -41,24 +39,46 @@ namespace DialogueSystem.Nodes
                 {
                     var t = AddPortByType(
                         ID: Guid.NewGuid().ToString(),
-                        portText: "",
-                        type: typeof(string),
-                        value: "Next Choice",
+                        portText: DSConstants.Dialogue,
+                        type: DSConstants.DialogueTypes[0],
+                        value: "Choice",
                         isInput: false,
                         isSingle: false,
                         isField: true,
                         cross: true,
-                        availableTypes: new Type[]
-                        {
-                            typeof(string),
-                        });
+                        plusIf: true,
+                        availableTypes: DSConstants.DialogueTypes);
                 },
                 styles: new string[]
                 {
                     "ds-node__button"
                 }
             );
+
+            //Button addChoiceIfBtn = DSUtilities.CreateButton(
+            //    "Add if Choice",
+            //    () =>
+            //    {
+            //        var t = AddPortByType(
+            //            ID: Guid.NewGuid().ToString(),
+            //            portText: $"If({DSConstants.Bool})",
+            //            type: typeof(bool),
+            //            value: "Choice",
+            //            isInput: false,
+            //            isSingle: false,
+            //            isField: false,
+            //            cross: true,
+            //            isIfPort: true,
+            //            availableTypes: new Type[] { typeof(bool) });
+            //    },
+            //    styles: new string[]
+            //    {
+            //        "ds-node__button"
+            //    }
+            //);
+
             container.Insert(1, addChoiceBtn);
+            //container.Insert(2, addChoiceIfBtn);
         }
         
     }
