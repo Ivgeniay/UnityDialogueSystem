@@ -36,14 +36,10 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public Type Type;
         //Список типов для присоединения порта
         [SerializeField] public string[] AvailableTypes;
-        public DSPortModel(Type[] availableTypes, Type type = null, string portText = null, object value = null) 
+        public DSPortModel(Type[] availableTypes)
         {
             PortID = Guid.NewGuid().ToString();
-
-            this.Value = value;
             this.AvailableTypes = availableTypes.Select(el => el.ToString()).ToArray();
-            this.Type = type;
-            this.PortText = portText;
         }
 
         public void AddPort(BaseNode node, BasePort port)
@@ -61,8 +57,11 @@ namespace DialogueSystem.Database.Save
             }
             else
             {
-                var findPort = findNodeModel.PortIDs.Where(el => el == port.ID);
-                if (findPort == null) { findNodeModel.PortIDs.Add(port.ID); }
+                var findPort = findNodeModel.PortIDs.Where(el => el == port.ID).FirstOrDefault();
+                if (findPort == null) 
+                { 
+                    findNodeModel.PortIDs.Add(port.ID); 
+                }
             }
         }
 

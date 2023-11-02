@@ -16,6 +16,7 @@ using DialogueSystem.Save;
 using System.IO;
 using System.Linq;
 using DialogueSystem.Edges;
+using DialogueSystem.MiniMaps;
 
 namespace DialogueSystem.Window
 {
@@ -24,6 +25,7 @@ namespace DialogueSystem.Window
         public event Action<bool> OnCanSaveGraphEvent;
         public event Action<float> OnSaveEvent;
         public DSGraphModel Model { get; protected set; }
+        internal DSMiniMap MiniMap;
 
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
@@ -65,6 +67,7 @@ namespace DialogueSystem.Window
 
             AddManipulators();
             AddSearchWindow();
+            AddMinimap();
             AddGridBackground();
 
             OnElementDeleted();
@@ -331,6 +334,15 @@ namespace DialogueSystem.Window
         #endregion
         #region Entities Manipulations
 
+        private void AddMinimap()
+        {
+            MiniMap = new DSMiniMap()
+            {
+                anchored = true,
+            };
+            MiniMap.SetPosition(new Rect(10f, 40f, 200, 100));
+            Add(MiniMap);
+        }
         public void AddUngroupedNode(BaseNode node)
         {
             string nodeName = node.Model.NodeName.ToLower();
@@ -569,26 +581,33 @@ namespace DialogueSystem.Window
             var port = ports.Where(el => el.ID == portModel.PortID).FirstOrDefault();
             if (port != null)
             {
-                foreach (var portIdModel in portModel.NodeIDs)
+                if (portModel.NodeIDs == null)
                 {
-                    var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
-                    if (inputNode != null)
-                    {
-                        foreach (var portId in portIdModel.PortIDs)
-                        {
-                            var inp = inputNode.GetInputPorts();
-                            var neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
-                            if (neededInputPort != null)
-                            {
-                                DSEdge edge = new DSEdge
-                                {
-                                    output = port,
-                                    input = neededInputPort
-                                };
 
-                                edge.input.Connect(edge);
-                                edge.output.Connect(edge);
-                                AddElement(edge);
+                }
+                else
+                {
+                    foreach (var portIdModel in portModel.NodeIDs)
+                    {
+                        var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
+                        if (inputNode != null)
+                        {
+                            foreach (var portId in portIdModel.PortIDs)
+                            {
+                                var inp = inputNode.GetInputPorts();
+                                var neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
+                                if (neededInputPort != null)
+                                {
+                                    DSEdge edge = new DSEdge
+                                    {
+                                        output = port,
+                                        input = neededInputPort
+                                    };
+
+                                    edge.input.Connect(edge);
+                                    edge.output.Connect(edge);
+                                    AddElement(edge);
+                                }
                             }
                         }
                     }

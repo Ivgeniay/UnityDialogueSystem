@@ -20,17 +20,21 @@ namespace DialogueSystem.Nodes
                 Model.Inputs.Clear();
             }
 
-            Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
+            if (portsContext == null)
             {
-                Value = "Hello",
-                Cross = false,
-                IsField = true,
-                IsInput = false,
-                IsSingle = false,
-                PlusIf = false,
-                PortText = DSConstants.Dialogue,
-                Type = DSConstants.DialogueTypes[0],
-            });
+                Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
+                {
+                    Value = "Hello",
+                    Cross = false,
+                    IsField = true,
+                    IsInput = false,
+                    IsSingle = false,
+                    PlusIf = false,
+                    PortText = DSConstants.Dialogue,
+                    Type = DSConstants.DialogueTypes[0],
+                });
+            }
+
         }
     }
 }

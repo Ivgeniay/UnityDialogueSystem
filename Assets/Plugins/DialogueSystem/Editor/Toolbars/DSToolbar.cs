@@ -3,6 +3,7 @@ using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,6 +18,7 @@ namespace DialogueSystem.Toolbars
         private Button loadButton;
         private Button cleanButton;
         private Button generateAssetButton;
+        private Button minimapButton;
         private DSGraphView graphView;
         public DSToolbar(DSGraphView graphView) 
         {
@@ -42,21 +44,21 @@ namespace DialogueSystem.Toolbars
                 ProgressBar progressBar = callBack.target as ProgressBar;
                 progressBar.value = callBack.newValue;
 
-                if (callBack.newValue >= 1f)
+                if (callBack.newValue == 1f)
                 {
                     Debug.Log("Dialogue Graph asset was saved");
-                    //progressBar.style.visibility = Visibility.Hidden;
+                    progressBar.style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    progressBar.style.visibility = Visibility.Visible;
+                    progressBar.style.display = DisplayStyle.Flex;
                 }
                 MarkDirtyRepaint();
             }, styles: new string[]
             {
                 "ds-progressBar"
             });
-            progressBar.style.visibility = Visibility.Hidden;
+            progressBar.style.display = DisplayStyle.None;
 
             textField = DSUtilities.CreateTextField(fileName, label, callback =>
             {
@@ -83,13 +85,23 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-toolbar__button"
             });
+            minimapButton = DSUtilities.CreateButton("Minimap", MinimapToggle, new string[]
+            {
+                "ds-toolbar__button"
+            });
+
             this.Add(progressBar);
             this.Add(textField);
             this.Add(saveButton);
             this.Add(loadButton);
             this.Add(cleanButton);
+            this.Add(minimapButton);
             this.Add(generateAssetButton);
         }
+
+        private void MinimapToggle() =>
+            graphView.MiniMap.visible = !graphView.MiniMap.visible;
+        
 
         private void Save()
         {
