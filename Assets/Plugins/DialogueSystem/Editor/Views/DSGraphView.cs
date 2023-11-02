@@ -500,11 +500,14 @@ namespace DialogueSystem.Window
             GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
             AssetDatabase.CreateAsset(newGraphSO, path);
 
-            newGraphSO.Init(fileName);
+            List<DSNodeModel> nodes = new List<DSNodeModel>();
+            List<DSGroupModel> groups = new List<DSGroupModel>();
 
-            foreach (var node in _nodes) newGraphSO.NodeModels.Add(node.Model);
-            foreach (var group in _groups) newGraphSO.GroupModels.Add(group.Model);
+            foreach (var node in _nodes) nodes.Add(node.Model);
+            foreach (var group in _groups) groups.Add(group.Model);
+            newGraphSO.Init(fileName, nodes, groups);
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         internal void CleanGraph()
@@ -529,21 +532,22 @@ namespace DialogueSystem.Window
             Model.FileName = graphSO.FileName;
             foreach (var groupModel in graphSO.GroupModels)
             {
-                var group = CreateGroup(groupModel.Type, groupModel.Position, groupModel.GroupName);
+                var group = CreateGroup(Type.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
             }
             
             foreach (var nodeModel in graphSO.NodeModels)
             {
-                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.position, new List<object> 
+                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> 
                 {
                     nodeModel
                 });
                 AddElement(node);
             }
+
             foreach (var node in _nodes)
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
-                foreach(var output in node.Model.Outputs)
+                foreach (var output in node.Model.Outputs)
                 {
                     var ports = node.GetOutputPorts();
                     var port = ports.Where(el => el.ID == output.PortID).FirstOrDefault();
@@ -574,18 +578,8 @@ namespace DialogueSystem.Window
                         }
                     }
                 }
-                //Edge edge = new Edge
-                //{
-                //    output = sourcePort,
-                //    input = targetPort
-                //};
-
-                //edge.input.Connect(edge);
-                //edge.output.Connect(edge);
-
-                //AddElement(edge);
             }
-            
+
             return Model.FileName;
         }
         #endregion

@@ -1,20 +1,44 @@
 ﻿using DialogueSystem.Database.Save;
+using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace DialogueSystem.Save
 {
     public class GraphSO : ScriptableObject
     {
-        [field: SerializeField] public string FileName {  get; set; }
-        [field: SerializeField] public List<DSNodeModel> NodeModels { get; set; }
-        [field: SerializeField] public List<DSGroupModel> GroupModels { get; set; }
+        [SerializeField] public string FileName;
+        [SerializeField] public List<DSNodeModelSO> NodeModels;
+        [SerializeField] public List<DSGroupModelSO> GroupModels;
 
-        public void Init(string fileName)
+        public void Init(string fileName, List<DSNodeModel> nodes, List<DSGroupModel> groups)
         {
             FileName = fileName;
-            NodeModels = new List<DSNodeModel>();
-            GroupModels = new List<DSGroupModel>();
+            NodeModels = new List<DSNodeModelSO>();
+            GroupModels = new List<DSGroupModelSO>();
+
+            foreach (DSNodeModel node in nodes)
+            {
+                DSNodeModelSO dSNodeModelSO = ScriptableObject.CreateInstance<DSNodeModelSO>();
+                dSNodeModelSO.name = $"{Type.GetType(node.DialogueType).Name}({node.NodeName}";
+                AssetDatabase.AddObjectToAsset(dSNodeModelSO, AssetDatabase.GetAssetPath(this));
+                dSNodeModelSO.Init(node);
+                this.NodeModels.Add(dSNodeModelSO);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+            foreach (DSGroupModel group in groups)
+            {
+                DSGroupModelSO dSGroupModel = ScriptableObject.CreateInstance<DSGroupModelSO>();
+                dSGroupModel.name = $"{Type.GetType(group.Type).Name}({group.GroupName}";
+                AssetDatabase.AddObjectToAsset(dSGroupModel, this);
+                dSGroupModel.Init(group);
+                this.GroupModels.Add(dSGroupModel);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
         }
     }
 }

@@ -33,12 +33,13 @@ namespace DialogueSystem.Nodes
                     Minimal = 1,
                     NodeName = this.GetType().Name + " " + Random.Range(0, 100).ToString(),
                     DialogueType = this.GetType().ToString(),
-                    position = position,
+                    Position = position,
                 };
             }
             else
             {
-                Model = context[0] as DSNodeModel;
+                var modelSo = context[0] as DSNodeModelSO;
+                Model = modelSo.Deconstruct();
             }
 
             defaultbackgroundColor = new Color(29f / 255f, 29f / 255f, 30f / 255f);
@@ -190,7 +191,7 @@ namespace DialogueSystem.Nodes
 
         public virtual void OnChangePosition(Vector2 position, Vector2 delta)
         {
-            Model.position = position;
+            Model.Position = position;
         }
         public virtual void OnCreate() => Draw();
         public virtual void OnDestroy()

@@ -1,14 +1,9 @@
 ﻿using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DialogueSystem.Database.Save;
-using System.Threading.Tasks;
-using UnityEngine;
-using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {

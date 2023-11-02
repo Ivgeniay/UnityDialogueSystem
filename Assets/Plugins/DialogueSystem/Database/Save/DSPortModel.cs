@@ -11,27 +11,27 @@ namespace DialogueSystem.Database.Save
     public class DSPortModel
     {
         //Собственный ID для сериализации из памяти и соединения с другим портом
-        [field: SerializeField] public string PortID { get; set; }
+        [SerializeField] public string PortID;
         //ID ноды к которой присоединен
-        [field: SerializeField] public List<NodePortModel> NodeIDs { get; set; }
+        [SerializeField] public List<NodePortModel> NodeIDs;
         //Значение по-умолчанию или в процессе работы внутри порта
-        [field: SerializeField] public object Value { get; set; }
+        [SerializeField] public object Value;
         //Порт текст
-        [field: SerializeField] public string PortText { get; set; }
+        [SerializeField] public string PortText;
         //Количество присоединяемых соединение (Одиночное, множественное)
-        [field: SerializeField] public bool IsSingle { get; set; }
+        [SerializeField] public bool IsSingle;
         //Является ли порт инпутом. (input/output)
-        [field: SerializeField] public bool IsInput { get; set; }
+        [SerializeField] public bool IsInput;
         //Является ли порт присоединяемым к другому порту (IfPort)
-        [field: SerializeField] public bool IsIfPort { get; set; }
+        [SerializeField] public bool IsIfPort;
         //Нужен ли этому порту кнопка удаления
-        [field: SerializeField] public bool Cross { get; set; }
+        [SerializeField] public bool Cross;
         //Нужно ли поле для этого порта
-        [field: SerializeField] public bool IsField { get; set; }
+        [SerializeField] public bool IsField;
         //Тип порта
-        [field: SerializeField] public Type Type { get; set; }
+        [SerializeField] public Type Type;
         //Список типов для присоединения порта
-        [field: SerializeField] public string[] AvailableTypes { get; set; }
+        [SerializeField] public string[] AvailableTypes;
         public DSPortModel(Type[] availableTypes, Type type = null, string portText = null, object value = null) 
         {
             PortID = Guid.NewGuid().ToString();

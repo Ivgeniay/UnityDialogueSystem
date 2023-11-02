@@ -7,17 +7,17 @@ namespace DialogueSystem.Database.Save
     [Serializable]
     public class DSNodeModel
     {
-        [field: SerializeField] public string ID { get; set; }
-        [field: SerializeField] public string NodeName { get; set; }
-        [field: SerializeField] public int Minimal { get; set; }
-        [field: SerializeField] public List<DSPortModel> Outputs { get; set; }
-        [field: SerializeField] public List<DSPortModel> Inputs { get; set; }
-        [field: SerializeField] public string GroupID { get; set; }
-        [field: SerializeField] public string Text { get; set; }
-        [field: SerializeField] public string DialogueType { get; set; }
-        [field: SerializeField] public Vector2 position { get; set; }
+        [SerializeField] public string ID;
+        [SerializeField] public string NodeName;
+        [SerializeField] public int Minimal;
+        [SerializeField] public List<DSPortModel> Outputs =new();
+        [SerializeField] public List<DSPortModel> Inputs =new();
+        [SerializeField] public string GroupID;
+        [SerializeField] public string Text;
+        [SerializeField] public string DialogueType;
+        [SerializeField] public Vector2 Position;
 
-        public DSNodeModel() 
+        public void Init()
         {
             Outputs = new List<DSPortModel>();
             Inputs = new List<DSPortModel>();

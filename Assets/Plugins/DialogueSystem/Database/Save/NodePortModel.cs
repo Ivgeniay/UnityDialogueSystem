@@ -7,7 +7,7 @@ namespace DialogueSystem.Database.Save
     [Serializable]
     public class NodePortModel
     {
-        [field: SerializeField] public string NodeID { get; set; }
-        [field: SerializeField] public List<string> PortIDs { get; set; }
+        [SerializeField] public string NodeID;
+        [SerializeField] public List<string> PortIDs;
     }
 }

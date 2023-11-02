@@ -48,7 +48,7 @@ namespace DialogueSystem.Nodes
                         isSingle: false,
                         isField: true,
                         cross: true,
-                        availableTypes: new System.Type[]
+                        availableTypes: new Type[]
                         {
                             typeof(string),
                         });
