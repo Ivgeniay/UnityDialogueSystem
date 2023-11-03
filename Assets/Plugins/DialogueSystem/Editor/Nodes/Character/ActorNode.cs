@@ -9,7 +9,7 @@ namespace DialogueSystem
 {
     public class ActorNode : BaseNode
     {
-        public Type ActorType { get; private set; }
+        public Type ActorType { get => Type.GetType(Model.Text); }
 
         private Dictionary<string, Type> publicFields = new(); 
         private Dictionary<string, Type> publicProperties = new();
@@ -20,7 +20,7 @@ namespace DialogueSystem
 
         public void Generate(Type type)
         {
-            ActorType = type;
+            Model.Text = type.ToString();
             publicFields = GetPublicFields(type);
             publicProperties = GetPublicProperties(type);
 

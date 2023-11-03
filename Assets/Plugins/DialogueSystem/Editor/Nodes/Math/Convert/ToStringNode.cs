@@ -49,11 +49,22 @@ namespace DialogueSystem.Nodes
         {
             base.Do(values);
 
+            BasePort output = GetOutputPorts()[0];
+
+            if (values == null || values.Count == 0)
+            {
+                ChangePort(output, typeof(string));
+                output.Value = "";
+                return;
+            }
+
+            List<BasePort> inputs = GetInputPorts();
+
             if (values.Count > 0)
             {
                 string result = values[0].ToString();
+                ChangePort(inputs[0], values[0].GetType());
 
-                BasePort output = GetOutputPorts()[0];
                 output.Value = result;
                 Debug.Log($"Преобразованное значения: из {values[0]} {values[0].GetType().Name} в {result} {result.GetType().Name}");
             }

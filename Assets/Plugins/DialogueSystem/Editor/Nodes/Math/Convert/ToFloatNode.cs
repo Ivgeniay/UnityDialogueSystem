@@ -22,7 +22,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = true,
-                    IsSingle = false,
+                    IsSingle = true,
                     Type = typeof(bool),
                 });
 
@@ -43,20 +43,46 @@ namespace DialogueSystem.Nodes
         {
             base.Do(values);
 
+            BasePort output = GetOutputPorts()[0];
+
+            if (values == null || values.Count == 0)
+            {
+                ChangePort(output, typeof(float));
+                output.Value = 0f;
+                return;
+            }
+
+            List<BasePort> inputs = GetInputPorts();
+
             if (values.Count > 0)
             {
                 float result = default;
-                if (values[0] is null) result = 0f;
+                if (values[0] is null)
+                {
+                    result = 0f;
+                }
                 else if (values[0] is double)
+                {
                     result = SafeConvertDoubleToFloat((double)values[0]);
+                }
                 else if (values[0] is int)
+                {
                     result = ConvertIntToFloat((int)values[0]);
+                }
                 else if (values[0] is string)
+                {
                     result = SafeParseToFloat((string)values[0]);
+                }
                 else if (values[0] is bool)
+                {
                     result = ConvertBoolToFloat((bool)values[0]);
+                }
                 
-                BasePort output = GetOutputPorts()[0];
+                if (values[0] is not null)
+                {
+                    ChangePort(inputs[0], values[0].GetType());
+                }
+
                 output.Value = result;
                 Debug.Log($"Преобразованное значения: из {values[0]} {values[0].GetType().Name} в {result} {result.GetType().Name}");
             }

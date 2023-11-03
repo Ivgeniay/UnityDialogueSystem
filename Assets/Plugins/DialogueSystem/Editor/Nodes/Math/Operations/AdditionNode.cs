@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using System;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Nodes
 {
@@ -9,31 +10,38 @@ namespace DialogueSystem.Nodes
     {
         public override void Do(List<object> values)
         {
-            if (values.Count > 0)
+            BasePort output = GetOutputPorts()[0];
+            if (values == null || values.Count == 0)
             {
-                bool containsString = values.Any(value => value is string);
+                ChangePort(output, typeof(double));
+                output.Value = 0d;
+                return;
+            }
 
-                if (containsString)
-                {
-                    ChangeOutputPortType(typeof(string));
-                    string concatenatedValue = string.Join("", values);
-                    var output = GetOutputPorts()[0];
-                    output.Value = concatenatedValue;
-                    Debug.Log("Результат конкатенации: " + concatenatedValue);
-                }
-                else
-                {
-                    ChangeOutputPortType(typeof(double));
-                    double sum = values.Sum(value => Convert.ToDouble(value));
-                    var output = GetOutputPorts()[0];
-                    output.Value = sum;
-                    Debug.Log("Сумма значений: " + sum);
-                }
+            List<BasePort> inputs = GetInputPorts();
+
+            bool containsString = values.Any(value => value is string);
+            if (containsString)
+            {
+                ChangeOutputPortType(typeof(string));
+                string concatenatedValue = string.Join("", values);
+                output.Value = concatenatedValue;
+                Debug.Log("Результат конкатенации: " + concatenatedValue);
             }
             else
             {
-                Debug.Log("Нет значений для обработки.");
+                ChangeOutputPortType(typeof(double));
+                double sum = values.Sum(value => Convert.ToDouble(value));
+                output.Value = sum;
+                Debug.Log("Сумма значений: " + sum);
             }
+
+            for (int i = 0; i < values.Count; i++ )
+            {
+                if (values[i] != null)
+                    ChangePort(inputs[i], values[i].GetType());
+            }
+
         }
     }
 }

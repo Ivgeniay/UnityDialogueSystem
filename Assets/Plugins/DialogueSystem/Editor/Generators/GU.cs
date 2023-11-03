@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace DialogueSystem.Generators
 {
-    internal static class GeneratorUtility
+    internal static class GU
     {
         internal const string BRACKET_CLOSE = "}\n";
         internal const string BRACKET_OPEN = "{\n";
@@ -13,12 +14,41 @@ namespace DialogueSystem.Generators
         internal const string SPACE = " ";
         internal const string TR = "\n";
 
-        private static readonly Dictionary<StringNode, string> letterVariables = new(); 
-        private static readonly Dictionary<ActorNode, string> actorVariables = new(); 
-        private static readonly Dictionary<IntegerNode, string> intVariables = new();
-        private static readonly Dictionary<FloatNode, string> floaVariables = new();
+        private static ClassD classD;
+        private static Namesp namesp;
+        private static Vars vars;
+        static GU()
+        {
+            classD = new();
+            namesp = new();
+            vars = new();
+        }
 
-        internal static string GetUsings(params object[][] types)
+        #region Usings
+        internal static string GetUsings(params object[][] types) => namesp.GetUsings(types);
+        #endregion
+
+        #region Variables
+        internal static string GetStringVariable(StringNode node) => vars.GetStringVariable(node);
+        internal static string GetIntVariable(IntegerNode node) => vars.GetIntVariable(node);
+        internal static string GetFloatVariable(FloatNode node) => vars.GetFloatVariable(node);
+        internal static string GetActorVariable(ActorNode node) => vars.GetActorVariable(node);
+        #endregion
+
+        #region Propertyes
+        internal static string GeneratePropery(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None) => vars.GeneratePropery(node, visibility, attribute);
+        #endregion
+
+        internal static string GetClassLine(string className) => classD.GetClassLine(className);
+    }
+
+    public class ClassD
+    {
+        internal string GetClassLine(string className) => $"public class {className}\n";
+    }
+    public class Namesp
+    {
+        internal string GetUsings(params object[][] types)
         {
             StringBuilder sb = new StringBuilder();
             List<string> strings = new List<string>();
@@ -33,26 +63,31 @@ namespace DialogueSystem.Generators
             foreach (var t in strings) sb.Append(t);
             return sb.ToString();
         }
-
-
-        internal static string GetNamespaces(object[] objects)
+        internal string GetNamespaces(object[] objects)
         {
             StringBuilder sb = new StringBuilder();
             List<string> strings = new List<string>();
 
             foreach (object t in objects)
             {
-                if (!strings.Contains($"using {t.GetType().Namespace};\n")) 
+                if (!strings.Contains($"using {t.GetType().Namespace};\n"))
                     strings.Add($"using {t.GetType().Namespace};\n");
             }
-            
+
             foreach (string s in strings)
                 sb.Append(s);
-            
+
             return sb.ToString();
         }
+    }
+    public class Vars
+    {
+        private readonly Dictionary<StringNode, string> letterVariables = new();
+        private readonly Dictionary<ActorNode, string> actorVariables = new();
+        private readonly Dictionary<IntegerNode, string> intVariables = new();
+        private readonly Dictionary<FloatNode, string> floaVariables = new();
 
-        internal static string GetStringVariable(StringNode node)
+        internal string GetStringVariable(StringNode node)
         {
             if (node != null)
             {
@@ -69,7 +104,7 @@ namespace DialogueSystem.Generators
             }
             throw new NullReferenceException();
         }
-        internal static string GetIntVariable(IntegerNode node) 
+        internal string GetIntVariable(IntegerNode node)
         {
             if (node != null)
             {
@@ -86,7 +121,7 @@ namespace DialogueSystem.Generators
             }
             throw new NullReferenceException();
         }
-        internal static string GetFloatVariable(FloatNode node)
+        internal string GetFloatVariable(FloatNode node)
         {
             if (node != null)
             {
@@ -103,7 +138,7 @@ namespace DialogueSystem.Generators
             }
             throw new NullReferenceException();
         }
-        internal static string GetActorVariable(ActorNode node)
+        internal string GetActorVariable(ActorNode node)
         {
             if (node != null)
             {
@@ -121,39 +156,40 @@ namespace DialogueSystem.Generators
             throw new NullReferenceException();
         }
 
-        internal static string GeneratePropery(BaseNode node, Visibility visibility = Visibility.Public)
+        internal string GeneratePropery(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
         {
-            string variable = GetVisibility(visibility);
+            string variable = GetAttribute(attribute) + GetVisibility(visibility);
+
             switch (node)
             {
                 case IntegerNode i:
-                    variable += SPACE + GetVarType(TypeVariable.Int) + SPACE;
-                    variable += GetIntVariable(i) + SPACE + GetAutoProperty();
-                    variable += SPACE + "=" + $" {i.GetValue()}" + QUOTES;
+                    variable += GU.SPACE + GetVarType(TypeVariable.Int) + GU.SPACE;
+                    variable += GetIntVariable(i) + GU.SPACE + GetAutoProperty();
+                    variable += GU.SPACE + "=" + $" {i.GetValue()}" + GU.QUOTES;
                     break;
                 case FloatNode f:
-                    variable += SPACE + GetVarType(TypeVariable.Float) + SPACE;
-                    variable += GetFloatVariable(f) + SPACE + GetAutoProperty();
-                    variable += SPACE + "=" + $" {f.GetValue()}" + "f" + QUOTES;
+                    variable += GU.SPACE + GetVarType(TypeVariable.Float) + GU.SPACE;
+                    variable += GetFloatVariable(f) + GU.SPACE + GetAutoProperty();
+                    variable += GU.SPACE + "=" + $" {f.GetValue()}" + "f" + GU.QUOTES;
                     break;
                 case StringNode s:
-                    variable += SPACE + GetVarType(TypeVariable.String) + SPACE;
+                    variable += GU.SPACE + GetVarType(TypeVariable.String) + GU.SPACE;
                     variable += GetStringVariable(s) + " " + GetAutoProperty();
-                    variable += SPACE + "=" + $" \"{s.GetValue()}\"" + QUOTES;
+                    variable += GU.SPACE + "=" + $" \"{s.GetValue()}\"" + GU.QUOTES;
                     break;
                 case ActorNode a:
-                    variable += SPACE + a.ActorType.Name + SPACE;
+                    variable += GU.SPACE + a.ActorType.Name + GU.SPACE;
                     variable += GetActorVariable(a) + " " + GetAutoProperty();
                     break;
 
-                default: 
+                default:
                     throw new NotImplementedException();
             }
             return variable + "\n";
         }
 
-        internal static string GetClassLine(string className) => $"public class {className}\n";
-        internal static string GetVisibility(Visibility visibility)
+        internal string GetClassLine(string className) => $"public class {className}\n";
+        internal string GetVisibility(Visibility visibility)
         {
             switch (visibility)
             {
@@ -166,13 +202,13 @@ namespace DialogueSystem.Generators
             }
             throw new NotImplementedException();
         }
-        internal static string GetInternal() => "internal";
-        internal static string GetPrivate() => "private";
-        internal static string GetVarType(TypeVariable typeVariable)
+        internal string GetInternal() => "internal";
+        internal string GetPrivate() => "private";
+        internal string GetVarType(TypeVariable typeVariable)
         {
             switch (typeVariable)
             {
-                case TypeVariable.Int:return "int";
+                case TypeVariable.Int: return "int";
                 case TypeVariable.Float: return "float";
                 case TypeVariable.String: return "string";
                 case TypeVariable.Bool: return "bool";
@@ -180,22 +216,41 @@ namespace DialogueSystem.Generators
             }
             throw new NotImplementedException();
         }
-        internal static string GetAutoProperty() => "{ get; set; }";
+        internal string GetAutoProperty() => "{ get; set; }";
+        internal string GetAttribute(Attribute attribute)
+        {
+            switch (attribute)
+            {
+                case Attribute.None:
+                    return string.Empty;
+                case Attribute.SerializeField:
+                    return "[SerializeField]";
+                case Attribute.FieldSerializeField:
+                    return "[field: SerializeField]";
+            }
+            throw new NotImplementedException();
+        }
     }
 
-    public enum Visibility
+
+    internal enum Visibility
     {
         Public,
         Internal,
         Private
     }
-
-    public enum TypeVariable
+    internal enum TypeVariable
     {
         Int,
         Float,
         String,
         Bool,
         Decimal,
+    }
+    internal enum Attribute
+    {
+        None,
+        SerializeField,
+        FieldSerializeField,
     }
 }

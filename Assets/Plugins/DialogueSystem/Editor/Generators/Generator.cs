@@ -33,16 +33,16 @@ namespace DialogueSystem.Generators
             var usings = GetUsings(actorN, numbersN, convertesN, operationN, logicN, letterN, dialogN);
             var className = "MyClass";
 
-            string classText = GeneratorUtility.GetClassLine(className);
+            string classText = GU.GetClassLine(className);
 
 
-            string script = usings + classText + GeneratorUtility.BRACKET_OPEN;
+            string script = usings + classText + GU.BRACKET_OPEN;
 
-            foreach (var el in actorN) script += GeneratorUtility.GeneratePropery(el, Visibility.Internal);
-            foreach (var el in letterN) script += GeneratorUtility.GeneratePropery(el, Visibility.Public);
-            foreach (var el in numbersN) script += GeneratorUtility.GeneratePropery(el, Visibility.Internal);
+            foreach (var el in actorN) script += GU.GeneratePropery(el, Visibility.Public);
+            foreach (var el in letterN) script += GU.GeneratePropery(el, Visibility.Public);
+            foreach (var el in numbersN) script += GU.GeneratePropery(el, Visibility.Public);
 
-            script += GeneratorUtility.BRACKET_CLOSE;
+            script += GU.BRACKET_CLOSE;
 
 
             Debug.Log(script);
@@ -50,7 +50,7 @@ namespace DialogueSystem.Generators
 
         private string GetUsings(object[] actorNodes, params object[] ob)
         {
-            var usings = GeneratorUtility.GetUsings(ob);
+            var usings = GU.GetUsings(ob);
 
             if (actorNodes != null && actorNodes.Length > 0)
             {
@@ -62,7 +62,7 @@ namespace DialogueSystem.Generators
                         arr.Add(r.ActorType);
                 }
 
-                usings += GeneratorUtility.GetUsings(arr.ToArray());
+                usings += GU.GetUsings(arr.ToArray());
             }
             return usings;
         }

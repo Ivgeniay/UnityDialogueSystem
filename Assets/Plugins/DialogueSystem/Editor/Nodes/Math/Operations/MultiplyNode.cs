@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Database.Save;
+using DialogueSystem.Ports;
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
@@ -11,42 +12,48 @@ namespace DialogueSystem.Nodes
     {
         public override void Do(List<object> values)
         {
-            if (values.Count > 0)
+            BasePort output = GetOutputPorts()[0];
+            if (values == null || values.Count == 0)
             {
-                bool containsString = values.Any(value => value is string);
+                ChangePort(output, typeof(double));
+                output.Value = 0d;
+                return;
+            }
 
-                if (containsString)
-                {
-                    ChangeOutputPortType(typeof(string));
+            List<BasePort> inputs = GetInputPorts();
 
-                    string concatenatedValue = string.Join("", values);
-                    var output = GetOutputPorts()[0];
-                    output.Value = concatenatedValue;
-                    Debug.Log("Результат конкатенации: " + concatenatedValue);
-                }
-                else
-                {
-                    ChangeOutputPortType(typeof(double));
+            bool containsString = values.Any(value => value is string);
+            if (containsString)
+            {
+                ChangeOutputPortType(typeof(string));
 
-                    List<double> doubles = new List<double>();
-                    foreach (var item in values)
-                        doubles.Add(Convert.ToDouble(item));
-
-                    double result = doubles[0];
-                    if (doubles.Count > 1)
-                    {
-                        for (int i = 1; i < doubles.Count; i++)
-                            result *= doubles[i];
-                    }
-
-                    var output = GetOutputPorts()[0];
-                    output.Value = result;
-                    Debug.Log("Mult значений: " + result);
-                }
+                string concatenatedValue = string.Join("", values);
+                output.Value = concatenatedValue;
+                Debug.Log("Результат конкатенации: " + concatenatedValue);
             }
             else
             {
-                Debug.Log("Нет значений для обработки.");
+                ChangeOutputPortType(typeof(double));
+
+                List<double> doubles = new List<double>();
+                foreach (var item in values)
+                    doubles.Add(Convert.ToDouble(item));
+
+                double result = doubles[0];
+                if (doubles.Count > 1)
+                {
+                    for (int i = 1; i < doubles.Count; i++)
+                        result *= doubles[i];
+                }
+
+                output.Value = result;
+                Debug.Log("Mult значений: " + result);
+            }
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (values[i] != null)
+                    ChangePort(inputs[i], values[i].GetType());
             }
         }
     }

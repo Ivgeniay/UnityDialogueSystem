@@ -517,6 +517,12 @@ namespace DialogueSystem.Nodes
 
             return (port, data);
         }
+
+        protected void ChangePort(BasePort port, Type type)
+        {
+            port.ChangeType(type);
+            port.ChangeName(type.Name);
+        }
         #endregion
     }
 }

@@ -28,17 +28,29 @@ namespace DialogueSystem.Nodes
 
             var inpPorts = GetInputPorts();
             List<object> values = new List<object>();
+            for (int i = 0; i < Model.Inputs.Count; i++) { values.Add(null); }
+
             foreach (BasePort port in inpPorts)
             {
                 if (port.connected)
                 {
                     BasePort connectedPort = port.connections.First().output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+                    if (connectedPort != null && connectedPort.Value != null)
+                    {
+                        //values.Add(connectedPort.Value);
+                        int index = Model.Inputs.IndexOf(Model.Inputs.Where(e => e.PortID == port.ID).FirstOrDefault());
+                        values[index] = connectedPort.Value;
+                    }
                 }
                 if (!port.connected && port == _port)
                 {
                     BasePort connectedPort = edge.output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+                    if (connectedPort != null && connectedPort.Value != null)
+                    {
+                        //values.Add(connectedPort.Value);
+                        int index = Model.Inputs.IndexOf(Model.Inputs.Where(e => e.PortID == port.ID).FirstOrDefault());
+                        values[index] = connectedPort.Value;
+                    }
                 }
             }
             if (values.Count > 0)

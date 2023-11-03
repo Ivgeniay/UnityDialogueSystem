@@ -1,4 +1,5 @@
 ﻿using DialogueSystem.Characters;
+using System;
 using UnityEngine;
 
 namespace DialogueSystem.Assets
@@ -7,7 +8,7 @@ namespace DialogueSystem.Assets
     {
         public string Name { get; set; }
         public float attack;
+        public float attack228;
         public bool IsHangry;
-
     }
 }
