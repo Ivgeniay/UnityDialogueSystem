@@ -15,7 +15,7 @@ using DialogueSystem.Edges;
 
 namespace DialogueSystem.Nodes
 {
-    public class BaseNode : Node
+    public abstract class BaseNode : Node
     {
         public DSNodeModel Model { get; private set; }
         public BaseGroup Group { get; private set; }

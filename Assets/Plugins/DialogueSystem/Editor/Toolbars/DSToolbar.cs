@@ -44,15 +44,11 @@ namespace DialogueSystem.Toolbars
                 ProgressBar progressBar = callBack.target as ProgressBar;
                 progressBar.value = callBack.newValue;
 
-                if (callBack.newValue == 1f)
-                {
-                    Debug.Log("Dialogue Graph asset was saved");
+                if (progressBar.value == 1f)
                     progressBar.style.display = DisplayStyle.None;
-                }
                 else
-                {
                     progressBar.style.display = DisplayStyle.Flex;
-                }
+                
                 MarkDirtyRepaint();
             }, styles: new string[]
             {
@@ -122,7 +118,7 @@ namespace DialogueSystem.Toolbars
 
         private void GenerateAsset()
         {
-            Debug.Log("Asset was generated");
+            graphView.GenerateAsset();
         }
 
         private void OnSaveHandler(float obj)

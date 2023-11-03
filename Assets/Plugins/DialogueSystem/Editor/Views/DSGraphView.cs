@@ -3,20 +3,21 @@ using DialogueSystem.Database.Error;
 using DialogueSystem.Database.Save;
 using DialogueSystem.SDictionary;
 using System.Collections.Generic;
+using DialogueSystem.Generators;
 using DialogueSystem.Utilities;
+using DialogueSystem.MiniMaps;
 using UnityEngine.UIElements;
 using DialogueSystem.Groups;
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
-using DialogueSystem.Text;
-using UnityEngine;
-using System;
-using UnityEditor;
-using DialogueSystem.Save;
-using System.IO;
-using System.Linq;
 using DialogueSystem.Edges;
-using DialogueSystem.MiniMaps;
+using DialogueSystem.Text;
+using DialogueSystem.Save;
+using System.Linq;
+using UnityEngine;
+using UnityEditor;
+using System.IO;
+using System;
 
 namespace DialogueSystem.Window
 {
@@ -30,6 +31,7 @@ namespace DialogueSystem.Window
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
 
+        private Generator generator;
         private DSWindow searchWindow;
         private DSEditorWindow editorWindow;
 
@@ -37,8 +39,8 @@ namespace DialogueSystem.Window
         private SerializableDictionary<string, DSGroupErrorData> groups;
         private SerializableDictionary<BaseGroup, SerializableDictionary<string, DSNodeErrorData>> groupedNodes;
         
-        private List<BaseNode> _nodes { get; set; } = new List<BaseNode>();
-        private List<BaseGroup> _groups { get; set; } = new List<BaseGroup>();
+        internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
+        internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
 
         private int repeatedNameAmount;
         private int RepeatedNameAmount
@@ -64,6 +66,7 @@ namespace DialogueSystem.Window
             ungroupedNodes = new();
             groups = new();
             groupedNodes = new();
+            generator = new(this);
 
             AddManipulators();
             AddSearchWindow();
@@ -121,7 +124,7 @@ namespace DialogueSystem.Window
         internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
             var node = DSUtilities.CreateNode(this, type, position, portsContext);
-            _nodes.Add(node);
+            i_Nodes.Add(node);
             return node;
         }
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
@@ -142,7 +145,7 @@ namespace DialogueSystem.Window
             }
 
             group.OnCreate(innerNode);
-            _groups.Add(group);
+            i_Groups.Add(group);
             return group;
         }
 
@@ -219,7 +222,7 @@ namespace DialogueSystem.Window
 
                     RemoveUngroupedNode(node);
                     node.DisconnectAllPorts();
-                    _nodes.Remove(node);
+                    i_Nodes.Remove(node);
                     RemoveElement(node);
                 });
 
@@ -464,7 +467,7 @@ namespace DialogueSystem.Window
             string oldGroupName = group.Model.GroupName.ToLower();
             List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
-            _groups.Remove(group);
+            i_Groups.Remove(group);
             group.ResetStyle();
 
             if (groupList.Count == 1)
@@ -504,6 +507,8 @@ namespace DialogueSystem.Window
             var local = contentViewContainer.WorldToLocal(worldMP);
             return local;
         }
+        internal T[] GetNodesOfType<T>() =>
+            i_Nodes.OfType<T>().ToArray();
 
         internal void Save(string fileName)
         {
@@ -517,8 +522,8 @@ namespace DialogueSystem.Window
             List<DSNodeModel> nodes = new List<DSNodeModel>();
             List<DSGroupModel> groups = new List<DSGroupModel>();
 
-            foreach (var node in _nodes) nodes.Add(node.Model);
-            foreach (var group in _groups) groups.Add(group.Model);
+            foreach (var node in i_Nodes) nodes.Add(node.Model);
+            foreach (var group in i_Groups) groups.Add(group.Model);
             newGraphSO.Init(fileName, nodes, groups,
                 callback: (cur, from) =>
                 {
@@ -531,8 +536,8 @@ namespace DialogueSystem.Window
         internal void CleanGraph()
         {
             List<GraphElement> graphElements = new List<GraphElement>();
-            foreach (var item in _nodes) graphElements.Add(item);
-            foreach (var item in _groups) graphElements.Add(item);
+            foreach (var item in i_Nodes) graphElements.Add(item);
+            foreach (var item in i_Groups) graphElements.Add(item);
             foreach (var item in graphElements) AddToSelection(item);
             deleteSelection?.Invoke("delete", AskUser.DontAskUser);
             DeleteSelection();
@@ -563,7 +568,7 @@ namespace DialogueSystem.Window
                 AddElement(node);
             }
 
-            foreach (var node in _nodes)
+            foreach (var node in i_Nodes)
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
 
@@ -589,7 +594,7 @@ namespace DialogueSystem.Window
                 {
                     foreach (var portIdModel in portModel.NodeIDs)
                     {
-                        var inputNode = _nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
+                        var inputNode = i_Nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
                         if (inputNode != null)
                         {
                             foreach (var portId in portIdModel.PortIDs)
@@ -614,6 +619,7 @@ namespace DialogueSystem.Window
                 }
             }
         }
+        internal void GenerateAsset() => generator.Generate();
         #endregion
     }
 }

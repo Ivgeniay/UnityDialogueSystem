@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {
-    internal class StringNode : LetterNodeBase
+    internal class StringNode : BaseLetterNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {

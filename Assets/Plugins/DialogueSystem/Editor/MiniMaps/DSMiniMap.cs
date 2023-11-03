@@ -16,9 +16,8 @@ namespace DialogueSystem.MiniMaps
 
         private void AddStyles()
         {
-            //this.LoadAndAddStyleSheets(MINIMAP_STYLE_LINK);
-            StyleColor backgroundColor = new StyleColor(new UnityEngine.Color32(29, 29, 30, 255));
-            StyleColor borderColor = new StyleColor(new UnityEngine.Color32(29, 29, 30, 255));
+            StyleColor backgroundColor = new StyleColor(new UnityEngine.Color32(10, 10, 10, 60));
+            StyleColor borderColor = new StyleColor(new UnityEngine.Color32(10, 10, 10, 190));
 
             style.backgroundColor = backgroundColor;
             style.borderLeftColor = borderColor;

@@ -9,10 +9,10 @@ namespace DialogueSystem
 {
     public class ActorNode : BaseNode
     {
+        public Type ActorType { get; private set; }
+
         private Dictionary<string, Type> publicFields = new(); 
-        private Dictionary<string, Type> publicProperties = new(); 
-        private Dictionary<string, Type> privateFields = new(); 
-        private Dictionary<string, Type> privateProperties = new(); 
+        private Dictionary<string, Type> publicProperties = new();
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, context: portsContext);
@@ -20,6 +20,7 @@ namespace DialogueSystem
 
         public void Generate(Type type)
         {
+            ActorType = type;
             publicFields = GetPublicFields(type);
             publicProperties = GetPublicProperties(type);
 
