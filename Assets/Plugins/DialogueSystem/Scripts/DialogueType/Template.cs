@@ -9,16 +9,19 @@ namespace DialogueSystem.DialogueType
         public float int1 { get; set; } = 5;
         public float int2 { get; set; } = 2;
         public string str2 { get; set; } = "string";
-        public Func<int, int, string> convert1 { get; set; }
+        public Func<float, float, string> convert1 { get; set; } = (int1, int2) => { return (int1 + int2).ToString(); };
         private Dictionary<int, Dialogue> dialogues { get; set; } = new ();
 
         public void StartDialogue()
         {
-            convert1 = (int1, int2) =>
-            {
-                return (int1 + int2).ToString();
-            };
+            Initialize();
+            convert1(int1, int2);
         }
 
+        public void Initialize()
+        {
+
+        }
     }
+
 }

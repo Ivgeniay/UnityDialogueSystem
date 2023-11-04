@@ -118,7 +118,7 @@ namespace DialogueSystem.Toolbars
 
         private void GenerateAsset()
         {
-            graphView.GenerateAsset();
+            graphView.GenerateAsset(textField.value);
         }
 
         private void OnSaveHandler(float obj)

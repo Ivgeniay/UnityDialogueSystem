@@ -3,6 +3,8 @@ using System.Linq;
 using UnityEngine;
 using System;
 using DialogueSystem.Ports;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -42,6 +44,20 @@ namespace DialogueSystem.Nodes
                     ChangePort(inputs[i], values[i].GetType());
             }
 
+        }
+
+        internal override string MethodGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
+        {
+            StringBuilder sb = new();
+            sb.Append("return ");
+            for (int i = 0; i < inputVariables.Length; i++)
+            {
+                sb.Append($"{inputVariables[i].ParamName}");
+                if (i != inputVariables.Length - 1) sb.Append(" + ");
+            }
+            sb.Append(';');
+
+            return sb.ToString();
         }
     }
 }

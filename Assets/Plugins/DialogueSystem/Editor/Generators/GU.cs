@@ -1,8 +1,9 @@
-﻿using DialogueSystem.Nodes;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DialogueSystem.Nodes;
+using DialogueSystem.Text;
+using System.Reflection;
 using System.Text;
-using UnityEngine;
+using System;
 
 namespace DialogueSystem.Generators
 {
@@ -14,39 +15,47 @@ namespace DialogueSystem.Generators
         internal const string SPACE = " ";
         internal const string TR = "\n";
 
-        private static ClassD classD;
-        private static Namesp namesp;
-        private static Vars vars;
-        static GU()
-        {
-            classD = new();
-            namesp = new();
-            vars = new();
-        }
-
-        #region Usings
-        internal static string GetUsings(params object[][] types) => namesp.GetUsings(types);
-        #endregion
-
-        #region Variables
-        internal static string GetStringVariable(StringNode node) => vars.GetStringVariable(node);
-        internal static string GetIntVariable(IntegerNode node) => vars.GetIntVariable(node);
-        internal static string GetFloatVariable(FloatNode node) => vars.GetFloatVariable(node);
-        internal static string GetActorVariable(ActorNode node) => vars.GetActorVariable(node);
-        #endregion
-
-        #region Propertyes
-        internal static string GeneratePropery(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None) => vars.GeneratePropery(node, visibility, attribute);
-        #endregion
-
-        internal static string GetClassLine(string className) => classD.GetClassLine(className);
     }
 
-    public class ClassD
+    internal class ClassD
     {
-        internal string GetClassLine(string className) => $"public class {className}\n";
+        private ClassC c;
+        public ClassD() => c = new();
+        
+
+
+        internal string GetClassLine(string className)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("public class ")
+                .Append(className)
+                .Append("\n")
+                .Append("{")
+                .Append("\n")
+                .Append("}");
+            return sb.ToString();
+        }
+        private class ClassC
+        {
+            private ClassB b;
+            public ClassC() => b = new();
+
+            private string ClassLine;
+            private string Property;
+            private string Fields;
+            private string Methods;
+
+            internal class ClassB
+            {
+                public string DrawClass()
+                {
+                    return "";
+                }
+            }
+        }
     }
-    public class Namesp
+
+    internal class Namesp
     {
         internal string GetUsings(params object[][] types)
         {
@@ -70,8 +79,23 @@ namespace DialogueSystem.Generators
 
             foreach (object t in objects)
             {
-                if (!strings.Contains($"using {t.GetType().Namespace};\n"))
-                    strings.Add($"using {t.GetType().Namespace};\n");
+                var names = t.GetType().Namespace;
+                if (names == "System")
+                {
+                    string assemblyFullName = "Assembly-CSharp";
+                    Assembly assembly = Assembly.Load(assemblyFullName);
+                    Type ty = assembly.GetType(t.ToString());
+                    names = ty.Namespace;
+
+                    if (!strings.Contains($"using {names};\n"))
+                        strings.Add($"using {names};\n");
+                }
+                else
+                {
+                    if (!strings.Contains($"using {t.GetType().Namespace};\n"))
+                        strings.Add($"using {t.GetType().Namespace};\n");
+                }
+
             }
 
             foreach (string s in strings)
@@ -80,130 +104,114 @@ namespace DialogueSystem.Generators
             return sb.ToString();
         }
     }
-    public class Vars
+    internal class Vars
     {
-        private readonly Dictionary<StringNode, string> letterVariables = new();
-        private readonly Dictionary<ActorNode, string> actorVariables = new();
-        private readonly Dictionary<IntegerNode, string> intVariables = new();
-        private readonly Dictionary<FloatNode, string> floaVariables = new();
+        private readonly Dictionary<Type, Dictionary<BaseNode, string>> variables = new();
 
-        internal string GetStringVariable(StringNode node)
+        internal string GetVariable(BaseNode node)
         {
             if (node != null)
             {
-                if (letterVariables.TryGetValue(node, out string variable))
+                if (variables.TryGetValue(node.GetType(), out Dictionary<BaseNode, string> vars))
                 {
-                    return variable;
+                    if (vars.TryGetValue(node, out string variableName)) return variableName;
+                    else
+                    {
+                        variableName = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{vars.Count}";
+                        vars.Add(node, variableName);
+                        return variableName;
+                    }
                 }
                 else
                 {
-                    variable = $"strV{letterVariables.Count}";
-                    letterVariables.Add(node, variable);
-                    return variable;
+                    var dic = new Dictionary<BaseNode, string>();
+                    var variableName = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{dic.Count}";
+                    dic.Add(node, variableName);
+                    variables.Add(node.GetType(), dic);
+                    return variableName;
                 }
             }
             throw new NullReferenceException();
         }
-        internal string GetIntVariable(IntegerNode node)
-        {
-            if (node != null)
-            {
-                if (intVariables.TryGetValue(node, out string variable))
-                {
-                    return variable;
-                }
-                else
-                {
-                    variable = $"intV{intVariables.Count}";
-                    intVariables.Add(node, variable);
-                    return variable;
-                }
-            }
-            throw new NullReferenceException();
-        }
-        internal string GetFloatVariable(FloatNode node)
-        {
-            if (node != null)
-            {
-                if (floaVariables.TryGetValue(node, out string variable))
-                {
-                    return variable;
-                }
-                else
-                {
-                    variable = $"intV{floaVariables.Count}";
-                    floaVariables.Add(node, variable);
-                    return variable;
-                }
-            }
-            throw new NullReferenceException();
-        }
-        internal string GetActorVariable(ActorNode node)
-        {
-            if (node != null)
-            {
-                if (actorVariables.TryGetValue(node, out string variable))
-                {
-                    return variable;
-                }
-                else
-                {
-                    variable = $"actorV{actorVariables.Count}";
-                    actorVariables.Add(node, variable);
-                    return variable;
-                }
-            }
-            throw new NullReferenceException();
-        }
-
         internal string GeneratePropery(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
         {
-            string variable = GetAttribute(attribute) + GetVisibility(visibility);
+            StringBuilder sb = new StringBuilder()
+                //.Append(GU.GetAttribute(attribute))
+                //.Append(GU.GetVisibility(visibility))
+                .Append(GU.SPACE);
 
             switch (node)
             {
                 case IntegerNode i:
-                    variable += GU.SPACE + GetVarType(TypeVariable.Int) + GU.SPACE;
-                    variable += GetIntVariable(i) + GU.SPACE + GetAutoProperty();
-                    variable += GU.SPACE + "=" + $" {i.GetValue()}" + GU.QUOTES;
+                    sb
+                        .Append(GetVarType(TypeVariable.Int))
+                        .Append(GU.SPACE)
+                        .Append(GetVariable(i))
+                        .Append(GU.SPACE)
+                        .Append(GetAutoProperty());
+                    
+                    if ((int)i.GetValue() != 0)
+                    {
+                        sb
+                            .Append(GU.SPACE)
+                            .Append("=")
+                            .Append(i.GetValue())
+                            .Append(GU.QUOTES);
+                    }
                     break;
                 case FloatNode f:
-                    variable += GU.SPACE + GetVarType(TypeVariable.Float) + GU.SPACE;
-                    variable += GetFloatVariable(f) + GU.SPACE + GetAutoProperty();
-                    variable += GU.SPACE + "=" + $" {f.GetValue()}" + "f" + GU.QUOTES;
+                    sb
+                        .Append(GetVarType(TypeVariable.Float))
+                        .Append(GU.SPACE)
+                        .Append(GetVariable(f))
+                        .Append(GU.SPACE)
+                        .Append(GetAutoProperty());
+
+                    if ((float)f.GetValue() != 0)
+                    {
+                        sb.Append(GU.SPACE)
+                            .Append("=")
+                            .Append(GU.SPACE)
+                            .Append(f.GetValue().ToString().Replace(',', '.'))
+                            .Append("f")
+                            .Append(GU.QUOTES);
+                    }
                     break;
                 case StringNode s:
-                    variable += GU.SPACE + GetVarType(TypeVariable.String) + GU.SPACE;
-                    variable += GetStringVariable(s) + " " + GetAutoProperty();
-                    variable += GU.SPACE + "=" + $" \"{s.GetValue()}\"" + GU.QUOTES;
+                    sb
+                        .Append(GetVarType(TypeVariable.String))
+                        .Append(GU.SPACE)
+                        .Append(GetVariable(s))
+                        .Append(GU.SPACE)
+                        .Append(GetAutoProperty());
+
+                    if ((string)s.GetValue() != "")
+                    {
+                        sb.Append(GU.SPACE)
+                            .Append("=")
+                            .Append(GU.SPACE)
+                            .Append("\"")
+                            .Append(s.GetValue())
+                            .Append("\"")
+                            .Append(GU.QUOTES);
+                    }
                     break;
                 case ActorNode a:
-                    variable += GU.SPACE + a.ActorType.Name + GU.SPACE;
-                    variable += GetActorVariable(a) + " " + GetAutoProperty();
+                    sb
+                        .Append(a.ActorType.Name)
+                        .Append(GU.SPACE)
+                        .Append(GetVariable(a))
+                        .Append(GU.SPACE)
+                        .Append(GetAutoProperty());
                     break;
 
                 default:
                     throw new NotImplementedException();
             }
-            return variable + "\n";
+            return sb.Append(GU.TR).ToString();
         }
 
-        internal string GetClassLine(string className) => $"public class {className}\n";
-        internal string GetVisibility(Visibility visibility)
-        {
-            switch (visibility)
-            {
-                case Visibility.Public:
-                    return " public";
-                case Visibility.Private:
-                    return " private";
-                case Visibility.Internal:
-                    return " internal";
-            }
-            throw new NotImplementedException();
-        }
-        internal string GetInternal() => "internal";
-        internal string GetPrivate() => "private";
+
         internal string GetVarType(TypeVariable typeVariable)
         {
             switch (typeVariable)
@@ -217,40 +225,161 @@ namespace DialogueSystem.Generators
             throw new NotImplementedException();
         }
         internal string GetAutoProperty() => "{ get; set; }";
-        internal string GetAttribute(Attribute attribute)
+        
+    }
+    internal class Methods
+    {
+        private Dictionary<BaseNode, MethodInfo> methodInfos { get; set; } = new();
+        private Dictionary<BaseNode, string> methods { get; set; } = new();
+        private Vars vars;
+        internal Methods(Vars vars) 
         {
-            switch (attribute)
+            this.vars = vars;
+        }
+
+        internal string GetCallMethod(BaseNode node, params object[] param)
+        {
+            if (methodInfos.TryGetValue(node, out MethodInfo methodName))
             {
-                case Attribute.None:
-                    return string.Empty;
-                case Attribute.SerializeField:
-                    return "[SerializeField]";
-                case Attribute.FieldSerializeField:
-                    return "[field: SerializeField]";
+                StringBuilder sb = new();
+                return methodInfos + "();";
             }
-            throw new NotImplementedException();
+            else
+            {
+                GetMethod(node);
+                return GetCallMethod(node);
+            }
+        }
+        internal string GetMethod(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
+        {
+            if (methods.TryGetValue(node, out string methodStr)) return methodStr;
+            else
+            {
+                StringBuilder sb = new StringBuilder()
+                    //.Append(GU.GetAttribute(attribute))
+                    //.Append(GU.GetVisibility(visibility))
+                    .Append(GU.SPACE);
+                    MethodInfo methodInfo = GetMethodInfo(node);
+                    if (methodInfo.CountOutParams == 0) sb.Append("void").Append(GU.SPACE);
+                    else if (methodInfo.CountOutParams == 1) sb.Append(methodInfo.OutputParamTypes[0].Name).Append(GU.SPACE);
+                    else
+                    {
+                        sb.Append("(");
+                        for (int i = 0; i < methodInfo.CountOutParams; i++)
+                        {
+                            sb.Append(methodInfo.OutputParamTypes[i].Name);
+                            if (i != methodInfo.CountOutParams) sb.Append(", ");
+                        }
+                        sb.Append(")");
+                    }
+                    sb  .Append(GU.SPACE)
+                        .Append(node.Model.NodeName)
+                        .Append("(");
+
+                switch (node)
+                {
+                    case AdditionNode add:
+                        if (methodInfo.CountParams > 0)
+                        {
+                            string vName = "item_";
+                            int count = 0;
+                            for (int i = 0;i < methodInfo.CountParams;i++)
+                            {
+                                sb  .Append(methodInfo.InputParamTypes[i].Name)
+                                    .Append(GU.SPACE)
+                                    .Append(vName)
+                                    .Append(count);
+
+                                if (i != methodInfo.CountParams - 1)
+                                {
+                                    sb  .Append(',')
+                                        .Append(GU.SPACE);
+                                }
+                                count++;
+                            }
+                        }
+                        sb.Append(")");
+                        break;
+                }
+
+                sb.Append("\n")
+                    .Append("{")
+                    .Append("\n")
+                    .Append("}")
+                    .Append("\n");
+
+                return sb.ToString();
+            }
+        }
+
+
+        internal string CallMethod(BaseNode node, params BaseNode[] methodParams)
+        {
+            StringBuilder sb = new StringBuilder();
+            var methodInfo = GetMethodInfo(node);
+
+            sb
+                .Append(methodInfo.MethodName)
+                .Append('(');
+
+            for (int i = 0; i < methodParams.Length; i++)
+            {
+                var variable = vars.GetVariable(methodParams[i]);
+                sb.Append(variable);
+                    if(i != methodParams.Length - 1) sb.Append(", ");
+            }
+
+            sb.Append(");\n");
+            return sb.ToString();
+        }
+
+        private MethodInfo GenerateMethodInfo(BaseNode baseNode, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
+        {
+            var inputs = baseNode.GetInputPorts();
+            var outputs = baseNode.GetOutputPorts();
+
+            List<Type> inputParamTypes = new();
+            List<Type> outputParamTypes = new();
+
+            foreach (var port in inputs)
+                inputParamTypes.Add(port.portType);
+            foreach (var port in outputs)
+                outputParamTypes.Add(port.portType);
+
+            return new MethodInfo()
+            {
+                InputParamTypes = inputParamTypes.ToArray(),
+                OutputParamTypes = outputParamTypes.ToArray(),
+                MethodName = baseNode.Model.NodeName,
+                Visibility = visibility,
+                Attribute = attribute,
+                CountParams = inputParamTypes.Count,
+                CountOutParams = outputParamTypes.Count
+            };
+        }
+        private MethodInfo GetMethodInfo(BaseNode node)
+        {
+            if (methodInfos.TryGetValue(node, out MethodInfo method)) return method;
+            else return GenerateMethodInfo(node);
+        }
+
+        private record MethodInfo
+        {
+            public int CountParams;
+            public int CountOutParams;
+            public Type[] InputParamTypes;
+            public Type[] OutputParamTypes;
+            public string MethodName;
+            public Visibility Visibility;
+            public Attribute Attribute;
+            public string OutputParamT;
         }
     }
 
-
-    internal enum Visibility
+    public class NodeModel
     {
-        Public,
-        Internal,
-        Private
-    }
-    internal enum TypeVariable
-    {
-        Int,
-        Float,
-        String,
-        Bool,
-        Decimal,
-    }
-    internal enum Attribute
-    {
-        None,
-        SerializeField,
-        FieldSerializeField,
+        public string VariableName { get; set; }
+        public Type[] InputType { get; set; }
+        public Type[] OutputType { get; set; }
     }
 }

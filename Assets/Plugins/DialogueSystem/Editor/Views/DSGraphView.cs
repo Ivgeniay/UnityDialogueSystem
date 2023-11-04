@@ -619,7 +619,7 @@ namespace DialogueSystem.Window
                 }
             }
         }
-        internal void GenerateAsset() => generator.Generate();
+        internal void GenerateAsset(string filename) => generator.Generate(filename);
         #endregion
     }
 }

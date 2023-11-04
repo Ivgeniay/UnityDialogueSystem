@@ -36,7 +36,7 @@ namespace DialogueSystem.Nodes
                     IsField = false,
                     IsInput = true,
                     IsSingle = true,
-                    Type = typeof(bool),
+                    Type = typeof(double),
                     Value = false,
                 });
 
@@ -47,7 +47,7 @@ namespace DialogueSystem.Nodes
                     IsField = false,
                     IsInput = true,
                     IsSingle = true,
-                    Type = typeof(bool),
+                    Type = typeof(double),
                     Value = false,
                 });
 

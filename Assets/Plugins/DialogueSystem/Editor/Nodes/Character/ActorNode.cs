@@ -1,15 +1,28 @@
 ﻿using DialogueSystem.Nodes;
 using DialogueSystem.Window;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using System;
 
 namespace DialogueSystem
 {
     public class ActorNode : BaseNode
     {
-        public Type ActorType { get => Type.GetType(Model.Text); }
+        public Type ActorType { 
+            get
+            {
+                string tyStr = this.Model.Text;
+                Type ty = Type.GetType(tyStr);
+                if (ty == null)
+                {
+                    string assemblyFullName = "Assembly-CSharp";
+                    Assembly assembly = Assembly.Load(assemblyFullName);
+                    ty = assembly.GetType(tyStr);
+                }
+                return ty;
+            }
+        }
 
         private Dictionary<string, Type> publicFields = new(); 
         private Dictionary<string, Type> publicProperties = new();

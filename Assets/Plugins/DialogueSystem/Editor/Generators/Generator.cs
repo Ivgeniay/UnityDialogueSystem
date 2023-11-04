@@ -2,6 +2,7 @@
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,54 +18,44 @@ namespace DialogueSystem.Generators
             graphView = view;
         }
 
-        internal void Generate()
+        internal void Generate(string filename)
         {
-            var numbersN    = graphView.GetNodesOfType<BaseNumbersNode>();       //graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseNumbersNode)));
-            var actorN      = graphView.GetNodesOfType<ActorNode>();         // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(ActorNode)));
-            var convertesN  = graphView.GetNodesOfType<BaseConvertNode>();     // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseConvertNode)));
-            var operationN  = graphView.GetNodesOfType<BaseOperationNode>();     // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseOperationNode)));
-            var logicN      = graphView.GetNodesOfType<BaseLogicNode>();         // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseLogicNode)));
-            var letterN     = graphView.GetNodesOfType<BaseLetterNode>();        // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseLetterNode)));
-            var dialogN     = graphView.GetNodesOfType<BaseDialogueNode>();        // graphView.i_Nodes.Where(e => e.GetType().IsAssignableFrom(typeof(BaseDialogueNode)));
+            BaseNumbersNode[] numbersN      = graphView.GetNodesOfType<BaseNumbersNode>();   
+            ActorNode[] actorN              = graphView.GetNodesOfType<ActorNode>();         
+            BaseConvertNode[] convertesN    = graphView.GetNodesOfType<BaseConvertNode>();   
+            BaseOperationNode[] operationN  = graphView.GetNodesOfType<BaseOperationNode>(); 
+            BaseLogicNode[] logicN          = graphView.GetNodesOfType<BaseLogicNode>();     
+            BaseLetterNode[] letterN        = graphView.GetNodesOfType<BaseLetterNode>();    
+            BaseDialogueNode[] dialogN      = graphView.GetNodesOfType<BaseDialogueNode>();  
 
-            var countNodes = numbersN.Count() + actorN.Count() + convertesN.Count() +
-                operationN.Count() + logicN.Count() + letterN.Count() + dialogN.Count();
+            var className = string.IsNullOrEmpty(filename) == true ? "MyClass" : filename;
+            ScriptGen scrGen = new(actorN, numbersN, convertesN, operationN, logicN, letterN, dialogN);
 
-            var usings = GetUsings(actorN, numbersN, convertesN, operationN, logicN, letterN, dialogN);
-            var className = "MyClass";
+            scrGen.Class.SetClassName(className);
 
-            string classText = GU.GetClassLine(className);
+            foreach (var el in actorN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            foreach (var el in letterN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            foreach (var el in numbersN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
 
-
-            string script = usings + classText + GU.BRACKET_OPEN;
-
-            foreach (var el in actorN) script += GU.GeneratePropery(el, Visibility.Public);
-            foreach (var el in letterN) script += GU.GeneratePropery(el, Visibility.Public);
-            foreach (var el in numbersN) script += GU.GeneratePropery(el, Visibility.Public);
-
-            script += GU.BRACKET_CLOSE;
-
-
-            Debug.Log(script);
-        }
-
-        private string GetUsings(object[] actorNodes, params object[] ob)
-        {
-            var usings = GU.GetUsings(ob);
-
-            if (actorNodes != null && actorNodes.Length > 0)
+            foreach (var el in operationN)
             {
-                var arr = new List<object>();
-                foreach (var act in actorNodes)
-                {
-                    var r = act as ActorNode;
-                    if (r.ActorType != null)
-                        arr.Add(r.ActorType);
-                }
-
-                usings += GU.GetUsings(arr.ToArray());
+                scrGen.Class.MethodGen.GetMethod(el, Visibility.Public);
+                Debug.Log(scrGen.Class.MethodGen.GetCallMethod(el));
+                //string context = scrGen.Class.MethodGen.CallMethod(el, numbersN[0], numbersN[1]);
             }
-            return usings;
+
+            var _script = scrGen.Draw(new StringBuilder());
+            scrGen.Build();
+
+            //foreach (var el in operationN)
+            //{
+            //    string context = GU.CallMethod(el, numbersN[0], numbersN[1]);
+            //    script += GU.GetMethod(el, Visibility.Public, context: context);
+            //}
+
+            //script += GU.BRACKET_CLOSE;
+
+            //Debug.Log(script);
         }
     }
 }

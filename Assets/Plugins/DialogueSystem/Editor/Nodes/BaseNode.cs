@@ -12,6 +12,7 @@ using System.Linq;
 using System;
 using Random = UnityEngine.Random;
 using DialogueSystem.Edges;
+using static DialogueSystem.Generators.MethodGen;
 
 namespace DialogueSystem.Nodes
 {
@@ -32,7 +33,7 @@ namespace DialogueSystem.Nodes
                 {
                     ID = Guid.NewGuid().ToString(),
                     Minimal = 1,
-                    NodeName = this.GetType().Name + " " + Random.Range(0, 100).ToString(),
+                    NodeName = this.GetType().Name + "_" + Random.Range(0, 100).ToString(),
                     DialogueType = this.GetType().ToString(),
                     Position = position,
                 };
@@ -523,6 +524,9 @@ namespace DialogueSystem.Nodes
             port.ChangeType(type);
             port.ChangeName(type.Name);
         }
+        #endregion
+        #region
+        internal virtual string MethodGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
         #endregion
     }
 }
