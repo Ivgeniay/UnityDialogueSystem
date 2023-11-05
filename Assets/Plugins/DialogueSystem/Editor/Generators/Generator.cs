@@ -36,26 +36,15 @@ namespace DialogueSystem.Generators
             foreach (var el in actorN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
             foreach (var el in letterN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
             foreach (var el in numbersN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            foreach (var el in operationN) scrGen.Class.MethodGen.GetMethod(el, Visibility.Private);
 
-            foreach (var el in operationN)
-            {
-                scrGen.Class.MethodGen.GetMethod(el, Visibility.Public);
-                Debug.Log(scrGen.Class.MethodGen.GetCallMethod(el));
-                //string context = scrGen.Class.MethodGen.CallMethod(el, numbersN[0], numbersN[1]);
-            }
+            var method = scrGen.Class.MethodGen.ConstructMethod("CustomMethod", "public", returnTypes: new string[]
+            { "string" }, inputTypes: new string[] {"int a", "double b"}, context:
+            @" return ""пошел нахуй"";");
+            scrGen.Class.MethodGen.AddMethodToDraw(method);
 
             var _script = scrGen.Draw(new StringBuilder());
             scrGen.Build();
-
-            //foreach (var el in operationN)
-            //{
-            //    string context = GU.CallMethod(el, numbersN[0], numbersN[1]);
-            //    script += GU.GetMethod(el, Visibility.Public, context: context);
-            //}
-
-            //script += GU.BRACKET_CLOSE;
-
-            //Debug.Log(script);
         }
     }
 }

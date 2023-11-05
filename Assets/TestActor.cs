@@ -1,6 +1,4 @@
 ﻿using DialogueSystem.Characters;
-using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace DialogueSystem.Assets

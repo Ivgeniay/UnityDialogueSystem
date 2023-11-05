@@ -1,4 +1,5 @@
 ﻿using System;
+using static DialogueSystem.DialogueOption;
 
 namespace DialogueSystem.Utilities
 {

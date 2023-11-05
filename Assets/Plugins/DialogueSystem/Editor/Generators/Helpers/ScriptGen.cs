@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace DialogueSystem.Generators
@@ -33,21 +35,49 @@ namespace DialogueSystem.Generators
         {
             int indentLevel = 0;
             StringBuilder result = new StringBuilder();
+            bool inAutoProperty = false;
 
-            foreach (char c in str)
+            for (int i = 0; i < str.Length; i++)
             {
+                char c = str[i];
+
                 if (c == '{')
-                    indentLevel++;
-                
-
-                if (c == '}')
-                    indentLevel--;
-                
-
-                if (c == '\n')
                 {
+                    indentLevel++;
                     result.Append(c);
-                    result.Append(new string('\t', indentLevel));
+
+                    if (i + 3 < str.Length && str.Substring(i + 1, 3) == "get")
+                    {
+                        inAutoProperty = true;
+                        result.Append("get");
+                        i += 3; // Пропустим символы "get"
+                    }
+
+                    if (!inAutoProperty)
+                    {
+                        result.Append("\n");
+                        result.Append(new string('\t', indentLevel));
+                    }
+                }
+                else if (c == '}')
+                {
+                    indentLevel--;
+                    if (!inAutoProperty)
+                    {
+                        result.Append("\n");
+                        result.Append(new string('\t', indentLevel));
+                    }
+                    result.Append(c);
+
+                    inAutoProperty = false;
+                }
+                else if (c == '\n')
+                {
+                    if (!inAutoProperty)
+                    {
+                        result.Append(c);
+                        result.Append(new string('\t', indentLevel));
+                    }
                 }
                 else
                 {
@@ -58,12 +88,47 @@ namespace DialogueSystem.Generators
             return result.ToString();
         }
 
+        //private string DrawTabs(string str)
+        //{
+        //    int indentLevel = 0;
+        //    StringBuilder result = new StringBuilder();
+
+        //    foreach (char c in str)
+        //    {
+        //        if (c == '{')
+        //        {
+        //            indentLevel++;
+        //            result.Append(c);
+        //            result.Append("\n");
+        //            result.Append(new string('\t', indentLevel));
+        //        }
+        //        else if (c == '}')
+        //        {
+        //            indentLevel--;
+        //            result.Append("\n");
+        //            result.Append(new string('\t', indentLevel));
+        //            result.Append(c);
+        //        }
+        //        else if (c == '\n')
+        //        {
+        //            result.Append(c);
+        //            result.Append(new string('\t', indentLevel));
+        //        }
+        //        else
+        //        {
+        //            result.Append(c);
+        //        }
+        //    }
+        //    return result.ToString();
+        //}
+
         internal void Build()
         {
 #if UNITY_EDITOR
             Debug.Log(script);
-            //File.WriteAllText(filePath, script);
-            //UnityEditor.AssetDatabase.Refresh();
+            string filePath = Application.dataPath + "/" + Class.GetClassName() + ".cs";
+            File.WriteAllText(filePath, script);
+            UnityEditor.AssetDatabase.Refresh();
 #endif
         }
     }

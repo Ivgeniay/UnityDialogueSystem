@@ -8,14 +8,17 @@ namespace DialogueSystem.Generators
         private string className = "MyClass";
         internal PropFieldGen PropFieldGen;
         internal MethodGen MethodGen;
+        internal VariablesGen VariablesGen;
 
         internal ClassGen(params object[] scriptContext) 
         { 
             this.scriptContext = scriptContext;
-            PropFieldGen = new();
-            MethodGen = new(PropFieldGen);
+            VariablesGen = new();
+            PropFieldGen = new(VariablesGen);
+            MethodGen = new(VariablesGen);
         }
         internal void SetClassName(string className) => this.className = className;
+        internal string GetClassName() => this.className;
 
         private StringBuilder GetClassLine(string className, StringBuilder context)
         {

@@ -13,6 +13,7 @@ using System;
 using Random = UnityEngine.Random;
 using DialogueSystem.Edges;
 using static DialogueSystem.Generators.MethodGen;
+using static DialogueSystem.DialogueOption;
 
 namespace DialogueSystem.Nodes
 {
@@ -252,10 +253,7 @@ namespace DialogueSystem.Nodes
             Model.Position = position;
         }
         public virtual void OnCreate() => Draw();
-        public virtual void OnDestroy()
-        {
-
-        }
+        public virtual void OnDestroy() { }
         public virtual void OnGroupUp(BaseGroup group)
         {
             Model.GroupID = group.Model.ID;

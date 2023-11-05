@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using DialogueSystem.Generators;
+using DialogueSystem.Ports;
 using System.Linq;
 using UnityEngine;
-using System;
-using DialogueSystem.Ports;
-using DialogueSystem.Generators;
 using System.Text;
+using System;
 
 namespace DialogueSystem.Nodes
 {

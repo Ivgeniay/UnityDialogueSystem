@@ -13,28 +13,64 @@ namespace DialogueSystem.Generators
         private Dictionary<BaseNode, string> methods { get; set; } = new();
         private List<string> methodToDraw = new();
 
-        private PropFieldGen propFieldGen;
+        private VariablesGen variablesGen;
 
-        internal MethodGen(PropFieldGen propFieldGen) 
+        internal MethodGen(VariablesGen variablesGen) 
         {
-            this.propFieldGen = propFieldGen;
+            this.variablesGen = variablesGen;
+        }
+
+        internal string ConstructMethod(string MethodName, string visibility, string context, string[] returnTypes = null, string[] inputTypes = null)
+        {
+            StringBuilder sb = new StringBuilder()
+                    .Append(visibility)
+                    .Append(SPACE);
+
+            if (returnTypes == null && returnTypes.Length == 0) sb.Append("void").Append(SPACE);
+            else if (returnTypes != null && returnTypes.Length == 1) sb.Append(returnTypes[0]);
+            else if (returnTypes != null && returnTypes.Length > 1)
+            {
+                sb.Append(BR_OP);
+
+                for (int i = 0; i < returnTypes.Length; i++)
+                {
+                    sb.Append(returnTypes[i]);
+                    if (i != returnTypes.Length - 1) sb.Append(", ");
+                }
+                sb.Append(BR_CL);
+            }
+            sb.Append(SPACE).Append(MethodName).Append(BR_OP);
+            if (inputTypes!= null)
+            {
+                for (int i = 0;i < inputTypes.Length;i++)
+                {
+                    sb.Append(inputTypes[i]);
+                    if (i != inputTypes.Length - 1) sb.Append(", ");
+                }
+            }
+            sb.Append(')')
+                .Append(TR)
+                .Append(BR_F_OP)
+                .Append(context)
+                .Append(BR_F_CL);
+
+            return sb.ToString();
         }
 
         internal void GetMethod(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
         {
-            if (methods.TryGetValue(node, out string methodStr)) methodToDraw.Add(methodStr);
+            if (methods.TryGetValue(node, out string methodStr)) AddMethodToDraw(methodStr);
             else
             {
-                StringBuilder sb = new StringBuilder()
-                    .Append(GetAttribute(attribute))
-                    .Append(GetVisibility(visibility))
-                    .Append(GU.SPACE);
+                StringBuilder sb = new StringBuilder();
+                if (attribute != Attribute.None) sb.Append(GetAttribute(attribute));
+                sb.Append(GetVisibility(visibility)).Append(SPACE);
 
                 MethodInfo methodInfo = GetMethodInfo(node);
                 MethodParamsInfo[] inputVariables = new MethodParamsInfo[methodInfo.CountParams];
                 MethodParamsInfo[] outputVariables = new MethodParamsInfo[methodInfo.CountOutParams];
 
-                if (methodInfo.CountOutParams == 0) sb.Append("void").Append(GU.SPACE);
+                if (methodInfo.CountOutParams == 0) sb.Append("void");
                 else if (methodInfo.CountOutParams == 1)
                 {
                     outputVariables[0] = new MethodParamsInfo()
@@ -42,7 +78,7 @@ namespace DialogueSystem.Generators
                         ParamName = methodInfo.OutputParamTypes[0].Name + "_variable",
                         ParamType = methodInfo.OutputParamTypes[0]
                     };
-                    sb.Append(outputVariables[0].ParamType.Name).Append(GU.SPACE);
+                    sb.Append(outputVariables[0].ParamType.Name);
                 }
                 else
                 {
@@ -59,7 +95,7 @@ namespace DialogueSystem.Generators
                     }
                     sb.Append(")");
                 }
-                sb.Append(GU.SPACE)
+                sb.Append(SPACE)
                     .Append(node.Model.NodeName)
                     .Append(BR_OP);
 
@@ -74,24 +110,24 @@ namespace DialogueSystem.Generators
                             ParamName = vName + i,
                         };
                         sb.Append(inputVariables[i].ParamType.Name)
-                            .Append(GU.SPACE)
+                            .Append(SPACE)
                             .Append(vName + i);
 
                         if (i != methodInfo.CountParams - 1)
                         {
                             sb.Append(',')
-                                .Append(GU.SPACE);
+                                .Append(SPACE);
                         }
                     }
                 }
-                sb.Append(BR_CL);
-                sb.Append(TR)
+                sb.Append(BR_CL)
+                .Append(TR)
                 .Append(BR_F_OP)
                 .Append(node.MethodGenerationContext(inputVariables, outputVariables))
                 .Append(TR)
                 .Append(BR_F_CL);
 
-                methodToDraw.Add(sb.ToString());
+                AddMethodToDraw(sb.ToString());
             }
         }
         internal string GetCallMethod(BaseNode node)
@@ -111,7 +147,7 @@ namespace DialogueSystem.Generators
                 {
                     var connections = inputPorts[i].connections.ToList();
                     BasePort connectedPort = connections[0].output as BasePort;
-                    variable = propFieldGen.GetVariable(connectedPort);
+                    variable = variablesGen.GetVariable(connectedPort);
                 }
                 else variable = inputPorts[i].portType.IsValueType ? Activator.CreateInstance(inputPorts[i].portType).ToString() : "null";
                 sb.Append(variable);
@@ -120,6 +156,11 @@ namespace DialogueSystem.Generators
 
             sb.Append(");\n");
             return sb.ToString();
+        }
+        internal void AddMethodToDraw(string method)
+        {
+            if (!methodToDraw.Contains(method))
+                methodToDraw.Add(method);
         }
 
         private MethodInfo GenerateMethodInfo(BaseNode baseNode, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
@@ -169,10 +210,11 @@ namespace DialogueSystem.Generators
         internal override StringBuilder Draw(StringBuilder context)
         {
             foreach (string method in methodToDraw)
-            {
                 context.AppendLine(method);
-            }
+
+            context.AppendLine();
             return context;
         }
     }
+
 }

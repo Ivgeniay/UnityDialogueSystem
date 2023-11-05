@@ -5,27 +5,30 @@ namespace DialogueSystem.Generators
 {
     internal abstract class BaseGeneratorHelper
     {
-        internal const string BR_F_OP = "{\n";
-        internal const string BR_F_CL = "}\n";
-        internal const string QUOTES = ";\n";
+        internal const string BR_F_OP = "{";
+        internal const string BR_F_CL = "}";
+        internal const string QUOTES = ";";
         internal const string SPACE = " ";
         internal const string TR = "\n";
         internal const string QM = "\"";
         internal const string EQLS = "=";
         internal const string BR_OP = "(";
         internal const string BR_CL = ")";
-        internal const string APROP = "{ get; set; }";
+        internal const string APROP = "{get; set;}";
+        internal const string APROP_PRIV_GET = "{get; set;}";
+        internal const string APROP_PRIV_SET = "{get; private set;}";
+        internal const string APROP_PRIV = "{private get; private set;}";
 
         internal static string GetVisibility(Visibility visibility)
         {
             switch (visibility)
             {
                 case Visibility.Public:
-                    return " public";
+                    return "public";
                 case Visibility.Private:
-                    return " private";
+                    return "private";
                 case Visibility.Internal:
-                    return " internal";
+                    return "internal";
             }
             throw new NotImplementedException();
         }
