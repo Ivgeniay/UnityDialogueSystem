@@ -1,9 +1,10 @@
-﻿using DialogueSystem.Ports;
+﻿using System.Collections.Generic;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -39,57 +40,31 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void Do(List<object> values)
+        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
-            base.Do(values);
-
-            BasePort output = GetOutputPorts()[0];
-
-            if (values == null || values.Count == 0)
+            StringBuilder sb = new();
+            sb.Append("return ");
+            for (int i = 0; i < inputVariables.Length; i++)
             {
-                ChangePort(output, typeof(float));
-                output.Value = 0f;
-                return;
+                switch(inputVariables[i].ParamType)
+                {
+                    case var t when t == typeof(double):
+                        break;
+                    case var t when t == typeof(float):
+                        break;
+                    case var t when t == typeof(int):
+                        break;
+                    case var t when t == typeof(string):
+                        break;
+                    case var t when t == typeof(bool):
+                        break;
+                }
+                sb.Append($"{inputVariables[i].ParamName}");
+                if (i != inputVariables.Length - 1) sb.Append(" + ");
             }
+            sb.Append(';');
 
-            List<BasePort> inputs = GetInputPorts();
-
-            if (values.Count > 0)
-            {
-                float result = default;
-                if (values[0] is null)
-                {
-                    result = 0f;
-                }
-                else if (values[0] is double)
-                {
-                    result = SafeConvertDoubleToFloat((double)values[0]);
-                }
-                else if (values[0] is int)
-                {
-                    result = ConvertIntToFloat((int)values[0]);
-                }
-                else if (values[0] is string)
-                {
-                    result = SafeParseToFloat((string)values[0]);
-                }
-                else if (values[0] is bool)
-                {
-                    result = ConvertBoolToFloat((bool)values[0]);
-                }
-                
-                if (values[0] is not null)
-                {
-                    ChangePort(inputs[0], values[0].GetType());
-                }
-
-                output.Value = result;
-                Debug.Log($"Преобразованное значения: из {values[0]} {values[0].GetType().Name} в {result} {result.GetType().Name}");
-            }
-            else
-            {
-                Debug.Log("Нет значений для обработки.");
-            }
+            return sb.ToString();
         }
     }
 }

@@ -240,9 +240,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f5319eaff990647a4255a1d7a1bc5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attack: 0
-  attack228: 0
-  IsHangry: 0
+  Age: 0
+  Name: 
+  tttt:
+    Name: 
 --- !u!114 &461998063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,10 +253,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 461998056}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 825bbcb1c5152034982e715c3a734502, type: 3}
+  m_Script: {fileID: 11500000, guid: da3f706951912444c8156d08a3b86089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogue: {fileID: 11400000, guid: 7d4a06b5d4b172c4eb9078882f1e59a6, type: 2}
+  <StringNode49_String_0>k__BackingField: 
+  <FloatNode81_Int32_1>k__BackingField:
+    OnAction:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 461998056}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+    <FloatNode70_Single_0>k__BackingField: 565
+  <IntegerNode90_Int32_2>k__BackingField: 0
+  <FloatNode99_Single_3>k__BackingField: 0
 --- !u!1 &1128412832
 GameObject:
   m_ObjectHideFlags: 0

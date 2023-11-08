@@ -51,37 +51,37 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void Do(List<object> values)
+        public override void Do(PortInfo[] portInfos)
         {
-            base.Do(values);
+            base.Do(portInfos);
 
-            BasePort output = GetOutputPorts()[0];
+            //BasePort output = GetOutputPorts()[0];
 
-            if (values == null || values.Count < 2 || values[0] == null || values[1] == null)
-            {
-                ChangePort(output, typeof(bool));
-                output.Value = false;
-            }
+            //if (values == null || values.Count < 2 || values[0] == null || values[1] == null)
+            //{
+            //    ChangePort(output, typeof(bool));
+            //    output.Value = false;
+            //}
 
-            List<BasePort> inputs = GetInputPorts();
+            //List<BasePort> inputs = GetInputPorts();
 
-            if (values.Count > 0)
-            {
-                bool b1 = false;
-                bool b2 = false;
-                if (values[0] is bool _b1)
-                {
-                    ChangePort(inputs[0], typeof(bool));
-                    b1 = _b1;
-                }
-                if (values[1] is bool _b2)
-                {
-                    ChangePort(inputs[1], typeof(bool));
-                    b2 = _b2;
-                }
-                ChangePort(output, typeof(bool));
-                output.Value = b1 == true && b2 == true;
-            }
+            //if (values.Count > 0)
+            //{
+            //    bool b1 = false;
+            //    bool b2 = false;
+            //    if (values[0] is bool _b1)
+            //    {
+            //        ChangePort(inputs[0], typeof(bool));
+            //        b1 = _b1;
+            //    }
+            //    if (values[1] is bool _b2)
+            //    {
+            //        ChangePort(inputs[1], typeof(bool));
+            //        b2 = _b2;
+            //    }
+            //    ChangePort(output, typeof(bool));
+            //    output.Value = b1 == true && b2 == true;
+            //}
         }
     }
 }

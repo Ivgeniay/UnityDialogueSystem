@@ -1,6 +1,7 @@
 ﻿using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
 using DialogueSystem.Window;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
@@ -18,25 +19,31 @@ namespace DialogueSystem.Nodes
         {
             base.OnConnectInputPort(_port, edge);
 
-            var inpPorts = GetInputPorts();
-            List<object> values = new List<object>();
-            foreach (BasePort port in inpPorts)
-            {
-                if (port.connected)
-                {
-                    BasePort connectedPort = port.connections.First().output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
-                }
-                if (!port.connected && port == _port)
-                {
-                    BasePort connectedPort = edge.output as BasePort;
-                    if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
-                }
-            }
-            if (values.Count > 0)
-            {
-                Do(values);
-            }
+            //var inpPorts = GetInputPorts();
+
+            //PortInfo[] portInfos = new PortInfo[inpPorts.Count];
+
+            //for (var i = 0; i < inpPorts.Count; i++)
+            //    portInfos[i] = new PortInfo() { node = this, port = inpPorts[i], Type = inpPorts[i].portType, Value = Activator.CreateInstance(inpPorts[i].portType) };
+
+
+            //foreach (BasePort port in inpPorts)
+            //{
+            //    if (port.connected)
+            //    {
+            //        BasePort connectedPort = port.connections.First().output as BasePort;
+            //        if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+            //    }
+            //    if (!port.connected && port == _port)
+            //    {
+            //        BasePort connectedPort = edge.output as BasePort;
+            //        if (connectedPort != null && connectedPort.Value != null) values.Add(connectedPort.Value);
+            //    }
+            //}
+            //if (values.Count > 0)
+            //{
+            //    Do(portInfos);
+            //}
         }
     }
 }

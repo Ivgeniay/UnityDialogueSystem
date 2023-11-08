@@ -5,48 +5,15 @@ using System.Linq;
 using UnityEngine;
 using System.Text;
 using System;
+using System.Linq.Expressions;
+using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Nodes
 {
     public class AdditionNode : BaseOperationNode
     {
-        public override void Do(List<object> values)
-        {
-            BasePort output = GetOutputPorts()[0];
-            if (values == null || values.Count == 0)
-            {
-                ChangePort(output, typeof(double));
-                output.Value = 0d;
-                return;
-            }
 
-            List<BasePort> inputs = GetInputPorts();
-
-            bool containsString = values.Any(value => value is string);
-            if (containsString)
-            {
-                ChangeOutputPortType(typeof(string));
-                string concatenatedValue = string.Join("", values);
-                output.Value = concatenatedValue;
-                Debug.Log("Результат конкатенации: " + concatenatedValue);
-            }
-            else
-            {
-                ChangeOutputPortType(typeof(double));
-                double sum = values.Sum(value => Convert.ToDouble(value));
-                output.Value = sum;
-                Debug.Log("Сумма значений: " + sum);
-            }
-
-            for (int i = 0; i < values.Count; i++ )
-            {
-                if (values[i] != null)
-                    ChangePort(inputs[i], values[i].GetType());
-            }
-
-        }
-
-        internal override string MethodGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
+        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
             StringBuilder sb = new();
             sb.Append("return ");
@@ -58,6 +25,36 @@ namespace DialogueSystem.Nodes
             sb.Append(';');
 
             return sb.ToString();
+        }
+
+        internal override Delegate LambdaGenerationContext(ParameterExpression[] parameters)
+        {
+            var anyString = parameters.Any(e => e.Type == typeof(string));
+            LambdaExpression lambda = null;
+            if (!anyString)
+            {
+                List<Expression> convertExpressions2 = new List<Expression>();
+                foreach (ParameterExpression param in parameters)
+                    if (DSConstants.NumberTypes.Contains(param.Type)) convertExpressions2.Add(Expression.Convert(param, typeof(double)));
+                Expression sum = convertExpressions2.Aggregate((acc, exp) => Expression.Add(acc, exp));
+                lambda = Expression.Lambda(sum, parameters);
+            }
+            else
+            {
+                Expression[] stringExpressions = parameters
+                    .Select(param => Expression.Call(param, typeof(object).GetMethod("ToString")))
+                    .ToArray();
+
+                MethodCallExpression concatExpression = Expression.Call(
+                    typeof(string).GetMethod("Concat", new[] { typeof(string[]) }),
+                    Expression.NewArrayInit(typeof(string), stringExpressions)
+                );
+
+                lambda = Expression.Lambda(concatExpression, parameters);
+            }
+
+
+            return lambda.Compile();
         }
     }
 }

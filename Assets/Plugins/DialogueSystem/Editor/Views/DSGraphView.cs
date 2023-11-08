@@ -32,7 +32,7 @@ namespace DialogueSystem.Window
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
 
         private Generator generator;
-        private DSWindow searchWindow;
+        private DSSearchWindow searchWindow;
         private DSEditorWindow editorWindow;
 
         private SerializableDictionary<string, DSNodeErrorData> ungroupedNodes;
@@ -178,7 +178,7 @@ namespace DialogueSystem.Window
         {
             if (!searchWindow)
             {
-                searchWindow = ScriptableObject.CreateInstance<DSWindow>();
+                searchWindow = ScriptableObject.CreateInstance<DSSearchWindow>();
                 searchWindow.Initialize(this);
             }
             nodeCreationRequest = e => SearchWindow.Open(new SearchWindowContext(e.screenMousePosition), searchWindow);

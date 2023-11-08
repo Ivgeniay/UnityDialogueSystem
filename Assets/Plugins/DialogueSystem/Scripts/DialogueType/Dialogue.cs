@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DialogueSystem.Nodes;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -6,47 +7,92 @@ using static DialogueSystem.DialogueOption;
 
 namespace DialogueSystem
 {
-    [System.Serializable]
-    [CreateAssetMenu(fileName = "Dialogue", menuName = "DES/Dialogue")]
-    public class DialogueHolder : ScriptableObject
-    {
-        [SerializeField] private Dialogue dialogue;
-        public void Init()
-        {
-            dialogue = ScriptableObject.CreateInstance<Dialogue>();
-            AssetDatabase.AddObjectToAsset(dialogue, this);
-            AssetDatabase.Refresh();
-        }
-    }
+
+
 
     [System.Serializable]
-    public class DialogueOption
+    public record DialogueOption
     {
         public string Text { get; private set; }
-        private DialogueOption(Func<bool> func) => 
-            Func = func;
-
-        private IEnumerable<Dialogue> NextDialogues;
+        public Dialogue nextDialogues { get; private set; }
         private Func<bool> Func { get; set; }
 
-        [System.Serializable]
-        public class Dialogue : ScriptableObject
+        public DialogueOption(string text, Dialogue nextDialogues = null, Func<bool> func = null)
         {
-            public string Text;
-            private List<DialogueOption> options;
+            this.Text = text;
+            this.nextDialogues = nextDialogues;
+            Func = func == null ? () => true : func;
+        }
 
-            private DialogueOption GenerateOption(Func<bool> predicate, IEnumerable<Dialogue> NextDialogues)
+        public Dialogue GetNextDialogue() => nextDialogues;
+
+
+
+        [System.Serializable]
+        public class Dialogue
+        {
+            public string Text { get; private set; }
+            private List<DialogueOption> options;
+            public Dialogue(string text, List<DialogueOption> options = null)
             {
-                DialogueOption dialogueOption = new(predicate);
-                dialogueOption.NextDialogues = NextDialogues;
-                return dialogueOption;
+                Text = text;
+                this.options = options;
             }
 
-            public IEnumerable<DialogueOption> GetNext()
+            public IEnumerable<DialogueOption> GetOptions()
             {
                 foreach (DialogueOption option in options)
                     if (option.Func()) yield return option;
             }
         }
+    }
+
+    public class Test
+    {
+
+        private Dialogue dialogue;
+
+        private TestActor ActorNode_2512 { get; set; }
+        public int AgeNode_225 { get; set; } = 25;
+
+        private bool BoolNode_53()
+        {
+            return ActorNode_2512.Streght > AgeNode_225;
+        }
+
+        public Dialogue StartDialogue(TestActor testActor)
+        {
+            Initialize(testActor);
+            return null;
+        }
+
+        private void Initialize(TestActor testActor)
+        {
+            this.ActorNode_2512 = testActor;
+
+            dialogue = new("Dialogue Text", new List<DialogueOption>()
+            {
+                new DialogueOption(
+                    text: "Dialogue Option1",
+                    nextDialogues: new Dialogue("Dialogue Text2", new List<DialogueOption>()
+                    {
+                        //new DialogueOption("Dialogue Option4",)
+                    }),
+                    func: () => BoolNode_53()),
+                new DialogueOption(
+                    text: "Dialogue Option2",
+                    func:() => true),
+                new DialogueOption(
+                    text:"Dialogue Option3",
+                    func:() => true)
+            });
+        }
+
+    }
+
+    public class TestActor
+    {
+        public int Age;
+        public int Streght;
     }
 }

@@ -9,56 +9,62 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseMathNode : BaseNode
     {
-        //public virtual void ChangeOutputPortType(Type type)
-        //{
-        //    var ports = outputContainer.Children();
-        //    foreach (var port in ports)
-        //    {
-        //        if (port is BasePort bport)
-        //        {
-        //            bport.ChangeType(type);
-        //            bport.ChangeName(type.Name);
-        //        }
-        //    }
-        //}
-
         public override void OnConnectInputPort(BasePort _port, Edge edge)
         {
             base.OnConnectInputPort(_port, edge);
 
-            var inpPorts = GetInputPorts();
-            List<object> values = new List<object>();
-            for (int i = 0; i < Model.Inputs.Count; i++) { values.Add(null); }
+            var inputPorts = GetInputPorts();
 
-            foreach (BasePort port in inpPorts)
+            PortInfo[] portInfos = new PortInfo[inputPorts.Count];
+
+            for (var i = 0; i < inputPorts.Count; i++)
+                portInfos[i] = new PortInfo() 
+                { 
+                    node = this, 
+                    port = inputPorts[i], 
+                    Type = inputPorts[i].portType, 
+                    Value = inputPorts[i].portType.IsValueType == true ? Activator.CreateInstance(inputPorts[i].portType) : null 
+                };
+            
+
+            foreach (BasePort port in inputPorts)
             {
                 if (port.connected)
                 {
                     BasePort connectedPort = port.connections.First().output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        //values.Add(connectedPort.Value);
-                        int index = Model.Inputs.IndexOf(Model.Inputs.Where(e => e.PortID == port.ID).FirstOrDefault());
-                        values[index] = connectedPort.Value;
+                        ChangePort(port, connectedPort.portType);
+
+                        var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                        infos.Value = connectedPort.Value;
+                        infos.Type = connectedPort.portType;
                     }
                 }
-                if (!port.connected && port == _port)
+                else if (!port.connected && port != _port) 
+                {
+                    port.Value = Activator.CreateInstance(port.portType);
+
+                    var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                    infos.Value = port.Value;
+                    infos.Type = port.portType;
+                }
+                else if (!port.connected && port == _port)
                 {
                     BasePort connectedPort = edge.output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        //values.Add(connectedPort.Value);
-                        int index = Model.Inputs.IndexOf(Model.Inputs.Where(e => e.PortID == port.ID).FirstOrDefault());
-                        values[index] = connectedPort.Value;
+                        ChangePort(port, connectedPort.portType);
+
+                        var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                        infos.Value = connectedPort.Value;
+                        infos.Type = connectedPort.portType;
                     }
                 }
             }
-            if (values.Count > 0)
-            {
-                Do(values);
-            }
+            
+            Do(portInfos);
         }
-
         public override void OnDestroyConnectionInput(BasePort port, Edge edge)
         {
             base.OnDestroyConnectionInput(port, edge);
@@ -120,5 +126,17 @@ namespace DialogueSystem.Nodes
         public float ConvertIntToFloat(int value) => (float)value;
         public float ConvertBoolToFloat(bool value) => value ? 1f : 0f;
         #endregion
+        protected void ChangeOutputPortType(Type type)
+        {
+            var outs = GetOutputPorts();
+            if (outs != null)
+            {
+                foreach (var outPort in outs)
+                {
+                    outPort.ChangeType(type);
+                    outPort.ChangeName(type.Name);
+                }
+            }
+        }
     }
 }

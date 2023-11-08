@@ -14,6 +14,9 @@ using Random = UnityEngine.Random;
 using DialogueSystem.Edges;
 using static DialogueSystem.Generators.MethodGen;
 using static DialogueSystem.DialogueOption;
+using System.Linq.Expressions;
+using DialogueSystem.Generators;
+using DialogueSystem.Lambdas;
 
 namespace DialogueSystem.Nodes
 {
@@ -265,7 +268,7 @@ namespace DialogueSystem.Nodes
             Group = null;
         }
 
-        public virtual void Do(List<object> values) { }
+        public virtual void Do(PortInfo[] portInfos) { }
         #endregion
 
         #region Ports
@@ -524,7 +527,24 @@ namespace DialogueSystem.Nodes
         }
         #endregion
         #region
-        internal virtual string MethodGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
+        internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
+        internal virtual Delegate LambdaGenerationContext(ParameterExpression[] parameters) => null;
+        protected object CallDelegate(object[] values)
+        {
+            VariablesGen variablesGen = new VariablesGen();
+            LambdaGenerator labd = new LambdaGenerator(variablesGen);
+            var deleg = labd.BuildLambda(this);
+
+            return deleg.Delegate.DynamicInvoke(values);
+        }
         #endregion
+    }
+
+    public class PortInfo
+    {
+        public object Value;
+        public Type Type;
+        public BasePort port;
+        public BaseNode node;
     }
 }

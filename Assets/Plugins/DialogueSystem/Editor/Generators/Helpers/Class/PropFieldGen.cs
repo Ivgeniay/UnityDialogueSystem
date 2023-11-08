@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
-using DialogueSystem.Text;
 using System.Text;
 using System;
 
@@ -9,64 +8,58 @@ namespace DialogueSystem.Generators
 {
     internal class PropFieldGen : BaseGeneratorHelper
     {
-        private List<string> propertyToDraw = new List<string>();
+        private Dictionary<DSClass, Dictionary<BaseNode, string>> declaredProperties = new();
         private VariablesGen variablesGen;
+
         internal PropFieldGen(VariablesGen variablesGen) 
         {
             this.variablesGen = variablesGen;
         }
 
-        internal void GeneratePropField(BaseNode node, bool isAutoproperty = true, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
+
+        internal string GetDeclaratedPropField(DSClass dsClass, BaseNode node, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
         {
-            var outputs = node.GetOutputPorts();
-            foreach (var outputPort in outputs )
+            if (declaredProperties.TryGetValue(dsClass, out Dictionary<BaseNode, string> nodeLibs))
             {
-                StringBuilder sb = new StringBuilder()
-                    .Append(GetAttribute(attribute))
-                    .Append(GetVisibility(visibility))
-                    .Append(SPACE)
-                    .Append(GetVarType(outputPort.portType))
-                    .Append(SPACE)
-                    .Append(variablesGen.GetVariable(outputPort));
-
-                if (isAutoproperty)
+                if (nodeLibs.TryGetValue(node, out string propname)) return propname;
+                else
                 {
-                    sb.Append(SPACE)
-                    .Append(APROP);
+                    var property = GenerateDeclaredProperty(dsClass, node, isAutoproperty, visibility, attribute);
+                    nodeLibs = new()
+                    {
+                        { node, property }
+                    };
+                    return property;
                 }
-
-                if (outputPort.Value != null)
-                {
-                    sb.Append(SPACE).Append(EQLS).Append(SPACE);
-                    if (outputPort.portType == typeof(string)) sb.Append(QM);
-                    if (outputPort.portType == typeof(float)) sb.Append(outputPort.Value.ToString().Replace(',', '.')).Append("f");
-                    else if (outputPort.portType == typeof(double)) sb.Append(outputPort.Value.ToString().Replace(',', '.')).Append("d");
-                    else sb.Append(outputPort.Value);
-                    if (outputPort.portType == typeof(string)) sb.Append(QM);
-                    sb.Append(QUOTES);
-                }
-                propertyToDraw.Add(sb.ToString());
+            }
+            else
+            { 
+                var property = GenerateDeclaredProperty(dsClass, node, isAutoproperty, visibility, attribute);
+                nodeLibs = new()
+                    {
+                        { node, property }
+                    };
+                declaredProperties.Add(dsClass, nodeLibs);
+                return property;
             }
         }
-        internal string GetVarType(Type typeVariable)
-        {
-            switch (typeVariable)
-            {
-                case Type t when t == typeof(float): return "float";
-                case Type t when t == typeof(int): return "int";
-                case Type t when t == typeof(string): return "string";
-                case Type t when t == typeof(bool): return "bool";
-                case Type t when t == typeof(decimal): return "decimal";
-            }
-            return typeVariable.Name;
-        }
 
-        internal override StringBuilder Draw(StringBuilder context)
+        private string GenerateDeclaredProperty(DSClass dsClass, BaseNode node, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
         {
-            foreach (var prop in propertyToDraw)
-                context.AppendLine(prop);
-            
-            return context;
+            StringBuilder sb = new StringBuilder()
+                        .Append(GetAttribute(attribute))
+                        .Append(GetVisibility(visibility))
+                        .Append(SPACE)
+                        .Append(dsClass.GetClassType())
+                        .Append(SPACE)
+                        .Append(variablesGen.GetMainClassVariable(node));
+
+            if (isAutoproperty)
+            {
+                sb.Append(SPACE)
+                .Append(APROP);
+            }
+            return sb.ToString();
         }
     }
 }

@@ -52,16 +52,16 @@ namespace DialogueSystem.Nodes
                 });
             }
         }
-        public override void Do(List<object> values)
+        public override void Do(PortInfo[] portInfos)
         {
-            base.Do(values);
+            base.Do(portInfos);
 
-            if (!values.Any(e => e == null) && values.Count > 1)
-            {
-                var output = GetOutputPorts()[0];
-                output.Value = values[0].ToString() == values[1].ToString();
-                Debug.Log($"{values[0]} equals {output.Value} {values[1]}");
-            }
+            //if (!values.Any(e => e == null) && values.Count > 1)
+            //{
+            //    var output = GetOutputPorts()[0];
+            //    output.Value = values[0].ToString() == values[1].ToString();
+            //    Debug.Log($"{values[0]} equals {output.Value} {values[1]}");
+            //}
         }
     }
 }

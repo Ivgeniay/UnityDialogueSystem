@@ -1,12 +1,10 @@
-﻿using DialogueSystem.Ports;
+﻿using System.Collections.Generic;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
+using System;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -45,33 +43,18 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void Do(List<object> values)
+        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
-            base.Do(values);
-
-            BasePort output = GetOutputPorts()[0];
-
-            if (values == null || values.Count == 0)
+            StringBuilder sb = new();
+            sb.Append("return ");
+            for (int i = 0; i < inputVariables.Length; i++)
             {
-                ChangePort(output, typeof(string));
-                output.Value = "";
-                return;
+                sb.Append($"{inputVariables[i].ParamName}.ToString()");
+                if (i != inputVariables.Length - 1) sb.Append(" + ");
             }
+            sb.Append(';');
 
-            List<BasePort> inputs = GetInputPorts();
-
-            if (values.Count > 0)
-            {
-                string result = values[0].ToString();
-                ChangePort(inputs[0], values[0].GetType());
-
-                output.Value = result;
-                Debug.Log($"Преобразованное значения: из {values[0]} {values[0].GetType().Name} в {result} {result.GetType().Name}");
-            }
-            else
-            {
-                Debug.Log("Нет значений для обработки.");
-            }
+            return sb.ToString();
         }
     }
 }

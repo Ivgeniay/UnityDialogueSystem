@@ -55,18 +55,18 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void Do(List<object> values)
+        public override void Do(PortInfo[] portInfos)
         {
-            base.Do(values);
+            base.Do(portInfos);
 
-            if (values.Count > 1)
-            {
-                var doub1 = Convert.ToDouble(values[0]);
-                var doub2 = Convert.ToDouble(values[1]);
-                var output = GetOutputPorts()[0];
-                output.Value = doub1 >= doub2;
-                Debug.Log($"{values[0]} is more or equals than {values[1]} = {output.Value}");
-            }
+            //if (values.Count > 1)
+            //{
+            //    var doub1 = Convert.ToDouble(values[0]);
+            //    var doub2 = Convert.ToDouble(values[1]);
+            //    var output = GetOutputPorts()[0];
+            //    output.Value = doub1 >= doub2;
+            //    Debug.Log($"{values[0]} is more or equals than {values[1]} = {output.Value}");
+            //}
         }
     }
 }

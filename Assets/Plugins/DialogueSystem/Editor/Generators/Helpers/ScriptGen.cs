@@ -127,8 +127,8 @@ namespace DialogueSystem.Generators
 #if UNITY_EDITOR
             Debug.Log(script);
             string filePath = Application.dataPath + "/" + Class.GetClassName() + ".cs";
-            File.WriteAllText(filePath, script);
-            UnityEditor.AssetDatabase.Refresh();
+            //File.WriteAllText(filePath, script);
+            //UnityEditor.AssetDatabase.Refresh();
 #endif
         }
     }

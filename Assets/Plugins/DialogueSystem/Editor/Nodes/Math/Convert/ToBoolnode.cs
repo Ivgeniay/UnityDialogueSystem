@@ -4,6 +4,8 @@ using DialogueSystem.Ports;
 using UnityEngine;
 using System;
 using DialogueSystem.Utilities;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -42,94 +44,44 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void Do(List<object> values)
+        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
-            base.Do(values);
+            StringBuilder sb = new();
+            sb.Append("return ");
 
-            BasePort output = GetOutputPorts()[0];
-
-            if (values == null || values.Count == 0)
+            if (inputVariables.Length == 0)
             {
-                ChangePort(output, typeof(bool));
-                output.Value = false;
-                return;
-            }
-
-            List<BasePort> inputs = GetInputPorts();
-
-            if (values.Count > 0)
-            {
-                bool result = default;
-                if (values[0] is null) result = false;
-                else if (values[0] is double doub)
-                {
-                    result = Convert.ToBoolean(doub);
-                }
-                else if (values[0] is float fl)
-                {
-                    result = Convert.ToBoolean(fl);
-                }
-                else if (values[0] is int integer)
-                {
-                    result = Convert.ToBoolean(integer);
-                }
-                else if (values[0] is string str)
-                {
-                    if (bool.TryParse(str, out result)) 
-                    {
-                        result = Convert.ToBoolean(result);
-                    }
-                }
-                else if (values[0] is bool b)
-                {
-                    result = b;
-                }
-
-                if (values[0] is not null)
-                {
-                    ChangePort(inputs[0], values[0].GetType());
-                }
-
-                output.Value = result;
-                Debug.Log($"Преобразованное значения: из {values[0]} {values[0].GetType().Name} в {result} {result.GetType().Name}");
+                sb.Append("false;");
             }
             else
             {
-                Debug.Log("Нет значений для обработки.");
+                for (int i = 0; i < inputVariables.Length; i++)
+                {
+                    switch (inputVariables[i].ParamType)
+                    {
+                        case var t when t == typeof(double):
+                            sb.Append($"Convert.ToBoolean({inputVariables[i].ParamName})");
+                            break;
+                        case var t when t == typeof(float):
+                            sb.Append($"Convert.ToBoolean({inputVariables[i].ParamName})");
+                            break;
+                        case var t when t == typeof(int):
+                            sb.Append($"Convert.ToBoolean({inputVariables[i].ParamName})");
+                            break;
+                        case var t when t == typeof(string):
+                            sb.Append($"{inputVariables[i].ParamName} == \"true\"");
+                            break;
+                        case var t when t == typeof(bool):
+                            sb.Append($"{inputVariables[i].ParamName}");
+                            break;
+                    }
+
+                    if (i != inputVariables.Length - 1) sb.Append(" && ");
+                }
             }
+            sb.Append(';');
+
+            return sb.ToString();
         }
-
-        //public override void Do(List<object> values)
-        //{
-        //    base.Do(values);
-
-        //    BasePort output = GetOutputPorts()[0];
-
-        //    if (values == null || values.Count < 2 || values[0] == null || values[1] == null)
-        //    {
-        //        ChangePort(output, typeof(bool));
-        //        output.Value = false;
-        //    }
-
-        //    List<BasePort> inputs = GetInputPorts();
-
-        //    if (values.Count > 0)
-        //    {
-        //        bool b1 = false;
-        //        bool b2 = false;
-        //        if (values[0] is bool _b1)
-        //        {
-        //            ChangePort(inputs[0], typeof(bool));
-        //            b1 = _b1;
-        //        }
-        //        if (values[1] is bool _b2)
-        //        {
-        //            ChangePort(inputs[1], typeof(bool));
-        //            b2 = _b2;
-        //        }
-        //        ChangePort(output, typeof(bool));
-        //        output.Value = b1 == true && b2 == true;
-        //    }
-        //}
     }
 }

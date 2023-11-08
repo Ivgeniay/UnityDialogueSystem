@@ -4,29 +4,38 @@ using System.Text;
 using System;
 using DialogueSystem.Ports;
 using System.Linq;
+using DialogueSystem.Lambdas;
+using UnityEngine;
+using DialogueSystem.Edges;
 
 namespace DialogueSystem.Generators
 {
     internal class MethodGen : BaseGeneratorHelper
     {
-        private Dictionary<BaseNode, MethodInfo> methodInfos { get; set; } = new();
         private Dictionary<BaseNode, string> methods { get; set; } = new();
+
         private List<string> methodToDraw = new();
 
         private VariablesGen variablesGen;
+        private LambdaGenerator lambdaGenerator;
+        private PropFieldGen propFieldGen;
+        private ClassGen classGen;
 
-        internal MethodGen(VariablesGen variablesGen) 
+        internal MethodGen(VariablesGen variablesGen, PropFieldGen propFieldGen, LambdaGenerator lambdaGenerator, ClassGen classGen) 
         {
             this.variablesGen = variablesGen;
+            this.lambdaGenerator = lambdaGenerator;
+            this.propFieldGen = propFieldGen;
+            this.classGen = classGen;
         }
 
-        internal string ConstructMethod(string MethodName, string visibility, string context, string[] returnTypes = null, string[] inputTypes = null)
+        internal string ConstructMethod(string MethodName, Visibility visibility, string context, string[] returnTypes = null, string[] inputTypes = null)
         {
             StringBuilder sb = new StringBuilder()
                     .Append(visibility)
                     .Append(SPACE);
 
-            if (returnTypes == null && returnTypes.Length == 0) sb.Append("void").Append(SPACE);
+            if (returnTypes == null || returnTypes.Length == 0) sb.Append("void").Append(SPACE);
             else if (returnTypes != null && returnTypes.Length == 1) sb.Append(returnTypes[0]);
             else if (returnTypes != null && returnTypes.Length > 1)
             {
@@ -56,151 +65,161 @@ namespace DialogueSystem.Generators
 
             return sb.ToString();
         }
-
-        internal void GetMethod(BaseNode node, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
+        internal string ConstructInitializeMethod(string MethodName, params BaseNode[] nodesToInitialize)
         {
-            if (methods.TryGetValue(node, out string methodStr)) AddMethodToDraw(methodStr);
-            else
+            StringBuilder sb = new StringBuilder()
+                    .Append(GetVisibility(Visibility.@private))
+                    .Append(SPACE)
+                    .Append("void")
+                    .Append(SPACE);
+
+            sb.Append(SPACE).Append(MethodName).Append(BR_OP);
+
+            sb.Append(')')
+                .Append(TR)
+                .Append(BR_F_OP);
+
+            if (nodesToInitialize != null && nodesToInitialize.Length > 0)
             {
-                StringBuilder sb = new StringBuilder();
-                if (attribute != Attribute.None) sb.Append(GetAttribute(attribute));
-                sb.Append(GetVisibility(visibility)).Append(SPACE);
-
-                MethodInfo methodInfo = GetMethodInfo(node);
-                MethodParamsInfo[] inputVariables = new MethodParamsInfo[methodInfo.CountParams];
-                MethodParamsInfo[] outputVariables = new MethodParamsInfo[methodInfo.CountOutParams];
-
-                if (methodInfo.CountOutParams == 0) sb.Append("void");
-                else if (methodInfo.CountOutParams == 1)
+                for (int i = 0; i < nodesToInitialize.Length; i++)
                 {
-                    outputVariables[0] = new MethodParamsInfo()
-                    {
-                        ParamName = methodInfo.OutputParamTypes[0].Name + "_variable",
-                        ParamType = methodInfo.OutputParamTypes[0]
-                    };
-                    sb.Append(outputVariables[0].ParamType.Name);
-                }
-                else
-                {
-                    sb.Append("(");
-                    for (int i = 0; i < methodInfo.CountOutParams; i++)
-                    {
-                        outputVariables[i] = new MethodParamsInfo()
-                        {
-                            ParamName = methodInfo.OutputParamTypes[i].Name + "_variable",
-                            ParamType = methodInfo.OutputParamTypes[i]
-                        };
-                        sb.Append(methodInfo.OutputParamTypes[i].Name);
-                        if (i != methodInfo.CountOutParams) sb.Append(", ");
-                    }
-                    sb.Append(")");
-                }
-                sb.Append(SPACE)
-                    .Append(node.Model.NodeName)
-                    .Append(BR_OP);
+                    var r = classGen.GetDSClass(nodesToInitialize[i]);
+                    var mainVariable = variablesGen.GetMainClassVariable(nodesToInitialize[i]);
 
-                if (methodInfo.CountParams > 0)
-                {
-                    string vName = "item_";
-                    for (int i = 0; i < methodInfo.CountParams; i++)
-                    {
-                        inputVariables[i] = new MethodParamsInfo()
-                        {
-                            ParamType = methodInfo.InputParamTypes[i],
-                            ParamName = vName + i,
-                        };
-                        sb.Append(inputVariables[i].ParamType.Name)
-                            .Append(SPACE)
-                            .Append(vName + i);
+                    sb.Append(mainVariable)
+                        .Append(EQLS)
+                        .Append(NEW)
+                        .Append(BR_OP)
+                        .Append(BR_CL)
+                        .Append(TR)
+                        .Append(BR_F_OP);
 
-                        if (i != methodInfo.CountParams - 1)
+                    var outputs = nodesToInitialize[i].GetOutputPorts();
+
+                    for (int j = 0; j < outputs.Count; j++)
+                    {
+                        var localVariable2 = r.GetVariable(outputs[j]);
+                        if (nodesToInitialize[i] is BaseNumbersNode number)
                         {
-                            sb.Append(',')
-                                .Append(SPACE);
+                            sb.Append(localVariable2.Name)
+                                .Append(EQLS)
+                                .Append(outputs[j].Value);
+                            if (outputs[j].portType == typeof(float)) sb.Append("f");
+                            if (outputs[j].portType == typeof(double)) sb.Append("d");
+                            sb.Append(COMMA);
                         }
+                        else if (nodesToInitialize[i] is BaseLetterNode letter)
+                        {
+                            sb.Append(localVariable2.Name)
+                                .Append(EQLS)
+                                .Append(QM)
+                                .Append(outputs[j].Value)
+                                .Append(QM)
+                                .Append(COMMA);
+                        }
+                        else if (nodesToInitialize[i] is BaseOperationNode operation)
+                        {
+                            sb.Append(localVariable2.Name)
+                                .Append(EQLS)
+                                .Append(BR_OP)
+                                .Append(BR_CL)
+                                .Append(EQLS)
+                                .Append(R_TRIANGE);
+
+                            var inputs = operation.GetInputPorts();
+                            List<BasePort> connectedOuputPorts = new();
+                            foreach (var inputPort in inputs)
+                            {
+                                if (inputPort.connected)
+                                {
+                                    var connectionsEdge = inputPort.connections.ToList();
+                                    foreach (var edge in connectionsEdge)
+                                        connectedOuputPorts.Add(edge.output as BasePort);
+                                }
+                            }
+
+                            MethodParamsInfo[] inputParameters = connectedOuputPorts.Select(e =>
+                            {
+                                var t = variablesGen.GetInnerClassVariable(e);
+                                if (string.IsNullOrWhiteSpace(t)) 
+                                    t = "0d";
+                                var methofInfo = new MethodParamsInfo()
+                                {
+                                    ParamName = t,
+                                    ParamType = e.portType
+                                };
+                                return methofInfo;
+                            }).ToArray();
+
+                            string lambda = "";
+                            if (inputParameters.Length == 0 && localVariable2.Type.IsValueType) lambda = "return " + Activator.CreateInstance(localVariable2.Type) + ";";
+                            else if (inputParameters.Length == 0 && !localVariable2.Type.IsValueType) lambda = "return \"\"";
+                            else lambda = operation.LambdaGenerationContext(inputParameters, new MethodParamsInfo[0]);
+
+                            sb.Append(BR_F_OP)
+                                .Append(lambda)
+                                .Append(BR_F_CL)
+                                .Append(COMMA);
+                        }
+                        else if (nodesToInitialize[i] is BaseConvertNode convert)
+                        {
+                            sb.Append(localVariable2.Name)
+                                .Append(EQLS)
+                                .Append(BR_OP)
+                                .Append(BR_CL)
+                                .Append(EQLS)
+                                .Append(R_TRIANGE);
+
+                            var inputs = convert.GetInputPorts();
+                            List<BasePort> connectedOuputPorts = new();
+                            foreach (var inputPort in inputs)
+                            {
+                                if (inputPort.connected)
+                                {
+                                    var connectionsEdge = inputPort.connections.ToList();
+                                    foreach (var edge in connectionsEdge)
+                                        connectedOuputPorts.Add(edge.output as BasePort);
+                                }
+                            }
+
+                            MethodParamsInfo[] inputParameters = connectedOuputPorts.Select(e =>
+                            {
+                                var t = variablesGen.GetInnerClassVariable(e);
+                                if (string.IsNullOrWhiteSpace(t))
+                                    t = "0d";
+                                var methofInfo = new MethodParamsInfo()
+                                {
+                                    ParamName = t,
+                                    ParamType = e.portType
+                                };
+                                return methofInfo;
+                            }).ToArray();
+
+                            string lambda = "";
+                            if (inputParameters.Length == 0 && localVariable2.Type.IsValueType) lambda = "return " + Activator.CreateInstance(localVariable2.Type) + ";";
+                            else if (inputParameters.Length == 0 && !localVariable2.Type.IsValueType) lambda = "return \"\"";
+                            else lambda = convert.LambdaGenerationContext(inputParameters, new MethodParamsInfo[0]);
+
+                            sb.Append(BR_F_OP)
+                                .Append(lambda)
+                                .Append(BR_F_CL)
+                                .Append(COMMA);
+                        }
+
                     }
+                    sb.Append(BR_F_CL)
+                        .Append(QUOTES)
+                        .Append(TR);
                 }
-                sb.Append(BR_CL)
-                .Append(TR)
-                .Append(BR_F_OP)
-                .Append(node.MethodGenerationContext(inputVariables, outputVariables))
-                .Append(TR)
-                .Append(BR_F_CL);
-
-                AddMethodToDraw(sb.ToString());
-            }
-        }
-        internal string GetCallMethod(BaseNode node)
-        {
-            StringBuilder sb = new StringBuilder();
-            var methodInfo = GetMethodInfo(node);
-            var inputPorts = node.GetInputPorts();
-
-            sb
-                .Append(methodInfo.MethodName)
-                .Append('(');
-
-            for (int i = 0; i < inputPorts.Count; i++)
-            {
-                string variable = string.Empty;
-                if (inputPorts[i].connected)
-                {
-                    var connections = inputPorts[i].connections.ToList();
-                    BasePort connectedPort = connections[0].output as BasePort;
-                    variable = variablesGen.GetVariable(connectedPort);
-                }
-                else variable = inputPorts[i].portType.IsValueType ? Activator.CreateInstance(inputPorts[i].portType).ToString() : "null";
-                sb.Append(variable);
-                if (i != inputPorts.Count - 1) sb.Append(", ");
             }
 
-            sb.Append(");\n");
+            sb.Append(BR_F_CL)
+                .Append(TR);
+
             return sb.ToString();
         }
-        internal void AddMethodToDraw(string method)
-        {
-            if (!methodToDraw.Contains(method))
-                methodToDraw.Add(method);
-        }
 
-        private MethodInfo GenerateMethodInfo(BaseNode baseNode, Visibility visibility = Visibility.Public, Attribute attribute = Attribute.None)
-        {
-            var inputs = baseNode.GetInputPorts();
-            var outputs = baseNode.GetOutputPorts();
 
-            List<Type> inputParamTypes = new();
-            List<Type> outputParamTypes = new();
-
-            foreach (var port in inputs) inputParamTypes.Add(port.portType);
-            foreach (var port in outputs) outputParamTypes.Add(port.portType);
-
-            return new MethodInfo()
-            {
-                InputParamTypes = inputParamTypes.ToArray(),
-                OutputParamTypes = outputParamTypes.ToArray(),
-                MethodName = baseNode.Model.NodeName,
-                Visibility = visibility,
-                Attribute = attribute,
-                CountParams = inputParamTypes.Count,
-                CountOutParams = outputParamTypes.Count
-            };
-        }
-        private MethodInfo GetMethodInfo(BaseNode node)
-        {
-            if (methodInfos.TryGetValue(node, out MethodInfo method)) return method;
-            else return GenerateMethodInfo(node);
-        }
-        private record MethodInfo
-        {
-            public int CountParams;
-            public int CountOutParams;
-            public Type[] InputParamTypes;
-            public Type[] OutputParamTypes;
-            public string MethodName;
-            public Visibility Visibility;
-            public Attribute Attribute;
-            public string OutputParamT;
-        }
         public class MethodParamsInfo
         {
             public string ParamName;

@@ -5,23 +5,13 @@ using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using UnityEngine;
 using System;
+using DialogueSystem.Ports;
+using System.Linq;
 
 namespace DialogueSystem.Nodes
 {
     public abstract class BaseOperationNode : BaseMathNode
     {
-        protected void ChangeOutputPortType(Type type)
-        {
-            var outs= GetOutputPorts();
-            if (outs != null)
-            {
-                foreach (var outPort in outs)
-                {
-                    outPort.ChangeType(type);
-                    outPort.ChangeName(type.Name);
-                }
-            }
-        }
 
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -101,6 +91,15 @@ namespace DialogueSystem.Nodes
             container.Insert(1, addChoiceBtn);
         }
 
+        public override void Do(PortInfo[] portInfos)
+        {
+            base.Do(portInfos);
+
+            BasePort output = GetOutputPorts()[0];
+
+            var isStr = portInfos.Any(e => e.port.portType == typeof(string));
+            ChangeOutputPortType(isStr == true ? typeof(string) : typeof(double));
+        }
 
     }
 }

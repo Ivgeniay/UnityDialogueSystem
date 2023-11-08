@@ -189,5 +189,22 @@ namespace DialogueSystem.Utilities
             }
             return name;
         }
+
+        public static string GenerateClassNameFromType(Type t)
+        {
+            var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);
+            name = name.Replace("base", "", StringComparison.OrdinalIgnoreCase);
+            name = char.ToUpper(name[0]) + name.Substring(1);
+            for (int i = 1; i < name.Length; i++)
+            {
+                if (char.IsUpper(name[i]))
+                {
+                    name = name.Insert(i, "_");
+                    i++;
+                }
+            }
+            name = name.Insert(0, "DS");
+            return name;
+        }
     }
 }

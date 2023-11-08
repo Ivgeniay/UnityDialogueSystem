@@ -33,15 +33,16 @@ namespace DialogueSystem.Generators
 
             scrGen.Class.SetClassName(className);
 
-            foreach (var el in actorN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            foreach (var el in letterN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            foreach (var el in numbersN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            foreach (var el in operationN) scrGen.Class.MethodGen.GetMethod(el, Visibility.Private);
+            //foreach (var el in actorN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            //foreach (var el in letterN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            //foreach (var el in numbersN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
+            //foreach (var el in operationN) scrGen.Class.MethodGen.GetMethod(el, Visibility.Private);
 
-            var method = scrGen.Class.MethodGen.ConstructMethod("CustomMethod", "public", returnTypes: new string[]
-            { "string" }, inputTypes: new string[] {"int a", "double b"}, context:
-            @" return ""пошел нахуй"";");
-            scrGen.Class.MethodGen.AddMethodToDraw(method);
+            //var method = scrGen.Class.MethodGen.ConstructMethod("CustomMethod", Visibility.Private, returnTypes: new string[]
+            //{ "string" }, inputTypes: new string[] {"int a", "double b"}, context:
+            //@" return ""пошел нахуй"";");
+
+            //scrGen.Class.MethodGen.AddMethodToDraw(method);
 
             var _script = scrGen.Draw(new StringBuilder());
             scrGen.Build();
