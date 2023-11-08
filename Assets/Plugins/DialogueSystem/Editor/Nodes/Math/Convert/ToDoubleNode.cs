@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using DialogueSystem.Generators;
+using DialogueSystem.Nodes;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using UnityEngine;
 using System;
-using DialogueSystem.Generators;
-using System.Text;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using UnityEngine;
 
-namespace DialogueSystem.Nodes
+namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
 {
-    internal class ToFloatNode : BaseConvertNode
+    internal class ToDoubleNode : BaseConvertNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -20,24 +20,27 @@ namespace DialogueSystem.Nodes
             {
                 Model.Inputs.Add(new(DSConstants.AvalilableTypes)
                 {
-                    PortText = DSConstants.All,
+                    PortText = $"All",
                     Value = 0,
                     Cross = false,
                     IsField = false,
                     IsInput = true,
                     IsSingle = true,
-                    Type = typeof(bool),
+                    Type = typeof(bool)
                 });
 
-                Model.Outputs.Add(new(new Type[] { typeof(float) })
+                Model.Outputs.Add(new(new Type[]
                 {
-                    PortText = DSConstants.Float,
-                    Type = typeof(float),
+                    typeof(double)
+                })
+                {
+                    Type = typeof(double),
                     Value = 0f,
                     Cross = false,
                     IsField = false,
                     IsInput = false,
                     IsSingle = false,
+                    PortText = DSConstants.Double,
                     IsFunction = true,
                 });
             }
@@ -49,19 +52,15 @@ namespace DialogueSystem.Nodes
 
             if (inputVariables.Any(e => e.ParamType == typeof(string)))
             {
-                sb.Append("float SafeParseToFloat(string input)")
+                sb.Append("double SafeParseToDouble(string input)")
                     .Append("\n")
                     .Append("{")
                     .Append("\n")
-                    .Append("input = input.Replace(',', '.');")
+                    .Append("double result;")
                     .Append("\n")
-                    .Append("CultureInfo culture = CultureInfo.InvariantCulture;")
+                    .Append("if (double.TryParse(input, out result)) return result;")
                     .Append("\n")
-                    .Append("NumberStyles style = NumberStyles.Float;")
-                    .Append("\n")
-                    .Append("if (float.TryParse(input, style, culture, out float result)) return result;")
-                    .Append("\n")
-                    .Append("else return 0f;")
+                    .Append("return 0;")
                     .Append("\n")
                     .Append("}\n");
             }
@@ -69,22 +68,22 @@ namespace DialogueSystem.Nodes
             sb.Append("return ");
             for (int i = 0; i < inputVariables.Length; i++)
             {
-                switch(inputVariables[i].ParamType)
+                switch (inputVariables[i].ParamType)
                 {
                     case var t when t == typeof(double):
-                        sb.Append($"(float){inputVariables[i].ParamName}");
-                        break;
-                    case var t when t == typeof(float):
                         sb.Append($"{inputVariables[i].ParamName}");
                         break;
+                    case var t when t == typeof(float):
+                        sb.Append($"(double){inputVariables[i].ParamName}");
+                        break;
                     case var t when t == typeof(int):
-                        sb.Append($"(float){inputVariables[i].ParamName}");
+                        sb.Append($"(double){inputVariables[i].ParamName}");
                         break;
                     case var t when t == typeof(string):
-                        sb.Append($"SafeParseToFloat({inputVariables[i].ParamName})");
+                        sb.Append($"SafeParseToDouble({inputVariables[i].ParamName})");
                         break;
                     case var t when t == typeof(bool):
-                        sb.Append($"{inputVariables[i].ParamName} ? 1f : 0f");
+                        sb.Append($"{inputVariables[i].ParamName} ? 1d : 0d");
                         break;
                 }
                 if (i != inputVariables.Length - 1) sb.Append(" + ");

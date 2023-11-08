@@ -73,11 +73,14 @@ namespace DialogueSystem.Generators
                     .Append("void")
                     .Append(SPACE);
 
-            sb.Append(SPACE).Append(MethodName).Append(BR_OP);
+            sb.Append(MethodName).Append(BR_OP);
+
+
 
             sb.Append(')')
                 .Append(TR)
-                .Append(BR_F_OP);
+                .Append(BR_F_OP)
+                .Append(SPACE);
 
             if (nodesToInitialize != null && nodesToInitialize.Length > 0)
             {
@@ -87,7 +90,9 @@ namespace DialogueSystem.Generators
                     var mainVariable = variablesGen.GetMainClassVariable(nodesToInitialize[i]);
 
                     sb.Append(mainVariable)
+                        .Append(SPACE)
                         .Append(EQLS)
+                        .Append(SPACE)
                         .Append(NEW)
                         .Append(BR_OP)
                         .Append(BR_CL)
@@ -103,7 +108,8 @@ namespace DialogueSystem.Generators
                         {
                             sb.Append(localVariable2.Name)
                                 .Append(EQLS)
-                                .Append(outputs[j].Value);
+                                .Append(SPACE)
+                                .Append((outputs[j].Value).ToString().Replace(",", "."));
                             if (outputs[j].portType == typeof(float)) sb.Append("f");
                             if (outputs[j].portType == typeof(double)) sb.Append("d");
                             sb.Append(COMMA);
@@ -112,6 +118,7 @@ namespace DialogueSystem.Generators
                         {
                             sb.Append(localVariable2.Name)
                                 .Append(EQLS)
+                                .Append(SPACE)
                                 .Append(QM)
                                 .Append(outputs[j].Value)
                                 .Append(QM)
@@ -121,6 +128,7 @@ namespace DialogueSystem.Generators
                         {
                             sb.Append(localVariable2.Name)
                                 .Append(EQLS)
+                                .Append(SPACE)
                                 .Append(BR_OP)
                                 .Append(BR_CL)
                                 .Append(EQLS)
@@ -140,7 +148,7 @@ namespace DialogueSystem.Generators
 
                             MethodParamsInfo[] inputParameters = connectedOuputPorts.Select(e =>
                             {
-                                var t = variablesGen.GetInnerClassVariable(e);
+                                var t = variablesGen.GetAndCallInnerClassVariableFunction(e);
                                 if (string.IsNullOrWhiteSpace(t)) 
                                     t = "0d";
                                 var methofInfo = new MethodParamsInfo()
@@ -165,6 +173,7 @@ namespace DialogueSystem.Generators
                         {
                             sb.Append(localVariable2.Name)
                                 .Append(EQLS)
+                                .Append(SPACE)
                                 .Append(BR_OP)
                                 .Append(BR_CL)
                                 .Append(EQLS)
@@ -184,7 +193,7 @@ namespace DialogueSystem.Generators
 
                             MethodParamsInfo[] inputParameters = connectedOuputPorts.Select(e =>
                             {
-                                var t = variablesGen.GetInnerClassVariable(e);
+                                var t = variablesGen.GetAndCallInnerClassVariableFunction(e);
                                 if (string.IsNullOrWhiteSpace(t))
                                     t = "0d";
                                 var methofInfo = new MethodParamsInfo()

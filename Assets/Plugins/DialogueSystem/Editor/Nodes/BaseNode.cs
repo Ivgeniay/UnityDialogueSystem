@@ -272,7 +272,7 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, string ifPortSourceId = null)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null)
         {
             var data = new DSPortModel(availableTypes)
             {
@@ -286,6 +286,7 @@ namespace DialogueSystem.Nodes
                 IsSingle = isSingle,
                 Cross = cross,
                 PlusIf = plusIf,
+                IsFunction = isFunction,
                 IfPortSourceId = ifPortSourceId,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
@@ -323,6 +324,7 @@ namespace DialogueSystem.Nodes
                 type: data.Type);
             port.AvailableTypes = data.AvailableTypes.Select(el => Type.GetType(el)).ToArray();
             port.Value = data.Value;
+            port.IsFunctions = data.IsFunction;
 
             if (data.IsField && data.Type != null)
             {
@@ -520,7 +522,7 @@ namespace DialogueSystem.Nodes
             return (port, data);
         }
 
-        protected void ChangePort(BasePort port, Type type)
+        protected void ChangePortValueAndType(BasePort port, Type type)
         {
             port.ChangeType(type);
             port.ChangeName(type.Name);

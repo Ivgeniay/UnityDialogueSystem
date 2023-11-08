@@ -32,6 +32,8 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool PlusIf;
         //Нужно ли поле для этого порта
         [SerializeField] public bool IsField;
+        //Является ли этот порт выходной функцией или содержит только лишь значение
+        [SerializeField] public bool IsFunction;
         //Тип порта
         [SerializeField] public Type Type;
         //Список типов для присоединения порта

@@ -34,7 +34,7 @@ namespace DialogueSystem.Nodes
                     BasePort connectedPort = port.connections.First().output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePort(port, connectedPort.portType);
+                        ChangePortValueAndType(port, connectedPort.portType);
 
                         var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
@@ -54,7 +54,7 @@ namespace DialogueSystem.Nodes
                     BasePort connectedPort = edge.output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePort(port, connectedPort.portType);
+                        ChangePortValueAndType(port, connectedPort.portType);
 
                         var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
@@ -108,20 +108,15 @@ namespace DialogueSystem.Nodes
             }
             return 0;
         }
+
         public float SafeParseToFloat(string input)
         {
             input = input.Replace(',', '.');
             CultureInfo culture = CultureInfo.InvariantCulture;
             NumberStyles style = NumberStyles.Float;
 
-            if (float.TryParse(input, style, culture, out float result))
-            {
-                return result;
-            }
-            else
-            {
-                return 0f;
-            }
+            if (float.TryParse(input, style, culture, out float result)) return result;
+            else return 0f;
         }
         public float ConvertIntToFloat(int value) => (float)value;
         public float ConvertBoolToFloat(bool value) => value ? 1f : 0f;

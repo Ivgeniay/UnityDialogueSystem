@@ -53,6 +53,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = true,
                     Type = typeof(double),
+                    IsFunction = true,
                 });
             }
         }

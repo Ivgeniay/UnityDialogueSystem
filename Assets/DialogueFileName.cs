@@ -1,45 +1,58 @@
 using UnityEngine;	
 using System;	
-using DialogueSystem;	
-using DialogueSystem.Nodes;
-using UnityEngine.Events;
+using DialogueSystem;
 
-public class DialogueFileName : MonoBehaviour
+public class DialogueFileName
 {
-	[field: SerializeField]private string StringNode49_String_0 {get; set;}
-	[field: SerializeField]private DSFloat FloatNode81_Int32_1 {get; set;}
-	[field: SerializeField]private DSAddition Addition1 {get; set;}
-	[field: SerializeField]private int IntegerNode90_Int32_2 {get; set;}
-	[field: SerializeField]private double FloatNode99_Single_3 {get; set;}
-	private Func<string> fu;
-
+	
+	#region Properties
+	[field: SerializeField]private DSInteger IntegerNode_0 {get; set;}
+	[field: SerializeField]private DSFloat FloatNode_1 {get; set;}
+	[field: SerializeField]private DSSubtract SubtractNode_2 {get; set;}
+	#endregion
+	#region Methods
 	private void Initialize()
 	{
-		FloatNode81_Int32_1 = new()
+		 IntegerNode_0 =new()
 		{
-			FloatNode70_Single_0 = 554f,
-        };
-		Addition1 = new()
+			IntegerNode99_Int32_0= 2323,
+		};
+		FloatNode_1 =new()
 		{
-			AdditionNode65_Double_0 = () => { return FloatNode81_Int32_1.FloatNode70_Single_0 + 5; },
-        };
-
-		Addition1.AdditionNode65_Double_0();
-    }
-
-    [System.Serializable]
-    private class DSFloat
-    {
-		public UnityEvent OnAction;
-        [field: SerializeField] public float FloatNode70_Single_0 { get; set; } = 565f;
-
-    }
-
-	[System.Serializable]
-	private class DSAddition
-	{
-		[field: SerializeField] public Func<float> AdditionNode65_Double_0 { get; set; }
-
+			FloatNode70_Single_0= 2f,
+		};
+		SubtractNode_2 =new()
+		{
+			SubtractNode80_Double_0= ()=>{
+				return IntegerNode_0.IntegerNode99_Int32_0 - FloatNode_1.FloatNode70_Single_0;
+			},
+		};
+		
 	}
-
+	#endregion
+	#region ClassDeclaration
+	
+	[System.Serializable]
+	private class DSInteger
+	{
+		[field: SerializeField]public int IntegerNode99_Int32_0 {get; set;}
+		
+	}
+	
+	[System.Serializable]
+	private class DSFloat
+	{
+		[field: SerializeField]public float FloatNode70_Single_0 {get; set;}
+		
+	}
+	
+	[System.Serializable]
+	private class DSSubtract
+	{
+		[field: SerializeField]public Func<Double> SubtractNode80_Double_0 {get; set;}
+		
+	}
+	#endregion
+	
+	
 }

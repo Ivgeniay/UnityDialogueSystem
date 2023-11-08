@@ -1,12 +1,6 @@
 ﻿using DialogueSystem.Nodes;
 using DialogueSystem.Window;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace DialogueSystem.Generators
 {
@@ -32,17 +26,6 @@ namespace DialogueSystem.Generators
             ScriptGen scrGen = new(actorN, numbersN, convertesN, operationN, logicN, letterN, dialogN);
 
             scrGen.Class.SetClassName(className);
-
-            //foreach (var el in actorN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            //foreach (var el in letterN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            //foreach (var el in numbersN) scrGen.Class.GeneratePropField(el, true, Visibility.Private, Attribute.FieldSerializeField);
-            //foreach (var el in operationN) scrGen.Class.MethodGen.GetMethod(el, Visibility.Private);
-
-            //var method = scrGen.Class.MethodGen.ConstructMethod("CustomMethod", Visibility.Private, returnTypes: new string[]
-            //{ "string" }, inputTypes: new string[] {"int a", "double b"}, context:
-            //@" return ""пошел нахуй"";");
-
-            //scrGen.Class.MethodGen.AddMethodToDraw(method);
 
             var _script = scrGen.Draw(new StringBuilder());
             scrGen.Build();

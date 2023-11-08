@@ -65,7 +65,15 @@ namespace DialogueSystem.Generators
                         {
                             declarationArea.Append(TR);
                             dSClass = GetDSClass(node);
-                            dSClass.GetDeclaratedClass(Visibility.@private, declarationArea, Attribute.SystemSerializable);
+                            if (node is ActorNode actorNode)
+                            {
+
+                            }
+                            else
+                            {
+                                dSClass.GetDeclaratedClass(Visibility.@private, declarationArea, Attribute.SystemSerializable);
+                                declarationArea.Append(TR);
+                            }
                         }
 
                         if (instances.TryGetValue(node, out DSClass dS)) continue;

@@ -5,6 +5,7 @@ using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEditor.Experimental.GraphView;
 
 namespace DialogueSystem.Generators
@@ -40,10 +41,27 @@ namespace DialogueSystem.Generators
                 var mainVar = GetMainClassVariable(motherNode);
                 return mainVar + "." + innerVar.Name;
             }
-
             throw new NullReferenceException();
         }
 
+        internal string GetAndCallInnerClassVariableFunction(BasePort basePort, params BasePort[] innerFuncVariables)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(GetInnerClassVariable(basePort));
+            
+            if (basePort.IsFunctions)
+            {
+                sb.Append(SPACE).Append(BR_OP);
+                for (int i = 0; i < innerFuncVariables.Length; i++)
+                {
+                    sb.Append(GetAndCallInnerClassVariableFunction(innerFuncVariables[i]));
+                    if (i != innerFuncVariables.Length - 1) sb.Append(COMMA);
+                }
+                sb.Append(BR_CL);
+            }
+            return sb.ToString();
+        }
+        //AddNode_1.doubleFunc()
 
         internal void RegisterDSClass(DSClass dsClass)
         {

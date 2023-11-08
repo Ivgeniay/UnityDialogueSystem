@@ -17,6 +17,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool PlusIf;
         [SerializeField] public bool Cross;
         [SerializeField] public bool IsField;
+        [SerializeField] public bool IsFunction;
         [SerializeField] public string Type;
         [SerializeField] public string[] AvailableTypes;
 
@@ -36,6 +37,7 @@ namespace DialogueSystem.Database.Save
             AvailableTypes = dSPortModel.AvailableTypes;
             IfPortSourceId = dSPortModel.IfPortSourceId;
             PlusIf = dSPortModel.PlusIf;
+            IsFunction = dSPortModel.IsFunction;
 
             if (dSPortModel.NodeIDs != null)
             {

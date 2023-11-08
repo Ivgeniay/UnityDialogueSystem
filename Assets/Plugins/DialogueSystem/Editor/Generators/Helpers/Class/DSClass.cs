@@ -79,23 +79,16 @@ namespace DialogueSystem.Generators
                         .Append(GetVisibility(visibility))
                         .Append(SPACE);
 
-            var motherNode = port.node as BaseNode;
-            if (motherNode is BaseOperationNode operationNode)
-            {
-                sb.Append("Func<")
-                    .Append(GetVarType(port.portType))
-                    .Append(">");
-            }
-            else if (motherNode is BaseConvertNode convert)
+            if (port.IsFunctions)
             {
                 sb.Append("Func<")
                     .Append(GetVarType(port.portType))
                     .Append(">");
             }
             else sb.Append(GetVarType(port.portType));
-
-                      sb.Append(SPACE)
-                        .Append(GetVariable(port).Name);
+            
+            sb.Append(SPACE)
+                .Append(GetVariable(port).Name);
 
             if (isAutoproperty)
             {
@@ -106,7 +99,6 @@ namespace DialogueSystem.Generators
         }
 
         #endregion
-
         #region Variables
         internal VariableInfo GetVariable(BasePort port)
         {
@@ -117,7 +109,14 @@ namespace DialogueSystem.Generators
                 {
                     var varI = new VariableInfo();
                     var node = port.node as BaseNode;
-                    varI.Name = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{port.portType.Name}_{variable.Count}";
+                    if (node is ActorNode actorNode)
+                    {
+                        varI.Name = $"{port.portName.Substring(0, port.portName.IndexOf(" "))}";
+                    }
+                    else
+                    {
+                        varI.Name = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{port.portType.Name}_{variable.Count}";
+                    }
 
                     if (node is BaseOperationNode operationNode)
                     {
