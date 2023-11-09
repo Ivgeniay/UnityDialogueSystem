@@ -14,7 +14,7 @@ namespace DialogueSystem.Generators
 
         internal void Generate(string filename)
         {
-            BaseNumbersNode[] numbersN      = graphView.GetNodesOfType<BaseNumbersNode>();   
+            BasePrimitiveNode[] numbersN      = graphView.GetNodesOfType<BasePrimitiveNode>();   
             ActorNode[] actorN              = graphView.GetNodesOfType<ActorNode>();         
             BaseConvertNode[] convertesN    = graphView.GetNodesOfType<BaseConvertNode>();   
             BaseOperationNode[] operationN  = graphView.GetNodesOfType<BaseOperationNode>(); 

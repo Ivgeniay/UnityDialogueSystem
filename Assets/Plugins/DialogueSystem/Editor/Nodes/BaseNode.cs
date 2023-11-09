@@ -272,7 +272,7 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isSerializedInScript = true)
         {
             var data = new DSPortModel(availableTypes)
             {
@@ -288,6 +288,7 @@ namespace DialogueSystem.Nodes
                 PlusIf = plusIf,
                 IsFunction = isFunction,
                 IfPortSourceId = ifPortSourceId,
+                IsSerializedInScript = isSerializedInScript,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
 
@@ -298,6 +299,7 @@ namespace DialogueSystem.Nodes
             if (isIfPort)
             {
                 data.IsInput = true;
+                data.IsFunction = true;
                 var ifports = Model.Inputs.Where(e => e.IsIfPort).ToList();
                 var isIt = ifports.Any(e => e.IfPortSourceId == ifPortSourceId);
                 if (isIt)
@@ -323,8 +325,10 @@ namespace DialogueSystem.Nodes
                 capacity: capacity,
                 type: data.Type);
             port.AvailableTypes = data.AvailableTypes.Select(el => Type.GetType(el)).ToArray();
-            port.Value = data.Value;
+            port.SetValue(data.Value);
+            port.ChangeName(data.PortText);
             port.IsFunctions = data.IsFunction;
+            port.IsSerializedInScript = data.IsSerializedInScript;
 
             if (data.IsField && data.Type != null)
             {
@@ -338,7 +342,7 @@ namespace DialogueSystem.Nodes
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            port.Value = callback.newValue;
+                            port.SetValue(callback.newValue);
                         },
                         styles: new string[]
                             {
@@ -359,7 +363,7 @@ namespace DialogueSystem.Nodes
                                 Toggle target = callBack.target as Toggle;
                                 target.value = callBack.newValue;
                                 data.Value = callBack.newValue;
-                                port.Value = callBack.newValue;
+                                port.SetValue(callBack.newValue);
                             },
                             styles: new string[]
                             {
@@ -378,7 +382,8 @@ namespace DialogueSystem.Nodes
                             IntegerField target = callback.target as IntegerField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            port.Value = callback.newValue;
+                            port.SetValue(callback.newValue);
+
                         },
                         styles: new string[]
                             {
@@ -398,7 +403,7 @@ namespace DialogueSystem.Nodes
                             TextField target = callback.target as TextField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            port.Value = callback.newValue;
+                            port.SetValue(callback.newValue);
                         },
                         styles: new string[]
                             {
@@ -418,7 +423,7 @@ namespace DialogueSystem.Nodes
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
                             data.Value = callback.newValue;
-                            port.Value = callback.newValue;
+                            port.SetValue(callback.newValue);
                         },
                         styles: new string[]
                             {
@@ -524,7 +529,7 @@ namespace DialogueSystem.Nodes
 
         protected void ChangePortValueAndType(BasePort port, Type type)
         {
-            port.ChangeType(type);
+            port.SetPortType(type);
             port.ChangeName(type.Name);
         }
         #endregion

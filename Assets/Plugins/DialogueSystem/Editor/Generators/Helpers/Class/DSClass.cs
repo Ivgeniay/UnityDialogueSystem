@@ -1,26 +1,32 @@
-﻿using DialogueSystem.Nodes;
+﻿using DialogueSystem.Abstract;
+using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
 using DialogueSystem.Text;
+using DialogueSystem.TextFields;
 using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements;
 
 namespace DialogueSystem.Generators
 {
     internal class DSClass : BaseGeneratorHelper
     {
-        private readonly Dictionary<BasePort, string> declaratedProperty = new();
-        private readonly Dictionary<Type, VariableInfo> variable = new();
+        private readonly Dictionary<IDataHolder, string> declaratedProperty = new();
+        private readonly Dictionary<IDataHolder, VariableInfo> variable = new();
+        private List<IDataHolder> dataHolders = new List<IDataHolder>();
+        private string classText { get; set; } = null;
+        internal VisualElement parentVisualElement { get; private set; } = null;
 
-
-        private string classText = null;
-        internal BaseNode Node { get; private set; } = null;
-        internal DSClass(BaseNode parentNode)
+        internal void Initialize(VisualElement visualElement)
         {
-            this.Node = parentNode;
+            parentVisualElement = visualElement;
+            dataHolders = FindAllDataHolders(visualElement);
         }
-
+        
         #region Class
         internal StringBuilder GetDeclaratedClass(Visibility @private, StringBuilder context, Attribute attribute = Attribute.None)
         {
@@ -29,15 +35,11 @@ namespace DialogueSystem.Generators
             stringBuilder = GetClassLine(Visibility.@private, stringBuilder, attribute);
             stringBuilder.Append(TR).Append(BR_F_OP);
 
-            var outputs = Node.GetOutputPorts();
-
-            foreach (var outputPort in outputs)
+            foreach (var dataHolder in dataHolders)
             {
-                stringBuilder.Append(GetDeclaratedPropField(outputPort, true, Visibility.@public, Attribute.FieldSerializeField));
+                stringBuilder.Append(GetDeclaratedPropField(dataHolder, true, Visibility.@public, Attribute.FieldSerializeField));
                 stringBuilder.Append(TR);
             }
-
-            //stringBuilder = MethodGen.Draw(context);
 
             stringBuilder.Append(BR_F_CL);
             classText = stringBuilder.ToString();
@@ -45,7 +47,11 @@ namespace DialogueSystem.Generators
 
             return context;
         }
-        internal string GetClassType() => DSUtilities.GenerateClassNameFromType(Node.GetType());
+        internal string GetClassType()
+        {
+            if (parentVisualElement is ActorNode actor) return actor.ActorType.ToString();
+            return DSUtilities.GenerateClassNameFromType(parentVisualElement.GetType());
+        }
         private StringBuilder GetClassLine(Visibility visibility, StringBuilder context, Attribute attribute = Attribute.None)
         {
             if (attribute != Attribute.None) 
@@ -60,35 +66,38 @@ namespace DialogueSystem.Generators
             return context;
         }
         #endregion
-
         #region Property
-        internal string GetDeclaratedPropField(BasePort port, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
+        internal string GetDeclaratedPropField(IDataHolder dataH, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
         {
-            if (declaratedProperty.TryGetValue(port, out string prop)) return prop;
+            if (declaratedProperty.TryGetValue(dataH, out string prop)) return prop;
             else
             {
-                var property = GenerateDeclaredProperty(port, isAutoproperty, visibility, attribute);
-                declaratedProperty.Add(port, property);
-                return property;
+                if (dataH is IDataHolder dataHolder)
+                {
+                    var property = GenerateDeclaredPortProperty(dataHolder, isAutoproperty, visibility, attribute);
+                    declaratedProperty.Add(dataHolder, property);
+                    return property;
+                }
+
+                throw new NotImplementedException();
             }
         }
-        private string GenerateDeclaredProperty(BasePort port, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
+        private string GenerateDeclaredPortProperty(IDataHolder dataHolder, bool isAutoproperty = true, Visibility visibility = Visibility.@public, Attribute attribute = Attribute.None)
         {
             StringBuilder sb = new StringBuilder()
-                        .Append(GetAttribute(attribute))
-                        .Append(GetVisibility(visibility))
-                        .Append(SPACE);
+            .Append(GetAttribute(attribute))
+            .Append(GetVisibility(visibility))
+            .Append(SPACE);
 
-            if (port.IsFunctions)
+            if (dataHolder.IsFunctions)
             {
                 sb.Append("Func<")
-                    .Append(GetVarType(port.portType))
+                    .Append(GetVarType(dataHolder.Type))
                     .Append(">");
             }
-            else sb.Append(GetVarType(port.portType));
+            else sb.Append(GetVarType(dataHolder.Type));
             
-            sb.Append(SPACE)
-                .Append(GetVariable(port).Name);
+            sb.Append(SPACE).Append(GetVariable(dataHolder).Name);
 
             if (isAutoproperty)
             {
@@ -97,43 +106,56 @@ namespace DialogueSystem.Generators
             }
             return sb.ToString();
         }
-
         #endregion
         #region Variables
-        internal VariableInfo GetVariable(BasePort port)
+        internal VariableInfo GetVariable(IDataHolder dataHolder)
         {
-            if (port != null)
+            if (variable.TryGetValue(dataHolder, out VariableInfo vars)) return vars;
+            else
             {
-                if (variable.TryGetValue(port.GetType(), out VariableInfo vars)) return vars;
+                var varI = new VariableInfo();
+                BaseNode node = null;
+
+                VisualElement currentElement = dataHolder as VisualElement;
+                while (currentElement != null)
+                {
+                    if (currentElement is BaseNode _node)
+                    {
+                        node = _node;
+                        break;
+                    }
+                    currentElement = currentElement.parent;
+                }
+
+                if (node is ActorNode actorNode)
+                {
+                    varI.Name = $"{dataHolder.Name.Substring(0, dataHolder.Name.IndexOf(" "))}";
+                }
                 else
                 {
-                    var varI = new VariableInfo();
-                    var node = port.node as BaseNode;
-                    if (node is ActorNode actorNode)
-                    {
-                        varI.Name = $"{port.portName.Substring(0, port.portName.IndexOf(" "))}";
-                    }
-                    else
-                    {
-                        varI.Name = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{port.portType.Name}_{variable.Count}";
-                    }
-
-                    if (node is BaseOperationNode operationNode)
-                    {
-                        varI.Type = port.portType;
-                    }
-                    else
-                    {
-                        varI.Type = port.portType;
-                    }
-
-                    variable.Add(port.GetType(), varI);
-                    return varI;
+                    var t = dataHolder.GetType();
+                    var count = variable.Where(e => e.Key.GetType().IsAssignableFrom(t)).Count();
+                    varI.Name = $"{node.Model.NodeName.RemoveWhitespaces().RemoveSpecialCharacters()}_{dataHolder.Type.Name}_{count}";
                 }
+                varI.Type = dataHolder.Type;
+
+                variable.Add(dataHolder, varI);
+                return varI;
             }
-            throw new NullReferenceException();
         }
         #endregion
+        private List<IDataHolder> FindAllDataHolders(VisualElement visualElement)
+        {
+            List<IDataHolder> dataHolders = new List<IDataHolder>();
+
+            if (visualElement is IDataHolder holder)
+                if (holder.IsSerializedInScript) dataHolders.Add(visualElement as IDataHolder);
+
+            foreach (VisualElement childElement in visualElement.Children())
+                dataHolders.AddRange(FindAllDataHolders(childElement));
+
+            return dataHolders;
+        }
     }
 
     internal class VariableInfo

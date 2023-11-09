@@ -1,4 +1,5 @@
 using DialogueSystem.Database.Save;
+using DialogueSystem.TextFields;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace DialogueSystem.Nodes
 {
     public abstract class BaseDialogueNode : BaseNode
     {
+        private DSTextField textField; 
+
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, context: portsContext);
@@ -30,20 +33,31 @@ namespace DialogueSystem.Nodes
             }
         }
 
+        internal virtual DSTextField GetDialogueTextField() => textField;
+
         protected override void DrawExtensionContainer(VisualElement container)
         {
             VisualElement customDataContainer = new VisualElement();
             customDataContainer.AddToClassList("ds-node__custom-data-container");
 
             Foldout textFolout = DSUtilities.CreateFoldout("DialogueText", true);
-            TextField textField = DSUtilities.CreateTextArea(
-                Model.Text.ToString(),
+            textField = DSUtilities.CreateDSTextArea(
+                value: Model.Text.ToString(),
+                onChange: callback =>
+                {
+                    var target = callback.target as DSTextField;
+
+                    target.value = callback.newValue;
+                    Model.Text = callback.newValue;
+                    target.Value = callback.newValue;
+                },
                 styles: new string[]
                     {
                         "ds-node__textfield",
                         "ds-node__quote-textfield"
                     }
                 );
+            textField.Name = "DialogueText";
 
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);

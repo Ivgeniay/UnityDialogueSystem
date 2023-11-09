@@ -1,6 +1,7 @@
 ﻿using DialogueSystem.Groups;
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
+using DialogueSystem.TextFields;
 using DialogueSystem.Window;
 using System;
 using System.Collections.Generic;
@@ -90,6 +91,26 @@ namespace DialogueSystem.Utilities
             textField.multiline = true;
             return textField;
         }
+
+        public static DSTextField CreateDSTextField(string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        {
+            DSTextField textField = new()
+            {
+                value = value,
+                label = label,
+            };
+
+            if (onChange is not null) textField.RegisterValueChangedCallback(onChange);
+            textField.AddToClassList(styles);
+            return textField;
+        }
+        public static DSTextField CreateDSTextArea(string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        {
+            DSTextField textField = CreateDSTextField(value, label, onChange, styles);
+            textField.multiline = true;
+            return textField;
+        }
+
         public static Foldout CreateFoldout (string title, bool collapsed = false, string[] styles = null)
         {
             var foldout = new Foldout()
@@ -118,8 +139,8 @@ namespace DialogueSystem.Utilities
 
             port.portName = portname;
             port.portColor = color;
-            port.Value = defaultValue;
-            port.portType = type;
+            port.SetValue(defaultValue);
+            port.SetPortType(type);
             port.ID = ID;
 
             return port;

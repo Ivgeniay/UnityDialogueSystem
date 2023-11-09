@@ -6,10 +6,6 @@ namespace DialogueSystem.Nodes
 {
     internal class SubtractNode : BaseOperationNode
     {
-        private void ttt(string value)
-        {
-        }
-
         internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
             StringBuilder sb = new();
@@ -52,7 +48,8 @@ namespace DialogueSystem.Nodes
                 }
                 else
                 {
-                    sb.Append($"{inputVariables[i].ParamName}");
+                    if (inputVariables[i].ParamType == typeof(bool)) sb.Append($"{inputVariables[i].ParamName} == true ? 1 : 0");
+                    else sb.Append($"{inputVariables[i].ParamName}");
                     if (i != inputVariables.Length - 1) sb.Append(" - ");
                 }
             }

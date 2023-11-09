@@ -26,6 +26,7 @@ namespace DialogueSystem.Nodes
                     PlusIf = true,
                     PortText = DSConstants.Dialogue,
                     Type = DSConstants.DialogueTypes[0],
+                    IsSerializedInScript = true,
                 });
             }
         }
@@ -47,7 +48,8 @@ namespace DialogueSystem.Nodes
                         isField: true,
                         cross: true,
                         plusIf: true,
-                        availableTypes: DSConstants.DialogueTypes);
+                        availableTypes: DSConstants.DialogueTypes,
+                        isSerializedInScript: true);
                 },
                 styles: new string[]
                 {
@@ -55,30 +57,7 @@ namespace DialogueSystem.Nodes
                 }
             );
 
-            //Button addChoiceIfBtn = DSUtilities.CreateButton(
-            //    "Add if Choice",
-            //    () =>
-            //    {
-            //        var t = AddPortByType(
-            //            ID: Guid.NewGuid().ToString(),
-            //            portText: $"If({DSConstants.Bool})",
-            //            type: typeof(bool),
-            //            value: "Choice",
-            //            isInput: false,
-            //            isSingle: false,
-            //            isField: false,
-            //            cross: true,
-            //            isIfPort: true,
-            //            availableTypes: new Type[] { typeof(bool) });
-            //    },
-            //    styles: new string[]
-            //    {
-            //        "ds-node__button"
-            //    }
-            //);
-
             container.Insert(1, addChoiceBtn);
-            //container.Insert(2, addChoiceIfBtn);
         }
         
     }

@@ -1,12 +1,6 @@
-﻿using DialogueSystem.Database.Save;
-using DialogueSystem.Generators;
-using DialogueSystem.Ports;
-using DialogueSystem.Window;
-using System;
-using System.Collections.Generic;
+﻿using DialogueSystem.Generators;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace DialogueSystem.Nodes
 {
@@ -17,6 +11,7 @@ namespace DialogueSystem.Nodes
         {
             StringBuilder sb = new();
             var isString = inputVariables.Any(e => e.ParamType == typeof(string));
+
             if (isString)
             {
                 sb.Append("string LambdaGen(params object[] parameters)")
@@ -35,6 +30,8 @@ namespace DialogueSystem.Nodes
                     .Append("else if (param is double dbl) concatenatedString = string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, (int)dbl));")
                     .Append("\n")
                     .Append("else if (param is float fl) concatenatedString = string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, (int)fl));")
+                    .Append("\n")
+                    .Append("else if (param is bool b) concatenatedString += string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, (int)fl));")
                     .Append("\n")
                     .Append("}")
                     .Append("return concatenatedString;")
@@ -56,7 +53,8 @@ namespace DialogueSystem.Nodes
                 }
                 else
                 {
-                    sb.Append($"{inputVariables[i].ParamName}");
+                    if (inputVariables[i].ParamType == typeof(bool)) sb.Append($"{inputVariables[i].ParamName} == true ? 1 : 0");
+                    else sb.Append($"{inputVariables[i].ParamName}");
                     if (i != inputVariables.Length - 1) sb.Append(" * ");
                 }
             }

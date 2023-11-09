@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace DialogueSystem.Nodes
 {
-    public class FloatNode : BaseNumbersNode
+    public class FloatNode : BasePrimitiveNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -27,6 +27,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = DSConstants.Float,
+                    IsSerializedInScript = true,
                 });
             }
         }

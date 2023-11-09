@@ -7,7 +7,7 @@ using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Nodes
 {
-    public class IntegerNode : BaseNumbersNode
+    public class IntegerNode : BasePrimitiveNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -24,6 +24,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = DSConstants.Int,
+                    IsSerializedInScript = true,
                 });
             }
         }

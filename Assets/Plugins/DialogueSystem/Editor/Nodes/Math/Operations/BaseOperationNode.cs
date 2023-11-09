@@ -54,6 +54,8 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     Type = typeof(double),
                     IsFunction = true,
+                    PortText = typeof(double).Name,
+                    IsSerializedInScript = true,
                 });
             }
         }
@@ -98,7 +100,7 @@ namespace DialogueSystem.Nodes
 
             BasePort output = GetOutputPorts()[0];
 
-            var isStr = portInfos.Any(e => e.port.portType == typeof(string));
+            var isStr = portInfos.Any(e => e.port.Type == typeof(string));
             ChangeOutputPortType(isStr == true ? typeof(string) : typeof(double));
         }
 

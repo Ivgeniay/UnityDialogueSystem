@@ -41,6 +41,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = false,
                     PortText = typeof(bool).Name,
                     IsFunction = true,
+                    IsSerializedInScript = true,
                 });
             }
         }

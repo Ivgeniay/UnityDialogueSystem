@@ -42,6 +42,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     IsSingle = false,
                     PortText = DSConstants.Double,
                     IsFunction = true,
+                    IsSerializedInScript = true,
                 });
             }
         }

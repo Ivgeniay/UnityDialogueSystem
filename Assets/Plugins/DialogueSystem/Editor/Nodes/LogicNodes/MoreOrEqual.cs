@@ -3,6 +3,8 @@ using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using UnityEngine;
 using System;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -37,36 +39,21 @@ namespace DialogueSystem.Nodes
                     PortText = DSConstants.Number,
                     Value = 0
                 });
-
-                Model.Outputs.Add(new Database.Save.DSPortModel(new Type[]
-                {
-                    typeof(bool)
-                })
-                {
-                    Type = typeof(bool),
-                    Cross = false,
-                    IsField = false,
-                    IsIfPort = false,
-                    IsInput = false,
-                    IsSingle = false,
-                    PortText = DSConstants.Bool,
-                    Value = 0
-                });
             }
         }
 
-        public override void Do(PortInfo[] portInfos)
+        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
         {
-            base.Do(portInfos);
+            StringBuilder sb = new();
+            sb.Append("return ");
+            for (int i = 0; i < inputVariables.Length; i++)
+            {
+                sb.Append($"Convert.ToDouble({inputVariables[i].ParamName})");
+                if (i != inputVariables.Length - 1) sb.Append(" >= ");
+            }
+            sb.Append(';');
 
-            //if (values.Count > 1)
-            //{
-            //    var doub1 = Convert.ToDouble(values[0]);
-            //    var doub2 = Convert.ToDouble(values[1]);
-            //    var output = GetOutputPorts()[0];
-            //    output.Value = doub1 >= doub2;
-            //    Debug.Log($"{values[0]} is more or equals than {values[1]} = {output.Value}");
-            //}
+            return sb.ToString();
         }
     }
 }

@@ -26,7 +26,8 @@ namespace DialogueSystem.Generators
         private StringBuilder classDeclarationRegion;
         private StringBuilder propertiesRegion;
         private StringBuilder methodsRegion;
-        private StringBuilder initializeMethod;
+
+        private Method initializeMethod;
 
         internal ClassGen(params object[] scriptContext) 
         { 
@@ -34,7 +35,7 @@ namespace DialogueSystem.Generators
             VariablesGen = new();
             LambdaGenerator = new(VariablesGen);
             PropFieldGen = new(VariablesGen);
-            MethodGen = new(VariablesGen, PropFieldGen, LambdaGenerator, this);
+            MethodGen = new(VariablesGen, this);
         }
 
         internal void SetClassName(string className) => this.className = className;
@@ -65,10 +66,7 @@ namespace DialogueSystem.Generators
                         {
                             declarationArea.Append(TR);
                             dSClass = GetDSClass(node);
-                            if (node is ActorNode actorNode)
-                            {
-
-                            }
+                            if (node is ActorNode actorNode) { }
                             else
                             {
                                 dSClass.GetDeclaratedClass(Visibility.@private, declarationArea, Attribute.SystemSerializable);
@@ -94,7 +92,8 @@ namespace DialogueSystem.Generators
             if (dsClasses.TryGetValue(type, out DSClass @class)) return @class;
             else
             {
-                var cClass = new DSClass(baseNode);
+                var cClass = new DSClass();
+                cClass.Initialize(baseNode);
                 VariablesGen.RegisterDSClass(cClass);
                 dsClasses.Add(type, cClass);
                 return cClass;
@@ -115,12 +114,10 @@ namespace DialogueSystem.Generators
             methodsRegion = new();
             methodsRegion.Append("#region Methods").Append(TR);
 
-            initializeMethod = new();
-
             DeclarateAndInstantiateInnerClasses(classDeclarationRegion, propertiesRegion);
 
             var initMethod = MethodGen.ConstructInitializeMethod("Initialize", instances.Keys.ToArray());
-            methodsRegion.Append(initMethod);
+            methodsRegion.Append(initMethod.Build());
 
             classDeclarationRegion.Append("#endregion").Append(TR);
             propertiesRegion.Append("#endregion").Append(TR);

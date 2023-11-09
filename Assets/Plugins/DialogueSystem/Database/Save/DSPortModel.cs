@@ -34,6 +34,8 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsField;
         //Является ли этот порт выходной функцией или содержит только лишь значение
         [SerializeField] public bool IsFunction;
+        //Нужно ли сериализовать этот порт в скрипт-генератор
+        [SerializeField] public bool IsSerializedInScript;
         //Тип порта
         [SerializeField] public Type Type;
         //Список типов для присоединения порта
@@ -66,7 +68,6 @@ namespace DialogueSystem.Database.Save
                 }
             }
         }
-
         public void RemovePort(BaseNode node, BasePort port)
         {
             if (NodeIDs == null) NodeIDs = new();

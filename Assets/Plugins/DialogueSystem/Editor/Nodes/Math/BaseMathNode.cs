@@ -22,8 +22,8 @@ namespace DialogueSystem.Nodes
                 { 
                     node = this, 
                     port = inputPorts[i], 
-                    Type = inputPorts[i].portType, 
-                    Value = inputPorts[i].portType.IsValueType == true ? Activator.CreateInstance(inputPorts[i].portType) : null 
+                    Type = inputPorts[i].Type, 
+                    Value = inputPorts[i].Type.IsValueType == true ? Activator.CreateInstance(inputPorts[i].Type) : null 
                 };
             
 
@@ -34,43 +34,44 @@ namespace DialogueSystem.Nodes
                     BasePort connectedPort = port.connections.First().output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(port, connectedPort.portType);
+                        ChangePortValueAndType(port, connectedPort.Type);
 
                         var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
-                        infos.Type = connectedPort.portType;
+                        infos.Type = connectedPort.Type;
                     }
                 }
                 else if (!port.connected && port != _port) 
                 {
-                    port.Value = Activator.CreateInstance(port.portType);
+                    port.SetValue(Activator.CreateInstance(port.Type));
 
                     var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                     infos.Value = port.Value;
-                    infos.Type = port.portType;
+                    infos.Type = port.Type;
                 }
                 else if (!port.connected && port == _port)
                 {
                     BasePort connectedPort = edge.output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(port, connectedPort.portType);
+                        ChangePortValueAndType(port, connectedPort.Type);
 
                         var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
-                        infos.Type = connectedPort.portType;
+                        infos.Type = connectedPort.Type;
                     }
                 }
             }
             
             Do(portInfos);
         }
+
         public override void OnDestroyConnectionInput(BasePort port, Edge edge)
         {
             base.OnDestroyConnectionInput(port, edge);
             var outputs = GetOutputPorts();
             foreach (BasePort outputPort in outputs)
-                outputPort.Value = null;
+                outputPort.SetValue(null);
         }
 
 
@@ -128,7 +129,7 @@ namespace DialogueSystem.Nodes
             {
                 foreach (var outPort in outs)
                 {
-                    outPort.ChangeType(type);
+                    outPort.SetPortType(type);
                     outPort.ChangeName(type.Name);
                 }
             }

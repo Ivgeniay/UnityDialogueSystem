@@ -10,7 +10,7 @@ using DialogueSystem.Database.Save;
 
 namespace DialogueSystem.Nodes
 {
-    internal class DoubleNode : BaseNumbersNode
+    internal class DoubleNode : BasePrimitiveNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -27,6 +27,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = DSConstants.Double,
+                    IsSerializedInScript = true,
                 });
             }
         }

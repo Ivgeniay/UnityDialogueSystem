@@ -2,6 +2,7 @@
 {
     internal enum Visibility
         {
+            None,
             @public,
             @internal,
             @private

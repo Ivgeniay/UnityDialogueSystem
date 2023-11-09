@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System;
+using System.Reflection;
 
 namespace DialogueSystem.Generators
 {
@@ -15,6 +16,7 @@ namespace DialogueSystem.Generators
         internal const string QM = "\"";
         internal const string EQLS = "=";
         internal const string NEW = "new";
+        internal const string THIS = "this.";
         internal const string BR_OP = "(";
         internal const string BR_CL = ")";
         internal const string COMMA = ",";
@@ -51,17 +53,39 @@ namespace DialogueSystem.Generators
             }
             throw new NotImplementedException();
         }
-        internal string GetVarType(Type typeVariable)
+
+        internal string GetVarType(Type type)
         {
-            switch (typeVariable)
+            return ConvertTypeToString(type);
+        }
+
+        internal string GetVarType<T>() => GetVarType(typeof(T));
+
+        public string ConvertTypeToString(Type type)
+        {
+            string typeName = type.ToString();
+            int backtickIndex = typeName.IndexOf('`');
+            if (backtickIndex >= 0)
             {
-                case Type t when t == typeof(float): return "float";
-                case Type t when t == typeof(int): return "int";
-                case Type t when t == typeof(string): return "string";
-                case Type t when t == typeof(bool): return "bool";
-                case Type t when t == typeof(decimal): return "decimal";
+                typeName = typeName.Remove(backtickIndex, 2);
+                typeName += "<";
+
+                Type[] genericArguments = type.GetGenericArguments();
+                for (int i = 0; i < genericArguments.Length; i++)
+                {
+                    typeName += i > 0 ? ", " : "";
+                    typeName += ConvertTypeToString(genericArguments[i]);
+                }
+
+                typeName += ">";
             }
-            return typeVariable.Name;
+            if (typeName.IndexOf("[") != -1)
+            {
+                var startIndex = typeName.IndexOf("[");
+                var finishIndex = typeName.IndexOf("]") + 1;
+                typeName = typeName.Remove(startIndex, finishIndex - startIndex);
+            }
+            return typeName;
         }
 
         internal virtual StringBuilder Draw(StringBuilder context) => context;

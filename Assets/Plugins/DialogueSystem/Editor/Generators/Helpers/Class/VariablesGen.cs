@@ -1,18 +1,20 @@
-﻿using DialogueSystem.Nodes;
+﻿using DialogueSystem.Abstract;
+using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
 using DialogueSystem.Text;
+using DialogueSystem.TextFields;
 using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements;
 
 namespace DialogueSystem.Generators
 {
     internal class VariablesGen : BaseGeneratorHelper
     {
-        private Dictionary<BaseNode, string> classVariable = new();
+        private Dictionary<VisualElement, string> classVariable = new();
         private List<DSClass> innerClassVariable = new();
 
 
@@ -30,26 +32,38 @@ namespace DialogueSystem.Generators
             }
             throw new NullReferenceException();
         }
-        internal string GetInnerClassVariable(BasePort port)
+
+        internal string GetInnerClassVariable(IDataHolder dataHolder)
         {
-            var motherNode = port.node as BaseNode;
-            var typeText = DSUtilities.GenerateClassNameFromType(motherNode.GetType());
-            var t = innerClassVariable.Where(e => e.GetClassType() == typeText).FirstOrDefault();
-            if (t != null)
+            VisualElement currentElement = dataHolder as VisualElement;
+            while (currentElement != null && !(currentElement is BaseNode))
+                currentElement = currentElement.parent;
+            
+            var myNode = currentElement as BaseNode;
+            if (myNode != null)
             {
-                var innerVar = t.GetVariable(port);
-                var mainVar = GetMainClassVariable(motherNode);
-                return mainVar + "." + innerVar.Name;
+                var typeText = "";
+
+                if (myNode is ActorNode actorNode) typeText = actorNode.ActorType.ToString();
+                else typeText = DSUtilities.GenerateClassNameFromType(myNode.GetType());
+
+                DSClass t = innerClassVariable.Where(e => e.GetClassType() == typeText).FirstOrDefault();
+                if (t != null)
+                {
+                    var innerVar = t.GetVariable(dataHolder);
+                    var mainVar = GetMainClassVariable(myNode);
+                    return mainVar + "." + innerVar.Name;
+                }
+                throw new NullReferenceException();
             }
             throw new NullReferenceException();
         }
-
-        internal string GetAndCallInnerClassVariableFunction(BasePort basePort, params BasePort[] innerFuncVariables)
+        internal string GetAndCallInnerClassVariableFunction(IDataHolder dataHolder, params BasePort[] innerFuncVariables)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(GetInnerClassVariable(basePort));
+            sb.Append(GetInnerClassVariable(dataHolder));
             
-            if (basePort.IsFunctions)
+            if (dataHolder.IsFunctions)
             {
                 sb.Append(SPACE).Append(BR_OP);
                 for (int i = 0; i < innerFuncVariables.Length; i++)
@@ -61,7 +75,6 @@ namespace DialogueSystem.Generators
             }
             return sb.ToString();
         }
-        //AddNode_1.doubleFunc()
 
         internal void RegisterDSClass(DSClass dsClass)
         {

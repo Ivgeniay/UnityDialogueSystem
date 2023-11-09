@@ -18,6 +18,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool Cross;
         [SerializeField] public bool IsField;
         [SerializeField] public bool IsFunction;
+        [SerializeField] public bool IsSerializedInScript;
         [SerializeField] public string Type;
         [SerializeField] public string[] AvailableTypes;
 
@@ -38,6 +39,7 @@ namespace DialogueSystem.Database.Save
             IfPortSourceId = dSPortModel.IfPortSourceId;
             PlusIf = dSPortModel.PlusIf;
             IsFunction = dSPortModel.IsFunction;
+            IsSerializedInScript = dSPortModel.IsSerializedInScript;
 
             if (dSPortModel.NodeIDs != null)
             {

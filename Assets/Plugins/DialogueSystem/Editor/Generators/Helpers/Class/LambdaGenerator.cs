@@ -33,7 +33,7 @@ namespace DialogueSystem.Lambdas
         {
             ParameterExpression[] paramExpressions = null;
                 node.GetInputPorts()
-                .Select(p => Expression.Parameter(p.portType, variablesGen.GetInnerClassVariable(p)))
+                .Select(p => Expression.Parameter(p.Type, variablesGen.GetInnerClassVariable(p)))
                 .ToArray();
 
 

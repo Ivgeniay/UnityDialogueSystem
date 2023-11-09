@@ -12,6 +12,40 @@ public class DialogueFileNameTest : MonoBehaviour
     {
         Initialize();
         Debug.Log(SubtractNode_2.SubtractNode80_Double_0());
+
+        Debug.Log(ConvertTypeToString(typeof(int)));
+        Debug.Log(ConvertTypeToString(typeof(string)));
+        Debug.Log(ConvertTypeToString(typeof(Func<int>)));
+        Debug.Log(ConvertTypeToString(typeof(Func<int, int>)));
+        Debug.Log(ConvertTypeToString(typeof(Action<int, int>)));
+        Debug.Log(ConvertTypeToString(typeof(Action<int, int, string>)));
+
+    }
+    public string ConvertTypeToString(Type type)
+    {
+        string typeName = type.ToString();
+        int backtickIndex = typeName.IndexOf('`');
+        if (backtickIndex >= 0)
+        {
+            typeName = typeName.Remove(backtickIndex, 2);
+            typeName += "<";
+
+            Type[] genericArguments = type.GetGenericArguments();
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                typeName += i > 0 ? ", " : "";
+                typeName += ConvertTypeToString(genericArguments[i]);
+            }
+
+            typeName += ">";
+        }
+        if (typeName.IndexOf("[") != -1)
+        {
+            var startIndex = typeName.IndexOf("[");
+            var finishIndex = typeName.IndexOf("]") + 1;
+            typeName = typeName.Remove(startIndex, finishIndex - startIndex);
+        }
+        return typeName;
     }
 
 

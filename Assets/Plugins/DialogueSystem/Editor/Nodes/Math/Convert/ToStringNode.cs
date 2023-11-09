@@ -40,6 +40,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = false,
                     PortText = DSConstants.String,
                     IsFunction = true,
+                    IsSerializedInScript = true,
                 });
             }
         }
