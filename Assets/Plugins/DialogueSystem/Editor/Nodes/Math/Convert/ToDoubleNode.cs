@@ -47,7 +47,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
             }
         }
 
-        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
+        internal override string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables)
         {
             StringBuilder sb = new();
 

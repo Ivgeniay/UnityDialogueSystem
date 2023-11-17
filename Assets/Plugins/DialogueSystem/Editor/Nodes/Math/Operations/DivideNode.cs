@@ -5,7 +5,7 @@ namespace DialogueSystem.Nodes
 {
     internal class DivideNode : BaseOperationNode
     {
-        internal override string LambdaGenerationContext(MethodGen.MethodParamsInfo[] inputVariables, MethodGen.MethodParamsInfo[] outputVariables)
+        internal override string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables)
         {
             StringBuilder sb = new();
             sb.Append("return ");

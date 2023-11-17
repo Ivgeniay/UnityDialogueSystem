@@ -1,31 +1,36 @@
-﻿using UnityEditor.Experimental.GraphView;
+﻿using static DialogueSystem.DialogueOption;
+using UnityEditor.Experimental.GraphView;
 using DialogueSystem.Database.Save;
+using Random = UnityEngine.Random;
 using System.Collections.Generic;
+using DialogueSystem.Generators;
 using DialogueSystem.Utilities;
+using System.Linq.Expressions;
+using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using DialogueSystem.Groups;
 using DialogueSystem.Window;
 using DialogueSystem.Ports;
+using DialogueSystem.Edges;
 using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
 using System;
-using Random = UnityEngine.Random;
-using DialogueSystem.Edges;
-using static DialogueSystem.Generators.MethodGen;
-using static DialogueSystem.DialogueOption;
-using System.Linq.Expressions;
-using DialogueSystem.Generators;
-using DialogueSystem.Lambdas;
 
 namespace DialogueSystem.Nodes
 {
-    public abstract class BaseNode : Node
+    public abstract class BaseNode : Node, IDataHolder
     {
         public DSNodeModel Model { get; private set; }
         public BaseGroup Group { get; private set; }
-        protected TextField titleTF { get; set; }
 
+        public virtual string Name => Model.NodeName;
+        public virtual Type Type => Type.GetType(Model.DialogueType);
+        public virtual object Value => Model.Text;
+        public virtual bool IsFunctions => false;
+        public bool IsSerializedInScript => true;
+
+        protected TextField titleTF { get; set; }
         protected DSGraphView graphView { get; set; }
         private Color defaultbackgroundColor;
 
@@ -536,14 +541,6 @@ namespace DialogueSystem.Nodes
         #region
         internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
         internal virtual Delegate LambdaGenerationContext(ParameterExpression[] parameters) => null;
-        protected object CallDelegate(object[] values)
-        {
-            VariablesGen variablesGen = new VariablesGen();
-            LambdaGenerator labd = new LambdaGenerator(variablesGen);
-            var deleg = labd.BuildLambda(this);
-
-            return deleg.Delegate.DynamicInvoke(values);
-        }
         #endregion
     }
 

@@ -99,7 +99,7 @@ namespace DialogueSystem.Utilities
                 value = value,
                 label = label,
             };
-
+            textField.IsSerializedInScript = true;
             if (onChange is not null) textField.RegisterValueChangedCallback(onChange);
             textField.AddToClassList(styles);
             return textField;

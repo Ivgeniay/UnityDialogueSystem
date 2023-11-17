@@ -33,7 +33,7 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        internal virtual DSTextField GetDialogueTextField() => textField;
+        internal virtual TextField GetDialogueTextField() => textField;
 
         protected override void DrawExtensionContainer(VisualElement container)
         {

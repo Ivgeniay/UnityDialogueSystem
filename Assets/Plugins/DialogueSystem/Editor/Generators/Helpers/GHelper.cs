@@ -1,14 +1,19 @@
 ﻿using System.Text;
 using System;
 using System.Reflection;
+using DialogueSystem.Abstract;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 
 namespace DialogueSystem.Generators
 {
-    internal abstract class BaseGeneratorHelper
+    internal abstract class GHelper
     {
         internal const string BR_F_OP = "{";
         internal const string BR_F_CL = "}";
         internal const string QUOTES = ";";
+        internal const string COLON = ":";
         internal const string SPACE = " ";
         internal const string L_TRIANGE = "<";
         internal const string R_TRIANGE = ">";
@@ -20,6 +25,8 @@ namespace DialogueSystem.Generators
         internal const string BR_OP = "(";
         internal const string BR_CL = ")";
         internal const string COMMA = ",";
+        internal const string REG = "#region";
+        internal const string ENDREG = "#endregion";
         internal const string APROP = "{get; set;}";
         internal const string APROP_PRIV_GET = "{get; set;}";
         internal const string APROP_PRIV_SET = "{get; private set;}";
@@ -54,14 +61,52 @@ namespace DialogueSystem.Generators
             throw new NotImplementedException();
         }
 
-        internal string GetVarType(Type type)
+        internal static string GetValueWithPrefix(Type type = null, object value = null)
+        {
+            if (value == null) return string.Empty;
+
+            if (type != null)
+            {
+                switch (type)
+                {
+                    case Type fl when fl == typeof(float):
+                        var val = value.ToString().Replace(",", ".");
+                        return val.ToString() + 'f';
+
+                    case Type db when db == typeof(double): 
+                        val = value.ToString().Replace(",", ".");
+                        return val.ToString() + 'd';
+
+                    case Type str when str == typeof(string): return GHelper.QM + value.ToString() + GHelper.QM;
+                    default: return value.ToString();
+                }
+            }
+            else
+            {
+                switch (value)
+                {
+                    case float fl:
+                        var val = value.ToString().Replace(",", ".");
+                        return val.ToString() + 'f';
+
+                    case double db:
+                        val = value.ToString().Replace(",", ".");
+                        return val.ToString() + 'd';
+
+                    case string str: return GHelper.QM + value.ToString() + GHelper.QM;
+                    default: return value.ToString();
+                }
+            }
+        }
+
+        internal static string GetVarType(Type type)
         {
             return ConvertTypeToString(type);
         }
 
-        internal string GetVarType<T>() => GetVarType(typeof(T));
+        internal static string GetVarType<T>() => GetVarType(typeof(T));
 
-        public string ConvertTypeToString(Type type)
+        public static string ConvertTypeToString(Type type)
         {
             string typeName = type.ToString();
             int backtickIndex = typeName.IndexOf('`');
@@ -85,10 +130,22 @@ namespace DialogueSystem.Generators
                 var finishIndex = typeName.IndexOf("]") + 1;
                 typeName = typeName.Remove(startIndex, finishIndex - startIndex);
             }
+            typeName = typeName.Replace("+", ".");
+
             return typeName;
         }
 
-        internal virtual StringBuilder Draw(StringBuilder context) => context;
+        protected List<IDataHolder> FindAllDataHolders(VisualElement visualElement)
+        {
+            List<IDataHolder> dataHolders = new List<IDataHolder>();
 
+            if (visualElement is IDataHolder holder)
+                if (holder.IsSerializedInScript) dataHolders.Add(visualElement as IDataHolder);
+
+            foreach (VisualElement childElement in visualElement.Children())
+                dataHolders.AddRange(FindAllDataHolders(childElement));
+
+            return dataHolders;
+        }
     }
 }

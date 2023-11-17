@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using System.Globalization;
 using System.Linq;
 
-public class DialogueFileNameTest : MonoBehaviour
+public class DialogueFileNameTest : DialogueSystem.DialogueDisposer
 {
     private void Awake()
     {

@@ -507,7 +507,10 @@ namespace DialogueSystem.Window
             var local = contentViewContainer.WorldToLocal(worldMP);
             return local;
         }
-        internal T[] GetNodesOfType<T>() =>
+        internal List<T> GetListNodesOfType<T>() =>
+            i_Nodes.OfType<T>().ToList();
+
+        internal T[] GetArrayNodesOfType<T>() =>
             i_Nodes.OfType<T>().ToArray();
 
         internal void Save(string fileName)

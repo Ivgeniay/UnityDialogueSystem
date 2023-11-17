@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DialogueSystem.Generators
 {
-    internal class UsingGen : BaseGeneratorHelper
+    internal class UsingGen : GHelper
     {
         private object[] scriptContext;
         private string usings;
@@ -53,13 +53,6 @@ namespace DialogueSystem.Generators
             }
 
             return names;
-        }
-
-
-        internal override StringBuilder Draw(StringBuilder context)
-        {
-            GetUsings(context, scriptContext);
-            return context;
         }
     }
 }
