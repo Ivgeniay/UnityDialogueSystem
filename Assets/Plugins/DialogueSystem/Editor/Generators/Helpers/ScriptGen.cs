@@ -27,35 +27,8 @@ namespace DialogueSystem.Generators
             classGenerator = new(this.dsGrathView, className);
             classGenerator.Initialize();
 
-            //mainClassDrawer.ClassDeclaration(className, Attribute.None, Visibility.@public, new string[] { "DialogueDisposer" });
-
-            //mainClassDrawer.ClassDeclaration("NewClass", Attribute.None, Visibility.@public, new string[] { "DialogueDisposer" })
-            //    .AddProperty("Prop", typeof(string).FullName, Attribute.SerializeField, Visibility.@public, "dfsa")
-            //    .AddProperty("Prop", typeof(string), Attribute.SerializeField, Visibility.@public, 2523)
-            //    .AddProperty("Prop2", typeof(float).FullName, Attribute.SerializeField, Visibility.@public, 253.45f)
-            //    .AddProperty("Prop3", typeof(double).FullName, Attribute.SerializeField, Visibility.@public, 25.54325234523d)
-            //    .AddProperty("Prop4", typeof(int).FullName, Attribute.SerializeField, Visibility.@public, 25)
-            //    .AddField("Field1", typeof(string).FullName, Attribute.SerializeField, Visibility.@public, "kek")
-            //    .AddField("Field2", typeof(float).FullName, Attribute.SerializeField, Visibility.@public, 23.6f)
-            //    .AddField("Field2", typeof(double).FullName, Attribute.SerializeField, Visibility.@public, 23.542242424d)
-            //    //.AddInnerClass(mainClassDrawer)
-            //    .AddInitializeObject("lib", typeof(List<int>).FullName, 55.45d, 32d, 12d, 233d)
-            //    .AddMethod("Method1", Attribute.SystemSerializable, Visibility.@public, null, new MethodParamsInfo[] 
-            //    {
-            //        new MethodParamsInfo()
-            //        {
-            //            ParamName = "kek",
-            //            ParamType = typeof(string),
-            //        },
-            //        new MethodParamsInfo()
-            //        {
-            //            ParamName = "age",
-            //            ParamType = typeof(double),
-            //        }
-            //    }
-            //    , "XYU");
-
             ClassDrawer mainClassDrawer = classGenerator.GetDrawer();
+
             script += mainClassDrawer.Draw();
             script = DrawTabs(script);
             return script;

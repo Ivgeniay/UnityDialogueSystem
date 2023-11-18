@@ -69,13 +69,13 @@ namespace DialogueSystem.Generators
             {
                 switch (type)
                 {
-                    case Type fl when fl == typeof(float):
-                        var val = value.ToString().Replace(",", ".");
-                        return val.ToString() + 'f';
-
                     case Type db when db == typeof(double): 
-                        val = value.ToString().Replace(",", ".");
+                        var val = value.ToString().Replace(",", ".");
                         return val.ToString() + 'd';
+
+                    case Type fl when fl == typeof(float):
+                        val = value.ToString().Replace(",", ".");
+                        return val.ToString() + 'f';
 
                     case Type str when str == typeof(string): return GHelper.QM + value.ToString() + GHelper.QM;
                     default: return value.ToString();

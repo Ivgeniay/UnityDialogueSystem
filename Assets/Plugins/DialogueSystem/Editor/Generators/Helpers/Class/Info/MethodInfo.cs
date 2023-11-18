@@ -3,7 +3,7 @@ using System;
 
 namespace DialogueSystem.Generators
 {
-    internal class MethodInfo
+    internal class MethodInfo : Info
     {
         public Visibility Visibility;
         public string Name; 

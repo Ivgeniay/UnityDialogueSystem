@@ -85,6 +85,11 @@ namespace DialogueSystem.Generators
             Propertyes.Add(property);
             return this;
         }
+        public ICLassDrawer AddField(VariableInfo variable, Attribute attribute, object value = null)
+        {
+            return AddField(variable.Name, variable.Type, attribute, variable.Visibility, value);
+        }
+        
         public ICLassDrawer AddField(string fieldName, string returnType, Attribute attribute, Visibility visibility, object value = null)
         {
             StringBuilder field = new();
@@ -117,7 +122,7 @@ namespace DialogueSystem.Generators
             InnerClasses.Add(new StringBuilder(classDrawer.Draw()));
             return this;
         }
-        public ICLassDrawer AddInitializeObject(string name, string returnType, params object[] initObjects)
+        public ICLassDrawer AddInitializeObject(string name, string returnRefType = null, Type paramType = null, params object[] initObjects)
         {
             StringBuilder initObj = new();
 
@@ -125,16 +130,21 @@ namespace DialogueSystem.Generators
                 .Append(name)
                 .Append(GHelper.SPACE)
                 .Append(GHelper.EQLS)
-                .Append(GHelper.SPACE)
-                .Append(GHelper.NEW)
-                .Append(GHelper.SPACE)
-                .Append(GHelper.GetVarType(Type.GetType(returnType)))
-                .Append(GHelper.BR_F_OP);
+                .Append(GHelper.SPACE);
+
+            if (returnRefType != null)
+            {
+                initObj.Append(GHelper.NEW)
+                    .Append(GHelper.SPACE)
+                    .Append(GHelper.GetVarType(Type.GetType(returnRefType)))
+                    .Append(GHelper.BR_F_OP);
+            }
 
             for (int i = 0; i < initObjects.Length; i++)
             {
-                var type = initObjects[i].GetType();
-                if (type.IsValueType) initObj.Append(GHelper.GetValueWithPrefix(type, initObjects[i]));
+                var type = paramType;
+                if (type == null) type = initObjects[i].GetType();
+                if (type.IsValueType || type == typeof(string)) initObj.Append(GHelper.GetValueWithPrefix(type, initObjects[i]));
                 else
                 {
                     initObj
@@ -143,12 +153,18 @@ namespace DialogueSystem.Generators
                         .Append(GHelper.GetVarType(type))
                         .Append(initObjects[i]);
                 }
+
+
                 if (i < initObjects.Length - 1) initObj.Append(GHelper.COMMA).Append(GHelper.TR);
             }
 
-            initObj
-                .Append(GHelper.BR_F_CL)
-                .Append(GHelper.QUOTES);
+            if (returnRefType != null)
+            {
+                initObj
+                    .Append(GHelper.BR_F_CL);
+            }
+
+            initObj.Append(GHelper.QUOTES);
 
             InitializeObjects.Add(initObj);
             return this;
@@ -205,11 +221,11 @@ namespace DialogueSystem.Generators
                 .Append(GHelper.BR_F_OP);
 
             if (Propertyes != null && Propertyes.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Propertyes)).Append(GHelper.TR);
-            foreach (var item in Propertyes) classBuilder.Append(item);
+            foreach (StringBuilder item in Propertyes) classBuilder.Append(item);
             if (Propertyes != null && Propertyes.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
             
             if (Fields != null && Fields.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Fields)).Append(GHelper.TR);
-            foreach (var item in Fields) classBuilder.Append(item);
+            foreach (StringBuilder item in Fields) classBuilder.Append(item);
             if (Fields != null && Fields.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
 
             if (InitializeObjects != null && InitializeObjects.Count > 0)
@@ -222,11 +238,11 @@ namespace DialogueSystem.Generators
             }
 
             if (Methods != null && Methods.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Methods)).Append(GHelper.TR);
-            foreach (var item in Methods) classBuilder.Append(item);
+            foreach (StringBuilder item in Methods) classBuilder.Append(item);
             if (Methods != null && Methods.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
 
             if (InnerClasses != null && InnerClasses.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(InnerClasses)).Append(GHelper.TR);
-            foreach (var item in InnerClasses) classBuilder.Append(item).Append(GHelper.TR);
+            foreach (StringBuilder item in InnerClasses) classBuilder.Append(item).Append(GHelper.TR);
             if (InnerClasses != null && InnerClasses.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
 
             classBuilder.Append(GHelper.BR_F_CL);
