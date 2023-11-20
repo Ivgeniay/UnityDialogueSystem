@@ -7,6 +7,7 @@ using System.Text;
 using UnityEngine;
 using System;
 using DialogueSystem.Database.Save;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Nodes
 {
@@ -18,7 +19,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new Type[] { typeof(double) })
+                Model.AddPort(new DSPortModel(new Type[] { typeof(double) }, PortSide.Output)
                 {
                     Value = 0f,
                     Type = typeof(double),
@@ -27,7 +28,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = DSConstants.Double,
-                    IsSerializedInScript = true,
+                    IsSerializedInScript = true, 
                 });
             }
         }

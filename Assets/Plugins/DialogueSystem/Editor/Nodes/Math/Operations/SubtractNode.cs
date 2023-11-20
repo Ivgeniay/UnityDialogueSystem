@@ -26,7 +26,7 @@ namespace DialogueSystem.Nodes
                     .Append("\n")
                     .Append("else if (param is double dbl) if (concatenatedString.Length >= num) concatenatedString = concatenatedString.Substring(0, (int)dbl);")
                     .Append("\n")
-                    .Append("else if (param is float fl) if (concatenatedString.Length >= num) concatenatedString = concatenatedString.Substring(0, (int)fl);;")
+                    .Append("else if (param is float fl) if (concatenatedString.Length >= num) concatenatedString = concatenatedString.Substring(0, (int)fl);")
                     .Append("\n")
                     .Append("}")
                     .Append("return concatenatedString;")

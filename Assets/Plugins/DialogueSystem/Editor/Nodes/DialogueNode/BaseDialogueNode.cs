@@ -19,7 +19,7 @@ namespace DialogueSystem.Nodes
             if (portsContext == null )
             {
                 Model.Text = "Dialogue text";
-                Model.Inputs.Add(new DSPortModel(DSConstants.DialogueTypes)
+                Model.AddPort(new DSPortModel(DSConstants.DialogueTypes, Ports.PortSide.Input)
                 {
                     PortText = DSConstants.Dialogue,
                     Cross = false,

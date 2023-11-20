@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using DialogueSystem.Utilities;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Nodes
 {
@@ -15,7 +16,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new Type[] { typeof(int) })
+                Model.AddPort(new DSPortModel(new Type[] { typeof(int) }, PortSide.Output)
                 {
                     Value = 0,
                     Type = typeof(int),

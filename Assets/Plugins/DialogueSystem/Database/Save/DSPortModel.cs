@@ -40,9 +40,12 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public Type Type;
         //Список типов для присоединения порта
         [SerializeField] public string[] AvailableTypes;
-        public DSPortModel(Type[] availableTypes)
+        //С какой стороны расположен порт
+        [SerializeField] public PortSide PortSide;
+        public DSPortModel(Type[] availableTypes, PortSide PortSide)
         {
             PortID = Guid.NewGuid().ToString();
+            this.PortSide = PortSide;
             this.AvailableTypes = availableTypes.Select(el => el.ToString()).ToArray();
         }
 

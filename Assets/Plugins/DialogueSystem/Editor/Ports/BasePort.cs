@@ -17,6 +17,7 @@ namespace DialogueSystem.Ports
         public Type Type { get; private set; }
         public string Name { get; private set; }
         public bool IsSerializedInScript { get; set; }
+        public PortSide PortSide;
 
 
         public Type[] AvailableTypes;
@@ -111,5 +112,10 @@ namespace DialogueSystem.Ports
             portName = name;
             Name = name;
         }
+    }
+    public enum PortSide
+    {
+        Input,
+        Output,
     }
 }

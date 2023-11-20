@@ -38,7 +38,7 @@ namespace DialogueSystem.Window
         private SerializableDictionary<string, DSNodeErrorData> ungroupedNodes;
         private SerializableDictionary<string, DSGroupErrorData> groups;
         private SerializableDictionary<BaseGroup, SerializableDictionary<string, DSNodeErrorData>> groupedNodes;
-        
+
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
 
@@ -530,7 +530,7 @@ namespace DialogueSystem.Window
             newGraphSO.Init(fileName, nodes, groups,
                 callback: (cur, from) =>
                 {
-                    OnSaveEvent?.Invoke((float)cur/(float)from);
+                    OnSaveEvent?.Invoke((float)cur / (float)from);
                 });
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -561,10 +561,10 @@ namespace DialogueSystem.Window
             {
                 var group = CreateGroup(Type.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
             }
-            
+
             foreach (var nodeModel in graphSO.NodeModels)
             {
-                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> 
+                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object>
                 {
                     nodeModel
                 });

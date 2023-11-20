@@ -19,7 +19,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
+                Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Input)
                 {
                     PortText = GetLetterFromNumber(Model.Inputs.Count) + DSConstants.All,
                     Cross = false,
@@ -27,10 +27,10 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     Type = typeof(double),
-                    Value = false,
+                    Value = 0,
                 });
 
-                Model.Inputs.Add(new DSPortModel(DSConstants.AvalilableTypes)
+                Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Input)
                 {
                     PortText = GetLetterFromNumber(Model.Inputs.Count) + DSConstants.All,
                     Cross = false,
@@ -38,14 +38,10 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     Type = typeof(double),
-                    Value = false,
+                    Value = 0,
                 });
 
-                Model.Outputs.Add(new DSPortModel(new Type[]
-                {
-                typeof(double),
-                typeof(string),
-                })
+                Model.AddPort(new DSPortModel(new Type[] { typeof(double), typeof(string), }, PortSide.Output)
                 {
                     Value = 0,
                     Cross = false,
@@ -77,6 +73,7 @@ namespace DialogueSystem.Nodes
                         isSingle: true,
                         isField: false,
                         cross: true,
+                        portSide: PortSide.Input,
                         availableTypes: new Type[]
                         {
                             typeof(string),

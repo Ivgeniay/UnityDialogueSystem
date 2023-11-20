@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DialogueSystem.Ports;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsSerializedInScript;
         [SerializeField] public string Type;
         [SerializeField] public string[] AvailableTypes;
+        [SerializeField] public PortSide PortSide;
 
         public void Init(DSPortModel dSPortModel)
         {
@@ -40,6 +42,7 @@ namespace DialogueSystem.Database.Save
             PlusIf = dSPortModel.PlusIf;
             IsFunction = dSPortModel.IsFunction;
             IsSerializedInScript = dSPortModel.IsSerializedInScript;
+            PortSide = dSPortModel.PortSide;
 
             if (dSPortModel.NodeIDs != null)
             {

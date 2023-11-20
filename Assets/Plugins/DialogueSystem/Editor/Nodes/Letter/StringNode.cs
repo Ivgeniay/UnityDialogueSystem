@@ -15,10 +15,10 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new Type[]
+                Model.AddPort(new DSPortModel(new Type[]
                 {
                     typeof(string)
-                })
+                }, Ports.PortSide.Output)
                 {
                     Value = string.Empty,
                     Type = typeof(string),

@@ -5,6 +5,7 @@ using DialogueSystem.Window;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem.Nodes
 {
@@ -16,7 +17,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
+                Model.AddPort(new DSPortModel(DSConstants.DialogueTypes, Ports.PortSide.Output)
                 {
                     Value = "Next Choice",
                     Cross = false,
@@ -48,6 +49,7 @@ namespace DialogueSystem.Nodes
                         isField: true,
                         cross: true,
                         plusIf: true,
+                        portSide: PortSide.Output,
                         availableTypes: DSConstants.DialogueTypes,
                         isSerializedInScript: true);
                 },

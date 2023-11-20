@@ -31,7 +31,7 @@ namespace DialogueSystem.Nodes
                     .Append("\n")
                     .Append("else if (param is float fl) concatenatedString = string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, (int)fl));")
                     .Append("\n")
-                    .Append("else if (param is bool b) concatenatedString += string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, (int)fl));")
+                    .Append("else if (param is bool b) concatenatedString += string.Concat(System.Linq.Enumerable.Repeat(concatenatedString, b == false ? 0 : 1));")
                     .Append("\n")
                     .Append("}")
                     .Append("return concatenatedString;")

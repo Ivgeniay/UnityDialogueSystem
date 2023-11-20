@@ -277,9 +277,9 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isSerializedInScript = true)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isSerializedInScript = true)
         {
-            var data = new DSPortModel(availableTypes)
+            var data = new DSPortModel(availableTypes, portSide)
             {
                 PortID = ID,
                 PortText = portText,
@@ -294,6 +294,7 @@ namespace DialogueSystem.Nodes
                 IsFunction = isFunction,
                 IfPortSourceId = ifPortSourceId,
                 IsSerializedInScript = isSerializedInScript,
+                PortSide = portSide,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
 
@@ -311,8 +312,9 @@ namespace DialogueSystem.Nodes
                     return (null, null);
             }
 
-            if (data.IsInput) Model.Inputs.Add(data);
-            else Model.Outputs.Add(data);
+            //if (data.IsInput) Model.Inputs.Add(data);
+            //else Model.Outputs.Add(data);
+            Model.AddPort(data);
 
             return AddPortByType(data);
         }
@@ -334,6 +336,7 @@ namespace DialogueSystem.Nodes
             port.ChangeName(data.PortText);
             port.IsFunctions = data.IsFunction;
             port.IsSerializedInScript = data.IsSerializedInScript;
+            port.PortSide = data.PortSide;
 
             if (data.IsField && data.Type != null)
             {
@@ -484,6 +487,7 @@ namespace DialogueSystem.Nodes
                     var t = AddPortByType(
                         ID: Guid.NewGuid().ToString(),
                         portText: $"If({DSConstants.Bool})",
+                        portSide: PortSide.Input,
                         type: typeof(bool),
                         value: "Choice",
                         isInput: false,

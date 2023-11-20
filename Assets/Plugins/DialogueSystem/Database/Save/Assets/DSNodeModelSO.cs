@@ -83,7 +83,7 @@ namespace DialogueSystem.Database.Save
             foreach (DSPortModelSO outputsSO in dSPortModelSO)
             {
                 var aTypes = outputsSO.AvailableTypes.Select(x => Type.GetType(x)).ToArray();
-                DSPortModel portModel = new DSPortModel(aTypes)
+                DSPortModel portModel = new DSPortModel(aTypes, outputsSO.PortSide)
                 {
                     PortID = outputsSO.PortID,
                     Cross = outputsSO.Cross,
@@ -96,6 +96,10 @@ namespace DialogueSystem.Database.Save
                     Type = Type.GetType(outputsSO.Type),
                     Value = outputsSO.Value,
                     NodeIDs = new(),
+                    IsFunction = outputsSO.IsFunction,
+                    IsSerializedInScript = outputsSO.IsSerializedInScript,
+                    PlusIf = outputsSO.PlusIf,
+                    PortSide = outputsSO.PortSide,
                 };
 
                 foreach (NodePortModelSO nodeIds in outputsSO.NodeIDs)

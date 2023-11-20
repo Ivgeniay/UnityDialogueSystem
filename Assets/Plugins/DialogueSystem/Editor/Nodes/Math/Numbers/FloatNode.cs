@@ -18,16 +18,17 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(new Type[] { typeof(float) })
+                Model.AddPort(new DSPortModel(new Type[] { typeof(float) }, PortSide.Output)
                 {
                     Value = 0f,
                     Type = typeof(float),
                     Cross = false,
                     IsField = true,
                     IsInput = false,
+                    PortSide = PortSide.Output,
                     IsSingle = false,
                     PortText = DSConstants.Float,
-                    IsSerializedInScript = true,
+                    IsSerializedInScript = true
                 });
             }
         }

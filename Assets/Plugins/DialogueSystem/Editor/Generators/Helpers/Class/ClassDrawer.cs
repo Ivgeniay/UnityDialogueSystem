@@ -1,6 +1,7 @@
 ﻿using Codice.CM.Common.Zlib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine.UIElements;
 
@@ -17,6 +18,7 @@ namespace DialogueSystem.Generators
         public List<StringBuilder> InnerClasses { get; private set; } = new();
         public List<StringBuilder> Methods { get; private set; } = new();
         public List<StringBuilder> InitializeObjects { get; private set; } = new();
+        private List<MethodParamsInfo> InitializeParameters = null;
 
         public ICLassDrawer ClassDeclaration(string className, Attribute attribute, Visibility visibility, Type[] inherets = null)
         {
@@ -85,12 +87,17 @@ namespace DialogueSystem.Generators
             Propertyes.Add(property);
             return this;
         }
-        public ICLassDrawer AddField(VariableInfo variable, Attribute attribute, object value = null)
+        public ICLassDrawer AddField(VariableInfo variable, Attribute attribute, bool isNew = true, object value = null)
         {
-            return AddField(variable.Name, variable.Type, attribute, variable.Visibility, value);
+            string type = variable.Type;
+            if (variable.DataHolder != null && variable.DataHolder.IsFunctions)
+            {
+                StringBuilder funcBuilder = GetFunc(variable.Type);
+                type = funcBuilder.ToString();
+            }
+            return AddField(variable.Name, type, attribute, variable.Visibility, isNew, value);
         }
-        
-        public ICLassDrawer AddField(string fieldName, string returnType, Attribute attribute, Visibility visibility, object value = null)
+        public ICLassDrawer AddField(string fieldName, string returnType, Attribute attribute, Visibility visibility, bool isNew = true, object value = null)
         {
             StringBuilder field = new();
             Type type = Type.GetType(returnType);
@@ -103,6 +110,17 @@ namespace DialogueSystem.Generators
                 .Append(returnType)
                 .Append(GHelper.SPACE)
                 .Append(fieldName);
+            
+            if (isNew)
+            {
+                field
+                    .Append(GHelper.SPACE)
+                    .Append(GHelper.EQLS)
+                    .Append(GHelper.SPACE)
+                    .Append(GHelper.NEW)
+                    .Append(GHelper.BR_OP)
+                    .Append(GHelper.BR_CL);
+            }
 
             if (value != null)
             {
@@ -120,6 +138,49 @@ namespace DialogueSystem.Generators
         public ICLassDrawer AddInnerClass(ClassDrawer classDrawer)
         {
             InnerClasses.Add(new StringBuilder(classDrawer.Draw()));
+            return this;
+        }
+        public ICLassDrawer AddInitializeLambda(string name, string context)
+        {
+            StringBuilder initObj = new();
+
+            initObj
+                .Append(name)
+                .Append(GHelper.SPACE)
+                .Append(GHelper.EQLS)
+                .Append(GHelper.SPACE)
+                .Append(GHelper.BR_OP)
+                .Append(GHelper.BR_CL)
+                .Append(GHelper.SPACE)
+                .Append(GHelper.EQLS)
+                .Append(GHelper.R_TRIANGE)
+                .Append(GHelper.BR_F_OP)
+                .Append(context)
+                .Append(GHelper.BR_F_CL)
+                .Append(GHelper.QUOTES);
+
+            InitializeObjects.Add(initObj);
+            return this;
+        }
+        public ICLassDrawer AddInitializeObject(string name, params object[] initObjects)
+        {
+            StringBuilder initObj = new();
+
+            initObj
+                .Append(name)
+                .Append(GHelper.SPACE)
+                .Append(GHelper.EQLS)
+                .Append(GHelper.SPACE);
+
+            for (int i = 0; i < initObjects.Length; i++)
+            {
+                initObj.Append(initObjects[i]);
+                if (i < initObjects.Length - 1) initObj.Append(GHelper.COMMA).Append(GHelper.TR);
+            }
+
+            initObj.Append(GHelper.QUOTES);
+
+            InitializeObjects.Add(initObj);
             return this;
         }
         public ICLassDrawer AddInitializeObject(string name, string returnRefType = null, Type paramType = null, params object[] initObjects)
@@ -142,9 +203,14 @@ namespace DialogueSystem.Generators
 
             for (int i = 0; i < initObjects.Length; i++)
             {
-                var type = paramType;
+                Type type = paramType;
                 if (type == null) type = initObjects[i].GetType();
-                if (type.IsValueType || type == typeof(string)) initObj.Append(GHelper.GetValueWithPrefix(type, initObjects[i]));
+
+                if (type.IsValueType || type == typeof(string))
+                {
+                    var valueWithPrefix = GHelper.GetValueWithPrefix(type, initObjects[i]);
+                    initObj.Append(valueWithPrefix);
+                }
                 else
                 {
                     initObj
@@ -153,16 +219,11 @@ namespace DialogueSystem.Generators
                         .Append(GHelper.GetVarType(type))
                         .Append(initObjects[i]);
                 }
-
-
                 if (i < initObjects.Length - 1) initObj.Append(GHelper.COMMA).Append(GHelper.TR);
             }
 
             if (returnRefType != null)
-            {
-                initObj
-                    .Append(GHelper.BR_F_CL);
-            }
+                initObj.Append(GHelper.BR_F_CL);
 
             initObj.Append(GHelper.QUOTES);
 
@@ -211,6 +272,51 @@ namespace DialogueSystem.Generators
             Methods.Add(method);
             return this;
         }
+        public ICLassDrawer AddInitializeParameter(MethodParamsInfo methodParamsInfo)
+        {
+            if (InitializeParameters == null) InitializeParameters = new();
+            if (!InitializeParameters.Contains(methodParamsInfo)) InitializeParameters.Add(methodParamsInfo);
+            return this;
+        }
+        public int GetCountParamrters()
+        {
+            if (InitializeParameters == null) return 0;
+            else return InitializeParameters.Count;
+        }
+
+        public StringBuilder GetFunc(params string[] types)
+        {
+            StringBuilder func = new();
+            func.Append("Func<");
+            for (int i = 0; i < types.Length; i++)
+            {
+                func.Append(types[i]);
+                if (i < types.Length - 1) func.Append(", ");
+            }
+            func.Append(">");
+            return func;
+        }
+        public object GetDefaultValue(Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            if (type.IsValueType) return Activator.CreateInstance(type);
+            else if (type == typeof(string)) return string.Empty;
+            else return null;
+        }
+        public StringBuilder GetDefaultValue(Type type, bool isDeclaration = false)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            StringBuilder builder = new();
+
+            if (type.IsValueType)
+            {
+                object defaultValue = Activator.CreateInstance(type);
+                if (isDeclaration) builder.Append(GHelper.GetValueWithPrefix(type, defaultValue));
+            }
+            else if (type == typeof(string)) builder.Append("");
+            else builder.Append("null");
+            return builder;
+        }
 
         public string Draw()
         {
@@ -230,11 +336,9 @@ namespace DialogueSystem.Generators
 
             if (InitializeObjects != null && InitializeObjects.Count > 0)
             {
-                StringBuilder valueToInitMethod = new();
-                foreach (var item in InitializeObjects)
-                    valueToInitMethod.AppendLine(item.ToString());
-
-                AddMethod("Initialize", Attribute.None, Visibility.@private, null, null, valueToInitMethod.ToString());
+                StringBuilder valueToInitMethod = new(); 
+                foreach (var item in InitializeObjects) valueToInitMethod.AppendLine(item.ToString()); 
+                AddMethod("Initialize", Attribute.None, Visibility.@private, null, InitializeParameters == null ? null : InitializeParameters.ToArray(), valueToInitMethod.ToString());
             }
 
             if (Methods != null && Methods.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Methods)).Append(GHelper.TR);

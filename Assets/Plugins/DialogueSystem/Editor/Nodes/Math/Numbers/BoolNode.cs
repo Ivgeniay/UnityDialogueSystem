@@ -14,10 +14,7 @@ namespace DialogueSystem.Nodes
             Model.Outputs = new();
             if (portsContext == null)
             {
-                Model.Outputs.Add(new(new System.Type[]
-                {
-                    typeof(bool)
-                })
+                Model.AddPort(new(new System.Type[] { typeof(bool) }, Ports.PortSide.Output)
                 {
                     PortText = DSConstants.Bool,
                     Cross = false,

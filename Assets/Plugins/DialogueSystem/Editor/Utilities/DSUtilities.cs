@@ -227,5 +227,22 @@ namespace DialogueSystem.Utilities
             name = name.Insert(0, "DS");
             return name;
         }
+        public static string GenerateClassPefixFromType(Type t)
+        {
+            switch (t)
+            {
+                case var _ when t == typeof(byte): return "b";
+                case var _ when t == typeof(int): return "i";
+                case var _ when t == typeof(long): return "l";
+                case var _ when t == typeof(short): return "sh";
+                case var _ when t == typeof(decimal): return "de";
+                case var _ when t == typeof(double): return "d";
+                case var _ when t == typeof(float): return "f";
+                case var _ when t == typeof(string): return "s";
+                case var _ when t == typeof(char): return "c";
+                case var _ when t == typeof(bool): return "b";
+                default: return t.Name.Length >= 2 ? t.Name.Substring(0, 2) : t.Name;
+            }
+        }
     }
 }

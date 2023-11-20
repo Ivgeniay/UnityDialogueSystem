@@ -5,34 +5,78 @@ using UnityEngine.UIElements;
 using System.Linq;
 using System;
 using UnityEditor.Experimental.GraphView;
-using DialogueSystem.Nodes;
-using static PlasticGui.LaunchDiffParameters;
-using Codice.CM.Common;
 using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Generators
 {
     internal abstract class DSClassInfo
     {
+        internal IDataHolder IDataHolder { get; set; }
         internal protected List<IDataHolder> DataHolders { get; protected set; }
         internal string ClassName = string.Empty;
         internal ClassDrawer ClassDrawer = new();
+
         internal List<DSClassInfo> InnerClassInfo { get; private set; } = new();
         internal List<VariableInfo> VariableInfo { get; private set; } = new();
         internal List<MethodInfo> MethodInfo { get; private set; } = new();
         internal List<LambdaInfo> LambdaInfo { get; private set; } = new();
         internal string Type;
 
+
         internal abstract void Initialize();
-        internal bool RegisterInnerClass(DSClassInfo dSClassInfo)
+        
+
+        internal bool RegisterInnerClassDeclaration(DSClassInfo dSClassInfo)
         {
-            Type type = dSClassInfo.GetType();
-            if (!InnerClassInfo.Any(e => e.GetType() == type))
+            if (!InnerClassInfo.Any(e => e.Type == dSClassInfo.Type))
             {
                 InnerClassInfo.Add(dSClassInfo);
                 return true;
             }
             return false;
+        }
+        internal VariableInfo GetVariable(IDataHolder dataHolder) => VariableInfo.FirstOrDefault(e => e.DataHolder == dataHolder);
+        
+
+        internal DSClassInfo GetInnerDSClass(DSClassInfo dsClass)
+        {
+            VariableInfo varInfo = VariableInfo.FirstOrDefault(e => e.ClassInfo.Equals(dsClass));
+            if (varInfo == null) return null;
+            return varInfo.ClassInfo;
+        }
+
+        internal DSClassInfo GetInnerDSClass(IDataHolder dataHolder)
+        {
+            VariableInfo varInfo = VariableInfo.FirstOrDefault(e => e.DataHolder == dataHolder);
+            if (varInfo != null) return varInfo.ClassInfo;
+            return null;
+        }
+        internal void SetType(string type) => Type = type;
+        internal void AddTypePefix(string prefix) => Type += prefix;
+
+        public override bool Equals(object obj)
+        {
+            if (obj is DSClassInfo other)
+            {
+                return ClassName == other.ClassName &&
+                       //Type == other.Type &&
+                       InnerClassInfo.SequenceEqual(other.InnerClassInfo) &&
+                       VariableInfo.SequenceEqual(other.VariableInfo);
+            }
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = (hash * 23) + ClassName?.GetHashCode() ?? 0;
+                //hash = (hash * 23) + Type?.GetHashCode() ?? 0;
+
+                foreach (var innerClassInfo in InnerClassInfo) hash = (hash * 23) + innerClassInfo?.GetHashCode() ?? 0;
+                foreach (var variableInfo in VariableInfo) hash = (hash * 23) + variableInfo?.GetHashCode() ?? 0;
+                return hash;
+            }
         }
     }
 
@@ -45,6 +89,12 @@ namespace DialogueSystem.Generators
         {
             this.instance = instance;
             Type = DSUtilities.GenerateClassNameFromType(typeof(T));
+
+            Initialize();
+
+            foreach (var data in DataHolders)
+                Type += "_" + DSUtilities.GenerateClassPefixFromType(data.Type);
+            
         }
         internal override void Initialize() => DataHolders = FillIDataHolders().ToList();
 
@@ -70,9 +120,6 @@ namespace DialogueSystem.Generators
             return dataHolders;
         }
 
-        internal DSClassInfo<T> GetInnerClass<T>() where T : VisualElement => InnerClassInfo.OfType<DSClassInfo<T>>().First();
-        internal DSClassInfo GetInnerClass(Type elementType) => InnerClassInfo.First(item => item.GetType().IsAssignableFrom(elementType));
-        internal DSClassInfo GetInnerClass(string elementType) => InnerClassInfo.First(item => item.Type == elementType);
 
 
     }

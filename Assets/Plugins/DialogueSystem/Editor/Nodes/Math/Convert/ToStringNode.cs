@@ -16,7 +16,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Inputs.Add(new(DSConstants.AvalilableTypes)
+                Model.AddPort(new(DSConstants.AvalilableTypes, Ports.PortSide.Input)
                 {
                     PortText = DSConstants.All,
                     Value = 0,
@@ -27,10 +27,7 @@ namespace DialogueSystem.Nodes
                     Type = typeof(bool)
                 });
 
-                Model.Outputs.Add(new(new Type[]
-                {
-                    typeof(string)
-                })
+                Model.AddPort(new(new Type[] { typeof(string) }, Ports.PortSide.Output)
                 {
                     Type = typeof(string),
                     Value = 0f,

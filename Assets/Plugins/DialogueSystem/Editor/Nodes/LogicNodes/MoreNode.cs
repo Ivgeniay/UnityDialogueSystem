@@ -18,7 +18,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Inputs.Add(new Database.Save.DSPortModel(DSConstants.NumberTypes)
+                Model.AddPort(new Database.Save.DSPortModel(DSConstants.NumberTypes, Ports.PortSide.Input)
                 {
                     Type = typeof(double),
                     Cross = false,
@@ -30,7 +30,7 @@ namespace DialogueSystem.Nodes
                     Value = 0
                 });
 
-                Model.Inputs.Add(new Database.Save.DSPortModel(DSConstants.NumberTypes)
+                Model.AddPort(new Database.Save.DSPortModel(DSConstants.NumberTypes, Ports.PortSide.Input)
                 {
                     Type = typeof(double),
                     Cross = false,

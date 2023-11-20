@@ -1,5 +1,6 @@
 ﻿using DialogueSystem.Generators;
 using DialogueSystem.Nodes;
+using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System;
@@ -18,7 +19,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
 
             if (portsContext == null)
             {
-                Model.Inputs.Add(new(DSConstants.AvalilableTypes)
+                Model.AddPort(new(DSConstants.AvalilableTypes, PortSide.Input)
                 {
                     PortText = $"All",
                     Value = 0,
@@ -26,13 +27,11 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     IsField = false,
                     IsInput = true,
                     IsSingle = true,
-                    Type = typeof(bool)
+                    Type = typeof(bool),
+                    PortSide = PortSide.Input,
                 });
 
-                Model.Outputs.Add(new(new Type[]
-                {
-                    typeof(double)
-                })
+                Model.AddPort(new(new Type[] { typeof(double) }, PortSide.Output)
                 {
                     Type = typeof(double),
                     Value = 0f,
@@ -43,6 +42,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     PortText = DSConstants.Double,
                     IsFunction = true,
                     IsSerializedInScript = true,
+                    PortSide = PortSide.Output,
                 });
             }
         }

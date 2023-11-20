@@ -134,7 +134,37 @@ namespace DialogueSystem.Generators
 
             return typeName;
         }
+        public static string RemoveSpacesAndContentBetweenParentheses(string input)
+        {
+            // Проверка на null или пустую строку
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
 
+            StringBuilder result = new StringBuilder();
+            bool insideParentheses = false;
+            foreach (char c in input)
+            {
+                if (c == '(')
+                {
+                    insideParentheses = true;
+                }
+                else if (c == ')')
+                {
+                    insideParentheses = false;
+                }
+                else if (!insideParentheses)
+                {
+                    if (!char.IsWhiteSpace(c))
+                    {
+                        result.Append(c);
+                    }
+                }
+            }
+
+            return result.ToString();
+        }
         protected List<IDataHolder> FindAllDataHolders(VisualElement visualElement)
         {
             List<IDataHolder> dataHolders = new List<IDataHolder>();

@@ -14,10 +14,10 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new Database.Save.DSPortModel(new Type[]
+                Model.AddPort(new Database.Save.DSPortModel(new Type[]
                 {
                     typeof(bool)
-                })
+                }, Ports.PortSide.Output)
                 {
                     Type = typeof(bool),
                     Cross = false,

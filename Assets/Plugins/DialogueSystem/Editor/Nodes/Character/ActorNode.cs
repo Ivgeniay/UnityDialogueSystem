@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using System;
+using DialogueSystem.Ports;
 
 namespace DialogueSystem
 {
@@ -48,6 +49,7 @@ namespace DialogueSystem
                     isSingle: false,
                     isField: false,
                     cross: false,
+                    portSide: PortSide.Output,
                     availableTypes: new Type[]
                     {
                         item.Value
@@ -65,6 +67,7 @@ namespace DialogueSystem
                     isSingle: false,
                     isField: false,
                     cross: false,
+                    portSide: PortSide.Output,
                     availableTypes: new Type[]
                     {
                         item.Value

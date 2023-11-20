@@ -22,7 +22,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.Outputs.Add(new DSPortModel(DSConstants.DialogueTypes)
+                Model.AddPort(new DSPortModel(DSConstants.DialogueTypes, Ports.PortSide.Output)
                 {
                     Value = "Hello",
                     Cross = false,
