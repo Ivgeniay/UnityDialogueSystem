@@ -1,6 +1,6 @@
-﻿using static DialogueSystem.DialogueOption;
-using UnityEditor.Experimental.GraphView;
+﻿using UnityEditor.Experimental.GraphView;
 using DialogueSystem.Database.Save;
+using DialogueSystem.DialogueType;
 using Random = UnityEngine.Random;
 using System.Collections.Generic;
 using DialogueSystem.Generators;
@@ -16,6 +16,8 @@ using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
 using System;
+using DialogueSystem.TextFields;
+using System.ComponentModel;
 
 namespace DialogueSystem.Nodes
 {
@@ -548,7 +550,20 @@ namespace DialogueSystem.Nodes
             port.ChangeName(type.Name);
         }
         #endregion
-        #region
+
+        #region Foldout
+        public Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
+        {
+            VisualElement customDataContainer = new VisualElement();
+            customDataContainer.AddToClassList("ds-node__custom-data-container");
+            Foldout foldout = DSUtilities.CreateFoldout(title, collapsed, styles);
+            customDataContainer.Add(foldout);
+            mainContainer.Add(customDataContainer);
+            return foldout;
+        }
+        #endregion
+
+        #region Lambdas
         internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
         internal virtual Delegate LambdaGenerationContext(ParameterExpression[] parameters) => null;
         #endregion

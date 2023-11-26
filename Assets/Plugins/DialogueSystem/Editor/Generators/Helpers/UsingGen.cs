@@ -9,34 +9,24 @@ namespace DialogueSystem.Generators
 {
     internal class UsingGen : GHelper
     {
-        private object[] scriptContext;
+        private List<string> usingsList;
         private string usings;
 
-        public UsingGen(params object[] scriptContext)
+        public UsingGen(params string[] scriptContext)
         {
-            this.scriptContext = scriptContext;
+            usingsList = scriptContext.ToList();
         }
 
-        internal StringBuilder GetUsings(StringBuilder sb, params object[][] @params)
+        internal StringBuilder GetUsings(StringBuilder sb, params object[] gettingNamespaces)
         {
-            List<string> strings = new List<string>()
+            foreach (var arr in gettingNamespaces)
             {
-                "UnityEngine",
-                "System"
-            };
-
-            foreach (var param in @params)
-            {
-                foreach (var arr in param)
-                {
-                    var st = GetNamespace(arr);
-                    if (!string.IsNullOrEmpty(st) && !string.IsNullOrWhiteSpace(st) && !strings.Contains(st))
-                        strings.Add(st);
-
-                }
+                var st = GetNamespace(arr);
+                if (!string.IsNullOrEmpty(st) && !string.IsNullOrWhiteSpace(st) && !usingsList.Contains(st))
+                    usingsList.Add(st);
             }
-
-            foreach (var t in strings) sb.Append($"using {t};\t\n");
+            foreach (var t in usingsList) sb.Append($"using {t};\t\n");
+            sb.Append($"\n");
             return sb;
         }
 

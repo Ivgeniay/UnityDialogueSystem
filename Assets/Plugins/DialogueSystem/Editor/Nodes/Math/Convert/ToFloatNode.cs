@@ -37,7 +37,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     IsFunction = true,
                     IsSerializedInScript = true,
                 });

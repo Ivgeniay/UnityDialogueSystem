@@ -34,7 +34,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     PortText = DSConstants.String,
                     IsFunction = true,
                     IsSerializedInScript = true,

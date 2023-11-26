@@ -38,7 +38,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     Cross = false,
                     IsField = false,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     PortText = DSConstants.Double,
                     IsFunction = true,
                     IsSerializedInScript = true,

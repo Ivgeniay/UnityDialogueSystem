@@ -24,7 +24,7 @@ namespace DialogueSystem.Nodes
                     IsField = false,
                     IsIfPort = false,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     PortText = DSConstants.Bool,
                     Value = false,
                     IsFunction = true,

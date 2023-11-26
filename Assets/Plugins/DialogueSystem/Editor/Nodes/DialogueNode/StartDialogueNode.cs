@@ -28,14 +28,14 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     PlusIf = false,
                     PortText = DSConstants.Dialogue,
                     Type = DSConstants.DialogueTypes[0],
                     IsSerializedInScript = true,
                 });
             }
-
+            Model.Text = "Start dialogue";
         }
     }
 }

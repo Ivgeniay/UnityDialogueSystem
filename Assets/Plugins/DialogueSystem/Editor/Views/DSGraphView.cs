@@ -41,26 +41,26 @@ namespace DialogueSystem.Window
 
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
-
-        private int repeatedNameAmount;
-        private int RepeatedNameAmount
+        private Dictionary<Type, int> nessesaryTypes = new Dictionary<Type, int>()
         {
-            get => repeatedNameAmount;
+            { typeof(StartDialogueNode), 1 },
+            { typeof(EndDialogueNode), 1}
+        };
+
+        private int _repeatedNameAmount;
+        private int repeatedNameAmount
+        {
+            get => _repeatedNameAmount;
             set
             {
-                repeatedNameAmount = value;
-                if (repeatedNameAmount > 0) OnCanSaveGraphEvent?.Invoke(false);
-                else OnCanSaveGraphEvent?.Invoke(true);
+                _repeatedNameAmount = value;
+                OnSaveEnableHandler();
             }
         }
-        internal bool IsCanSave { get => repeatedNameAmount == 0; }
 
         internal DSGraphView(DSEditorWindow editorWindow)
         {
-            Model = new DSGraphModel()
-            {
-                FileName = "DialogueFileName"
-            };
+            Model = new DSGraphModel() { FileName = "DialogueFileName" };
 
             this.editorWindow = editorWindow;
             ungroupedNodes = new();
@@ -107,11 +107,6 @@ namespace DialogueSystem.Window
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
-
-            //this.AddManipulator(new StartDragManipulator());
-
-            //var listNodeTypes = DialogueSystemUtilities.GetListExtendedClasses(typeof(BaseNode));
-            //foreach (var item in listNodeTypes) this.AddManipulator(CreateNodeContextMenu($"Add {item.Name}", item));
             this.AddManipulator(CreateGroupContextualMenu());
         }
         #endregion
@@ -125,6 +120,7 @@ namespace DialogueSystem.Window
         {
             var node = DSUtilities.CreateNode(this, type, position, portsContext);
             i_Nodes.Add(node);
+            OnSaveEnableHandler();
             return node;
         }
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
@@ -240,6 +236,7 @@ namespace DialogueSystem.Window
                     RemoveGroup(group);
                     RemoveElement(group);
                 });
+                OnSaveEnableHandler();
             };
         }
         private void OnGroupElementAdded()
@@ -365,7 +362,7 @@ namespace DialogueSystem.Window
 
             if (ungroupedNodeList.Count == 2)
             {
-                ++RepeatedNameAmount;
+                ++repeatedNameAmount;
                 ungroupedNodeList[0].SetErrorStyle(errorColor);
             }
         }
@@ -378,7 +375,7 @@ namespace DialogueSystem.Window
 
             if (ungroupedNodeList.Count == 1)
             {
-                --RepeatedNameAmount;
+                --repeatedNameAmount;
                 ungroupedNodeList[0].ResetStyle();
                 return;
             }
@@ -412,7 +409,7 @@ namespace DialogueSystem.Window
 
             if (groupedNodesList.Count == 2)
             {
-                ++RepeatedNameAmount;
+                ++repeatedNameAmount;
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
@@ -426,7 +423,7 @@ namespace DialogueSystem.Window
             node.ResetStyle();
             if (groupedNodeList.Count == 1)
             {
-                --RepeatedNameAmount;
+                --repeatedNameAmount;
                 groupedNodeList[0].ResetStyle();
                 return;
             }
@@ -458,7 +455,7 @@ namespace DialogueSystem.Window
 
             if (groupsList.Count == 2)
             {
-                ++RepeatedNameAmount;
+                ++repeatedNameAmount;
                 groupsList[0].SetErrorStyle(errorColor);
             }
         }
@@ -472,7 +469,7 @@ namespace DialogueSystem.Window
 
             if (groupList.Count == 1)
             {
-                --RepeatedNameAmount;
+                --repeatedNameAmount;
                 groupList[0].ResetStyle();
                 return;
             }
@@ -512,6 +509,29 @@ namespace DialogueSystem.Window
 
         internal T[] GetArrayNodesOfType<T>() =>
             i_Nodes.OfType<T>().ToArray();
+
+        internal void OnSaveEnableHandler()
+        {
+            bool repeatednames = repeatedNameAmount == 0;
+            bool isNesseseryNodes = CheckNodes(i_Nodes, nessesaryTypes);
+            if (repeatednames && isNesseseryNodes) OnCanSaveGraphEvent?.Invoke(true);
+            else OnCanSaveGraphEvent?.Invoke(false);
+        }
+        public static bool CheckNodes(List<BaseNode> i_Nodes, Dictionary<Type, int> nessesaryTypes)
+        {
+            Dictionary<Type, int> nodeTypeCounts = i_Nodes
+                .GroupBy(node => node.GetType())
+                .ToDictionary(group => group.Key, group => group.Count());
+
+            foreach (var kvp in nessesaryTypes)
+            {
+                Type targetType = kvp.Key;
+                int necessaryCount = kvp.Value;
+
+                if (!nodeTypeCounts.TryGetValue(targetType, out int actualCount) || actualCount != necessaryCount) return false;
+            }
+            return true;
+        }
 
         internal BaseNode GetNodeById(string id) => i_Nodes.FirstOrDefault(e => e.Model.ID == id);
         internal BaseNode GetNodeByPortId(string id)

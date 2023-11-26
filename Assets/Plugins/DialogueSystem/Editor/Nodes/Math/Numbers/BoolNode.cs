@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     Type = typeof(bool),
                     Value = false,
                     IsSerializedInScript = true,

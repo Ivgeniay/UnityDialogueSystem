@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f5319eaff990647a4255a1d7a1bc5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Age: 166
+  Age: 16
   Name: Nikolay Huev
 --- !u!4 &1801800705
 Transform:

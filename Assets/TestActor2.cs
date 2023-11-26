@@ -6,7 +6,7 @@ namespace DialogueSystem.Assets
     {
         public int Ammo = 2;
 
-        private DialogueFileName dialogueFileName;
+        private DialogueFileNameR dialogueFileName;
 
         public void Awake()
         {

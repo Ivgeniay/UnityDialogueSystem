@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Groups;
+﻿using DialogueSystem.Generators;
+using DialogueSystem.Groups;
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
 using DialogueSystem.TextFields;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,7 +19,7 @@ namespace DialogueSystem.Utilities
     {
  
 
-        public static Label CreateLabel (string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
+        public static Label CreateLabel(string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
         {
             Label label = new Label()
             {
@@ -60,7 +62,7 @@ namespace DialogueSystem.Utilities
             integerField.AddToClassList(styles);
             return integerField;
         }
-        public static ProgressBar CreateProgressBar (float value = 0, float lowValue = 0, float maxValue = 1, string title = "", EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
+        public static ProgressBar CreateProgressBar(float value = 0, float lowValue = 0, float maxValue = 1, string title = "", EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
         {
             ProgressBar progressBar = new ProgressBar()
             {
@@ -85,7 +87,7 @@ namespace DialogueSystem.Utilities
             textField.AddToClassList(styles);
             return textField;
         }
-        public static TextField CreateTextArea (string value = null, string label = null, EventCallback < ChangeEvent<string>> onChange = null, string[] styles = null)
+        public static TextField CreateTextArea(string value = null, string label = null, EventCallback < ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = CreateTextField(value, label, onChange, styles);
             textField.multiline = true;
@@ -111,7 +113,7 @@ namespace DialogueSystem.Utilities
             return textField;
         }
 
-        public static Foldout CreateFoldout (string title, bool collapsed = false, string[] styles = null)
+        public static Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
         {
             var foldout = new Foldout()
             {
@@ -169,6 +171,15 @@ namespace DialogueSystem.Utilities
             }
             else
                 throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
+        }
+
+        public static object GetDefaultValue(Type type)
+        {
+            if (type == null) throw new ArgumentNullException();
+            object result = default(object);
+            if (type.IsValueType) result = Activator.CreateInstance(type);
+            else if (type == typeof(string)) result = string.Empty;
+            return result;
         }
 
 

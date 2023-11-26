@@ -11,14 +11,13 @@ using System.Reflection;
 using System.Text;
 using UnityEngine.UIElements;
 using static DialogueSystem.DialogueDisposer;
-using static DialogueSystem.DialogueOption;
+using static DialogueSystem.DialogueDisposer.DSDialogueOption;
 
 namespace DialogueSystem.Generators
 {
     internal class ClassGenerator : GHelper
     {
         DSClassInfo<DSGraphView> dsGrathViewClass = null;
-        //Dictionary<BasePort, (string text, string dialogueLink, string predicate)> dialogueChoices = new();
 
         internal ClassGenerator(DSGraphView grathView, string className)
         {
@@ -308,7 +307,8 @@ namespace DialogueSystem.Generators
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
                     for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
                     {
-                        if (innerDsClass.VariableInfo[i].Name == "DSDialogueOptions" && innerDsClass.VariableInfo[i].Type == "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">")
+                        //if (innerDsClass.VariableInfo[i].Name == "DSDialogueOptions" && innerDsClass.VariableInfo[i].Type == "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">")
+                        if (innerDsClass.VariableInfo[i].Name == typeof(DSDialogueOption).Name && innerDsClass.VariableInfo[i].Type == "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">")
                         {
                             //ЗАПОЛНЯЕМ 
                             List<(string text, string dialogueLink, string predicate)> optionsModel = new(); 
@@ -361,7 +361,6 @@ namespace DialogueSystem.Generators
                                 }
                             }
 
-                            object[] test = new[] { "(\"kek\")", "(\"ko\")", "(\"йоп\")" };
                             List<string> initParams = new();
                             foreach ((string text, string dialogueLink, string predicate) item in optionsModel)
                             {
@@ -479,7 +478,7 @@ namespace DialogueSystem.Generators
             innerDsClass.IDataHolder = dialogueNode;
 
             //ЗАДАЕМ АДЫКВАТНЫЙ ТИП ДЛЯ КЛАССА-ОБЕРТКИ АКТОРА
-            innerDsClass.SetType("DSDialogue");
+            innerDsClass.SetType(typeof(DSDialogue).Name);
 
             //СОЗДАНИЕ ВНУТРЕННИХ ПЕРЕМЕННЫХ ДЛЯ ЭКЗЕМПЛЯРА ВНУТРЕННОГО КЛАССА
             foreach (var item in innerDsClass.DataHolders)
@@ -505,7 +504,7 @@ namespace DialogueSystem.Generators
             VariableInfo options = new VariableInfo()
             {
                 Type = "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">",
-                Name = "DSDialogueOptions",
+                Name = typeof(DSDialogueOption).Name,
                 Visibility = Visibility.@public,
             };
             innerDsClass.VariableInfo.Add(text);
@@ -574,30 +573,6 @@ namespace DialogueSystem.Generators
         private VariableInfo AddDSClassDialogueToMain(DSClassInfo innerDsClass, DSClassInfo<DSGraphView> intoDSClassInfo)
         {
             BaseDialogueNode baseDialogueNode = innerDsClass.IDataHolder as BaseDialogueNode;
-            //if (intoDSClassInfo.RegisterInnerClassDeclaration(innerDsClass))
-            //{
-            //    var classDrawer = innerDsClass.ClassDrawer;
-            //    classDrawer.ClassDeclaration(innerDsClass.Type, Attribute.SystemSerializable, Visibility.@private);
-
-            //    innerDsClass.VariableInfo.Add(text);
-            //    innerDsClass.VariableInfo.Add(options);
-
-            //    classDrawer.AddField(text, Attribute.SerializeField, isNew: false, null);
-            //    classDrawer.AddField(options, Attribute.SerializeField, isNew: false, null);
-            //}
-
-            //VariableInfo text = new VariableInfo()
-            //{
-            //    Type = GHelper.GetVarType(typeof(string)),
-            //    Name = "Text",
-            //    Visibility = Visibility.@public,
-            //};
-            //VariableInfo options = new VariableInfo()
-            //{
-            //    Type = "List<" + GHelper.GetVarType(typeof(DialogueOption)) + ">",
-            //    Name = "DSDialogueOptions",
-            //    Visibility = Visibility.@public,
-            //};
 
             //СОЗДАНИЕ ПЕРЕМЕННОЙ ДЛЯ ГЛАВНОГО КЛАССА
             VariableInfo mainVarInfo = new VariableInfo()

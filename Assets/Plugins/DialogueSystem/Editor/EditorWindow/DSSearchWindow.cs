@@ -27,9 +27,8 @@ namespace DialogueSystem.Window
 
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
         {
-            var listNodeTypes = DSUtilities.GetListExtendedClasses(typeof(BaseNode));
-            var dtos = GenerateExtendedDOList(typeof(BaseNode), listNodeTypes);
-
+            List<Type> listNodeTypes = DSUtilities.GetListExtendedClasses(typeof(BaseNode));
+            List<ExtendedDO> dtos = GenerateExtendedDOList(typeof(BaseNode), listNodeTypes); 
             List<SearchTreeEntry> searchTreeEntries = new();
 
             CreateMenuTitle(searchTreeEntries, "Create Element");
@@ -37,10 +36,6 @@ namespace DialogueSystem.Window
 
             foreach (ExtendedDO dto in dtos)
             {
-                if (dto.Type.Name == "TestNodes")
-                {
-
-                }
                 if (dto.IsAbstract)
                 {
                     CreateMenuItem(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(dto.Type), dto.Depth);
@@ -48,18 +43,8 @@ namespace DialogueSystem.Window
                     {
                         if (items.FatherType == dto.Type && !items.IsAbstract)
                         {
-                            CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
-                        }
-                    }
-                }
-                else if (!dto.IsAbstract && dto.Types.Count > 0)
-                {
-                    CreateMenuItem(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(dto.Type) + " Based", dto.Depth);
-                    foreach (ExtendedDO items in dtos)
-                    {
-                        if (items.FatherType == dto.Type && !items.IsAbstract)
-                        {
-                            CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
+                            if (items.Type == typeof(StartDialogueNode) && graphView.i_Nodes.Any(e => e.GetType() == typeof(StartDialogueNode))) { }
+                            else CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(items.Type), items.Depth, new Type[] { items.Type }, indentationIcon);
                         }
                     }
                 }
@@ -72,12 +57,8 @@ namespace DialogueSystem.Window
             if (actors != null && actors.Count > 0)
             {
                 CreateMenuItem(searchTreeEntries, "Actors", 1);
-                actors.ForEach(a =>
-                {
-                    CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(a), 2, new Type[] { typeof(IDialogueActor), a }, indentationIcon);
-                });
+                actors.ForEach(a => CreateMenuChoice(searchTreeEntries, DSUtilities.GenerateWindowSearchNameFromType(a), 2, new Type[] { typeof(IDialogueActor), a }, indentationIcon));
             }
-
             return searchTreeEntries;
         }
 
@@ -106,7 +87,6 @@ namespace DialogueSystem.Window
                 graphView.AddElement(node);
                 return true;
             }
-
             return false;
         }
 

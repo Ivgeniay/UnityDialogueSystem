@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = false,
+                    IsSingle = true,
                     PortText = DSConstants.Dialogue,
                     Type = DSConstants.DialogueTypes[0],
                     IsSerializedInScript = true,

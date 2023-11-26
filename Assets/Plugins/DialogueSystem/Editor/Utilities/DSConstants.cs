@@ -1,5 +1,5 @@
-﻿using System;
-using static DialogueSystem.DialogueOption;
+﻿using DialogueSystem.DialogueType;
+using System;
 
 namespace DialogueSystem.Utilities
 {

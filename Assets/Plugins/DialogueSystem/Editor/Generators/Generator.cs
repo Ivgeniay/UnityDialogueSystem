@@ -14,14 +14,6 @@ namespace DialogueSystem.Generators
 
         internal void Generate(string filename)
         {
-            BasePrimitiveNode[] numbersN    = graphView.GetArrayNodesOfType<BasePrimitiveNode>();   
-            ActorNode[] actorN              = graphView.GetArrayNodesOfType<ActorNode>();         
-            BaseConvertNode[] convertesN    = graphView.GetArrayNodesOfType<BaseConvertNode>();   
-            BaseOperationNode[] operationN  = graphView.GetArrayNodesOfType<BaseOperationNode>(); 
-            BaseLogicNode[] logicN          = graphView.GetArrayNodesOfType<BaseLogicNode>();     
-            BaseLetterNode[] letterN        = graphView.GetArrayNodesOfType<BaseLetterNode>();    
-            BaseDialogueNode[] dialogN      = graphView.GetArrayNodesOfType<BaseDialogueNode>();  
-
             string className = string.IsNullOrEmpty(filename) == true ? "MyClass" : filename;
             ScriptGen scrGen = new(graphView, filename);
 

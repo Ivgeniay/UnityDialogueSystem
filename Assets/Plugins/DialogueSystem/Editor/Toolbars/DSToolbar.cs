@@ -93,37 +93,20 @@ namespace DialogueSystem.Toolbars
             this.Add(cleanButton);
             this.Add(minimapButton);
             this.Add(generateAssetButton);
+
+            saveButton.SetEnabled(false);
         }
 
-        private void MinimapToggle() =>
-            graphView.MiniMap.visible = !graphView.MiniMap.visible;
-        
-
-        private void Save()
-        {
-            if (graphView.IsCanSave) graphView.Save(textField.value);
-            else Debug.Log("Dont save");
-        }
-
+        private void MinimapToggle() => graphView.MiniMap.visible = !graphView.MiniMap.visible;
+        private void Save() => graphView.Save(textField.value);
         private void Load()
         {
             string path = EditorUtility.OpenFilePanel("Select a graph file", Application.dataPath, "asset");
             textField.value = graphView.Load(path);
         }
-
-        private void CleanGraph()
-        {
-            graphView.CleanGraph();
-        }
-
-        private void GenerateAsset()
-        {
-            graphView.GenerateAsset(textField.value);
-        }
-
-        private void OnSaveHandler(float obj)
-        {
-            progressBar.value = obj;
-        }
+        private void CleanGraph() => graphView.CleanGraph();
+        private void GenerateAsset() => graphView.GenerateAsset(textField.value);
+        private void OnSaveHandler(float obj) => progressBar.value = obj;
+        
     }
 }

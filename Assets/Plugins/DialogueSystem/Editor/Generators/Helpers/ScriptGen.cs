@@ -19,7 +19,11 @@ namespace DialogueSystem.Generators
         {
             this.dsGrathView = dsGrathView;
             this.className = className;
-            usingGen = new(scriptContext);
+            usingGen = new(
+                "UnityEngine",
+                "System",
+                "static DialogueSystem.DialogueDisposer.DSDialogueOption"
+                );
         }
 
         internal string Draw(StringBuilder context)
@@ -29,6 +33,7 @@ namespace DialogueSystem.Generators
 
             ClassDrawer mainClassDrawer = classGenerator.GetDrawer();
 
+            script += usingGen.GetUsings(context);
             script += mainClassDrawer.Draw();
             script = DrawTabs(script);
             return script;

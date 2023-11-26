@@ -77,6 +77,9 @@ namespace DialogueSystem.Generators
                         val = value.ToString().Replace(",", ".");
                         return val.ToString() + 'f';
 
+                    case Type fl when fl == typeof(bool):
+                        return value is true ? "true" : "false"; 
+
                     case Type str when str == typeof(string): return GHelper.QM + value.ToString() + GHelper.QM;
                     default: return value.ToString();
                 }
@@ -99,10 +102,8 @@ namespace DialogueSystem.Generators
             }
         }
 
-        internal static string GetVarType(Type type)
-        {
-            return ConvertTypeToString(type);
-        }
+        internal static string GetVarType(Type type) => ConvertTypeToString(type);
+        
 
         internal static string GetVarType<T>() => GetVarType(typeof(T));
 

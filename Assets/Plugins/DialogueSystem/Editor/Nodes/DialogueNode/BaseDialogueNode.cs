@@ -25,7 +25,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = true,
-                    IsSingle = false,
+                    IsSingle = true,
                     PlusIf = false,
                     Type = DSConstants.DialogueTypes[0],
                     Value = null,

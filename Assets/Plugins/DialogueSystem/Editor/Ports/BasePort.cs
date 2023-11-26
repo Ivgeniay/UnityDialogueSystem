@@ -18,14 +18,13 @@ namespace DialogueSystem.Ports
         public Type Type { get; private set; }
         public string Name { get; private set; }
         public bool IsSerializedInScript { get; set; }
-        public PortSide PortSide;
 
 
         public Type[] AvailableTypes;
+        public PortSide PortSide;
         public Color capColor;
         
-        public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) 
-        { }
+        public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) { }
         public static BasePort CreateBasePort<TEdge>(Orientation orientation, Direction direction, Capacity capacity, Type type) where TEdge : DSEdge, new()
         {
             Type edgeConnectorType = typeof(CustomEdgeConnector<>).MakeGenericType(typeof(TEdge));
@@ -77,11 +76,8 @@ namespace DialogueSystem.Ports
                     graphView.graphViewChanged?.Invoke(t);
                     graphView.RemoveElement(edge);
                 }
-                
-                //edge.parent.Remove(edge);
             }
-        }
-
+        } 
         public override void OnStartEdgeDragging()
         {
             if (this.m_EdgeConnector?.edgeDragHelper?.draggedPort == this)
@@ -97,26 +93,16 @@ namespace DialogueSystem.Ports
         }
 
 
-        internal void SetValue(object value)
-        {
-            Value = value;
-        }
-
+        internal void SetValue(object value) => Value = value; 
         internal void SetPortType(Type type)
         {
             Type = type;
             Type = type;
-        }
-
+        } 
         internal void ChangeName(string name)
         {
             portName = name;
             Name = name;
         }
-    }
-    public enum PortSide
-    {
-        Input,
-        Output,
     }
 }
