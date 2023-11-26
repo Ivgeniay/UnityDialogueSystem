@@ -13,6 +13,7 @@ namespace DialogueSystem.Ports
     {
         public string ID { get; set; }
         public bool IsFunctions { get; set; }
+        public BasePort IfPortSource { get; set; }
         public object Value { get; private set; }
         public Type Type { get; private set; }
         public string Name { get; private set; }

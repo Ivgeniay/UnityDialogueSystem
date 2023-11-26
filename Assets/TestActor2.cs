@@ -1,9 +1,4 @@
 ﻿using DialogueSystem.Characters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DialogueSystem.Assets
 {
@@ -16,7 +11,7 @@ namespace DialogueSystem.Assets
         public void Awake()
         {
             dialogueFileName = new();
-            dialogueFileName.Initialize(this);
+            //dialogueFileName.Initialize(this);
         }
     }
 }

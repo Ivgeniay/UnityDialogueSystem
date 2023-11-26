@@ -513,6 +513,26 @@ namespace DialogueSystem.Window
         internal T[] GetArrayNodesOfType<T>() =>
             i_Nodes.OfType<T>().ToArray();
 
+        internal BaseNode GetNodeById(string id) => i_Nodes.FirstOrDefault(e => e.Model.ID == id);
+        internal BaseNode GetNodeByPortId(string id)
+        {
+            BasePort port = GetPortById(id);
+            return port.node as BaseNode;
+        }
+        internal BasePort GetPortById(string id)
+        {
+            BasePort port = null;
+            foreach (var e in i_Nodes)
+            {
+                var innp = e.GetInputPorts();
+                var outnp = e.GetOutputPorts();
+                port = innp.FirstOrDefault(p => p.ID == id);
+                if (port == null) port = outnp.FirstOrDefault(p => p.ID == id);
+                if (port != null) return port;
+            }
+            throw new NullReferenceException($"There is not port with id {id} in the graph");
+        }
+
         internal void Save(string fileName)
         {
             string path = $"Assets/{fileName}.asset";

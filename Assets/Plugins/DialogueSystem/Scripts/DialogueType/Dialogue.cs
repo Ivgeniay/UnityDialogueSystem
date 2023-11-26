@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static DialogueSystem.DialogueOption;
+//using static DialogueSystem.DialogueOption;
 
 namespace DialogueSystem
 {
@@ -9,10 +9,10 @@ namespace DialogueSystem
     public record DialogueOption
     {
         public string Text { get; private set; }
-        public Dialogue NextDialogues { get; private set; }
+        public object NextDialogues { get; private set; }
         private Func<bool> Func { get; set; }
 
-        public DialogueOption(string text, Dialogue nextDialogues = null, Func<bool> func = null)
+        public DialogueOption(string text, object nextDialogues = null, Func<bool> func = null)
         {
             this.Text = text;
             this.NextDialogues = nextDialogues;
@@ -25,11 +25,6 @@ namespace DialogueSystem
         {
             public string Text { get; private set; }
             private List<DialogueOption> options;
-            public Dialogue(string text, params DialogueOption[] options)
-            {
-                Text = text;
-                this.options = options == null ? new() : options.ToList();
-            }
 
             public IEnumerable<DialogueOption> GetOptions()
             {

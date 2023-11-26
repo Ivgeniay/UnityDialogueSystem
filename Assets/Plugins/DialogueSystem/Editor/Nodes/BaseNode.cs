@@ -454,14 +454,13 @@ namespace DialogueSystem.Nodes
                 "X",
                 () =>
                 {
-                    if (data.IsInput)
+                    if (!string.IsNullOrEmpty(data.IfPortSourceId) && !string.IsNullOrWhiteSpace(data.IfPortSourceId))
                     {
-                        if (Model.Inputs.Count == Model.Minimal) return;
+                        BasePort sourcePort = graphView.GetPortById(data.IfPortSourceId);
+                        sourcePort.IfPortSource = null;
                     }
-                    else
-                    {
-                        if (Model.Outputs.Count == Model.Minimal) return;
-                    }
+                    if (data.IsInput) if (Model.Inputs.Count == Model.Minimal) return;
+                    else if (Model.Outputs.Count == Model.Minimal) return;
                     if (port.connected)
                     {
                         var edges = port.connections;
@@ -510,14 +509,21 @@ namespace DialogueSystem.Nodes
                 if (string.IsNullOrEmpty(data.IfPortSourceId))
                 {
                     var outputs = outputContainer.Children().ToList();
-                    var lastPort = outputs[outputs.Count - 1] as BasePort;
+                    BasePort lastPort = outputs[outputs.Count - 1] as BasePort;
+                    port.IfPortSource = lastPort;
+                    lastPort.IfPortSource = port;
                     lastPort.Add(port);
                     data.IfPortSourceId = lastPort.ID;
                 }
                 else
                 {
-                    var outPort = GetOutputPorts().Where(x => x != null && x.ID == data.IfPortSourceId).FirstOrDefault();
-                    if (outPort != null) outPort.Add(port);
+                    BasePort outPort = GetOutputPorts().Where(x => x != null && x.ID == data.IfPortSourceId).FirstOrDefault();
+                    if (outPort != null)
+                    {
+                        outPort.Add(port);
+                        port.IfPortSource = outPort;
+                        outPort.IfPortSource = port;
+                    }
                     
                 }
             }
