@@ -35,9 +35,9 @@ namespace DialogueSystem.Window
         private DSSearchWindow searchWindow;
         private DSEditorWindow editorWindow;
 
-        private SerializableDictionary<string, DSNodeErrorData> ungroupedNodes;
-        private SerializableDictionary<string, DSGroupErrorData> groups;
-        private SerializableDictionary<BaseGroup, SerializableDictionary<string, DSNodeErrorData>> groupedNodes;
+        private Dictionary<string, DSNodeErrorData> ungroupedNodes;
+        private Dictionary<string, DSGroupErrorData> groups;
+        private Dictionary<BaseGroup, Dictionary<string, DSNodeErrorData>> groupedNodes;
 
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
@@ -119,6 +119,7 @@ namespace DialogueSystem.Window
         internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
             var node = DSUtilities.CreateNode(this, type, position, portsContext);
+            AddElement(node);
             i_Nodes.Add(node);
             OnSaveEnableHandler();
             return node;
@@ -218,6 +219,11 @@ namespace DialogueSystem.Window
 
                     RemoveUngroupedNode(node);
                     node.DisconnectAllPorts();
+                    if (!string.IsNullOrWhiteSpace(node.Model.GroupID))
+                    {
+                        BaseGroup gr = GetGroupById(node.Model.GroupID);
+                        if (gr != null) gr.OnNodeRemove(node);
+                    }
                     i_Nodes.Remove(node);
                     RemoveElement(node);
                 });
@@ -234,6 +240,7 @@ namespace DialogueSystem.Window
                     group.OnDestroy();
                     group.RemoveElements(nodes);
                     RemoveGroup(group);
+                    i_Groups.Remove(group);
                     RemoveElement(group);
                 });
                 OnSaveEnableHandler();
@@ -250,6 +257,7 @@ namespace DialogueSystem.Window
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveUngroupedNode(node);
                         node.OnGroupUp(nodeGroup);
+                        nodeGroup.OnNodeAdded(node);
                         AddGroupNode(nodeGroup, node);
                     }
                     else continue;
@@ -267,6 +275,7 @@ namespace DialogueSystem.Window
                         BaseGroup nodeGroup = (BaseGroup)group;
                         RemoveGroupedNode(nodeGroup, node);
                         node.OnUnGroup(nodeGroup);
+                        nodeGroup.OnNodeRemove(node);
                         AddUngroupedNode(node);
                     }
                     else continue;
@@ -392,7 +401,7 @@ namespace DialogueSystem.Window
 
             if (!groupedNodes.ContainsKey(group))
             {
-                groupedNodes.Add(group, new SerializableDictionary<string, DSNodeErrorData>());
+                groupedNodes.Add(group, new Dictionary<string, DSNodeErrorData>());
             }
 
             if (!groupedNodes[group].ContainsKey(nodeName))
@@ -464,7 +473,7 @@ namespace DialogueSystem.Window
             string oldGroupName = group.Model.GroupName.ToLower();
             List<BaseGroup> groupList = groups[oldGroupName].Groups;
             groupList.Remove(group);
-            i_Groups.Remove(group);
+            //i_Groups.Remove(group);
             group.ResetStyle();
 
             if (groupList.Count == 1)
@@ -482,10 +491,9 @@ namespace DialogueSystem.Window
 
         #endregion
         #region Styles
-        private void AddStyles()
-        {
+        private void AddStyles() =>
             this.LoadAndAddStyleSheets(GRAPH_STYLE_LINK, NODE_STYLE_LINK);
-        }
+        
         private void AddGridBackground()
         {
             GridBackground gridBackground = new GridBackground();
@@ -528,12 +536,13 @@ namespace DialogueSystem.Window
                 Type targetType = kvp.Key;
                 int necessaryCount = kvp.Value;
 
-                if (!nodeTypeCounts.TryGetValue(targetType, out int actualCount) || actualCount != necessaryCount) return false;
+                if (!nodeTypeCounts.TryGetValue(targetType, out int actualCount) || actualCount < necessaryCount) return false;
             }
             return true;
         }
 
         internal BaseNode GetNodeById(string id) => i_Nodes.FirstOrDefault(e => e.Model.ID == id);
+        internal BaseGroup GetGroupById(string id) => i_Groups.FirstOrDefault(e => e.Model.ID == id);
         internal BaseNode GetNodeByPortId(string id)
         {
             BasePort port = GetPortById(id);
@@ -584,11 +593,14 @@ namespace DialogueSystem.Window
 
             foreach (BaseNode node in i_Nodes) nodes.Add(node.Model);
             foreach (BaseGroup group in i_Groups) groups.Add(group.Model);
+
             newGraphSO.Init(
                 fileName, 
                 nodes, 
                 groups,
+                newGraphSO,
                 callback: (cur, from) => OnSaveEvent?.Invoke((float)cur / (float)from) );
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
@@ -618,16 +630,23 @@ namespace DialogueSystem.Window
             Model.FileName = graphSO.FileName;
             foreach (var groupModel in graphSO.GroupModels)
             {
-                var group = CreateGroup(Type.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
+                BaseGroup group = CreateGroup(Type.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
+                group.Model.ID = groupModel.ID;
             }
 
             foreach (var nodeModel in graphSO.NodeModels)
             {
-                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object>
+                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> { nodeModel });
+                if (!string.IsNullOrWhiteSpace(node.Model.GroupID))
                 {
-                    nodeModel
-                });
-                AddElement(node);
+                    BaseGroup group = GetGroupById(node.Model.GroupID);
+                    if (group != null)
+                    {
+                        group.AddElement(node);
+                        //group.SetPosition(new Rect(group.Model.Position.x, group.Model.Position.y, 0, 0));
+                        //this.elementsAddedToGroup?.Invoke(group, new List<BaseNode>() { node });
+                    }
+                }
             }
 
             foreach (var node in i_Nodes)

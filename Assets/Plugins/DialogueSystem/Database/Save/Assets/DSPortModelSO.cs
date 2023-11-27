@@ -1,10 +1,13 @@
 ﻿using DialogueSystem.Ports;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace DialogueSystem.Database.Save
 {
+    [Serializable]
     public class DSPortModelSO : ScriptableObject
     {
         [SerializeField] public List<NodePortModelSO> NodeIDs;
@@ -23,7 +26,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string[] AvailableTypes;
         [SerializeField] public PortSide PortSide;
 
-        public void Init(DSPortModel dSPortModel)
+        public void Init(DSPortModel dSPortModel, UnityEngine.Object parent)
         {
             NodeIDs = new List<NodePortModelSO>();
 
@@ -49,13 +52,14 @@ namespace DialogueSystem.Database.Save
                     if (o != null)
                     {
                         NodePortModelSO dSNodePortModelSO = CreateInstance<NodePortModelSO>();
+                        AssetDatabase.AddObjectToAsset(dSNodePortModelSO, parent);
 
                         dSNodePortModelSO.name = $"(PortModel){PortID}{o.NodeID}{Random.Range(0,100)}";
-                        AssetDatabase.AddObjectToAsset(dSNodePortModelSO, this);
                         dSNodePortModelSO.Init(o);
-
                         NodeIDs.Add(dSNodePortModelSO);
+
                         AssetDatabase.SaveAssets();
+                        AssetDatabase.Refresh();
                     }
                     if (o == null)
                     {

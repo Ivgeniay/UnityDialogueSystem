@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using UnityEditor.Experimental.GraphView;
+using System.Collections.Generic;
 using DialogueSystem.Generators;
+using DialogueSystem.Utilities;
 using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using System.Linq;
 using System;
-using UnityEditor.Experimental.GraphView;
-using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Generators
 {
@@ -23,9 +23,7 @@ namespace DialogueSystem.Generators
         internal string Type;
 
 
-        internal abstract void Initialize();
-        
-
+        internal abstract void Initialize(); 
         internal bool RegisterInnerClassDeclaration(DSClassInfo dSClassInfo)
         {
             if (!InnerClassInfo.Any(e => e.Type == dSClassInfo.Type))
@@ -35,9 +33,7 @@ namespace DialogueSystem.Generators
             }
             return false;
         }
-        internal VariableInfo GetVariable(IDataHolder dataHolder) => VariableInfo.FirstOrDefault(e => e.DataHolder == dataHolder);
-        
-
+        internal VariableInfo GetVariable(IDataHolder dataHolder) => VariableInfo.FirstOrDefault(e => e.DataHolder == dataHolder); 
         internal DSClassInfo GetInnerDSClass(DSClassInfo dsClass)
         {
             VariableInfo varInfo = VariableInfo.FirstOrDefault(e => e.ClassInfo.Equals(dsClass));
@@ -93,13 +89,10 @@ namespace DialogueSystem.Generators
             Initialize();
 
             foreach (var data in DataHolders)
-                Type += "_" + DSUtilities.GenerateClassPefixFromType(data.Type);
-            
+                Type += "_" + DSUtilities.GenerateClassPefixFromType(data.Type); 
         }
         internal override void Initialize() => DataHolders = FillIDataHolders().ToList();
 
-        //(Port, Node, Map) -> GrathElement -> VisualElement
-        //(GrathView) -> VisualElement
         private IEnumerable<IDataHolder> FillIDataHolders()
         {
             if (instance == null) throw new NullReferenceException();

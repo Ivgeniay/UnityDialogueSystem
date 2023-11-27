@@ -11,6 +11,7 @@ namespace DialogueSystem.Groups
     {
         private Color defaultBorderColor;
         private float defaultBorderWidth;
+        private List<BaseNode> nodes = new();
         public DSGroupModel Model { get; protected set; }
 
         public BaseGroup(string groupTitle, Vector2 position)
@@ -55,7 +56,13 @@ namespace DialogueSystem.Groups
         public void OnChangePosition(Vector2 position, Vector2 delta) 
         {
             Model.Position = position;
+            for (int i = 0; i < nodes.Count; i++)
+                nodes[i].OnChangePosition(position, delta);
         }
+
+        internal void OnNodeAdded(BaseNode node) => nodes.Add(node);
+        internal void OnNodeRemove(BaseNode node) => nodes.Remove(node);
+        
         #endregion
     }
 }

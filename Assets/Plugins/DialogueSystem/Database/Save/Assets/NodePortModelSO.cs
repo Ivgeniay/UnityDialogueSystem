@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Database.Save
 {
+    [Serializable]
     public class NodePortModelSO : ScriptableObject
     {
         [SerializeField] public string NodeID;

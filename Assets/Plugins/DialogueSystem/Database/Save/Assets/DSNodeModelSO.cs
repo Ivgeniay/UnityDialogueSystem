@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace DialogueSystem.Database.Save
 {
+    [Serializable]
     public class DSNodeModelSO : ScriptableObject
     {
         [SerializeField] public List<DSPortModelSO> Outputs;
@@ -18,7 +19,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public int Minimal;
         [SerializeField] public string ID;
 
-        public void Init(DSNodeModel dSNodeModel)
+        public void Init(DSNodeModel dSNodeModel, UnityEngine.Object parent)
         {
             Outputs = new List<DSPortModelSO>();
             Inputs = new List<DSPortModelSO>();
@@ -34,23 +35,27 @@ namespace DialogueSystem.Database.Save
             foreach (var portModel in dSNodeModel.Outputs)
             {
                 DSPortModelSO dSPortModelSO = ScriptableObject.CreateInstance<DSPortModelSO>();
-                dSPortModelSO.name = $"(OutputPort){portModel.PortID}";
+                AssetDatabase.AddObjectToAsset(dSPortModelSO, parent);
 
-                AssetDatabase.AddObjectToAsset(dSPortModelSO, AssetDatabase.GetAssetPath(this));
-                dSPortModelSO.Init(portModel);
+                dSPortModelSO.name = $"(OutputPort){portModel.PortID}";
+                dSPortModelSO.Init(portModel, dSPortModelSO);
                 Outputs.Add(dSPortModelSO);
+
                 AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
 
             foreach (var portModel in dSNodeModel.Inputs)
             {
                 DSPortModelSO dSPortModelSO = ScriptableObject.CreateInstance<DSPortModelSO>();
-                dSPortModelSO.name = $"(InputPort){portModel.PortID}";
+                AssetDatabase.AddObjectToAsset(dSPortModelSO, parent);
 
-                AssetDatabase.AddObjectToAsset(dSPortModelSO, AssetDatabase.GetAssetPath(this));
-                dSPortModelSO.Init(portModel);
+                dSPortModelSO.name = $"(InputPort){portModel.PortID}";
+                dSPortModelSO.Init(portModel, dSPortModelSO);
                 Inputs.Add(dSPortModelSO);
+
                 AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
         }
 

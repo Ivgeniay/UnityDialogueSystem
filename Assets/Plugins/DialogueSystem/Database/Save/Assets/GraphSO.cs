@@ -1,8 +1,8 @@
 ﻿using DialogueSystem.Database.Save;
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using System;
 
 namespace DialogueSystem.Save
 {
@@ -12,7 +12,7 @@ namespace DialogueSystem.Save
         [SerializeField] public List<DSNodeModelSO> NodeModels;
         [SerializeField] public List<DSGroupModelSO> GroupModels;
 
-        public void Init(string fileName, List<DSNodeModel> nodes, List<DSGroupModel> groups, Action<float, float> callback = null)
+        public void Init(string fileName, List<DSNodeModel> nodes, List<DSGroupModel> groups, UnityEngine.Object parent, Action<float, float> callback = null)
         {
             FileName = fileName;
             NodeModels = new List<DSNodeModelSO>();
@@ -23,11 +23,15 @@ namespace DialogueSystem.Save
             foreach (DSGroupModel group in groups)
             {
                 DSGroupModelSO dSGroupModel = ScriptableObject.CreateInstance<DSGroupModelSO>();
-                dSGroupModel.name = $"{Type.GetType(group.Type).Name}({group.GroupName}";
-                AssetDatabase.AddObjectToAsset(dSGroupModel, this);
+                AssetDatabase.AddObjectToAsset(dSGroupModel, parent);
+
+                dSGroupModel.name = $"{Type.GetType(group.Type).Name}({group.GroupName})";
                 dSGroupModel.Init(group);
                 this.GroupModels.Add(dSGroupModel);
+
                 AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+
                 counter++;
                 callback?.Invoke(counter, counValues);
             }
@@ -35,11 +39,15 @@ namespace DialogueSystem.Save
             foreach (DSNodeModel node in nodes)
             {
                 DSNodeModelSO dSNodeModelSO = ScriptableObject.CreateInstance<DSNodeModelSO>();
+                AssetDatabase.AddObjectToAsset(dSNodeModelSO, parent);
+
                 dSNodeModelSO.name = $"{Type.GetType(node.DialogueType).Name}({node.NodeName}";
-                AssetDatabase.AddObjectToAsset(dSNodeModelSO, AssetDatabase.GetAssetPath(this));
-                dSNodeModelSO.Init(node);
+                dSNodeModelSO.Init(node, dSNodeModelSO);
                 this.NodeModels.Add(dSNodeModelSO);
+
                 AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+
                 counter++;
                 callback?.Invoke(counter, counValues);
             }

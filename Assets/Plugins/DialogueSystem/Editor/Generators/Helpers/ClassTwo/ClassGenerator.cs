@@ -2,14 +2,13 @@
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
-using DialogueSystem.Window;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using UnityEngine.UIElements;
+using DialogueSystem.Window;
+using System.Reflection;
+using System.Linq;
+using System.Text;
+using System;
 using static DialogueSystem.DialogueDisposer;
 using static DialogueSystem.DialogueDisposer.DSDialogueOption;
 
@@ -307,7 +306,6 @@ namespace DialogueSystem.Generators
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
                     for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
                     {
-                        //if (innerDsClass.VariableInfo[i].Name == "DSDialogueOptions" && innerDsClass.VariableInfo[i].Type == "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">")
                         if (innerDsClass.VariableInfo[i].Name == typeof(DSDialogueOption).Name && innerDsClass.VariableInfo[i].Type == "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">")
                         {
                             //ЗАПОЛНЯЕМ 

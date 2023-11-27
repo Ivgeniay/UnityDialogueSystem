@@ -10,8 +10,7 @@ namespace DialogueSystem.Nodes
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
             base.Initialize(graphView, position, portsContext);
-            
-            Model.Outputs = new();
+             
             if (portsContext == null)
             {
                 Model.AddPort(new(new System.Type[] { typeof(bool) }, Ports.PortSide.Output)

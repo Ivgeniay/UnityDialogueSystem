@@ -77,14 +77,11 @@ namespace DialogueSystem.Window
             {
                 var node = graphView.CreateNode<ActorNode>(localMousePosition, null);
                 node.Generate(data[1]);
-                graphView.AddElement(node);
                 return true;
             }
             else if (typeof(BaseNode).IsAssignableFrom(type))
             {
-                var node =
-                    graphView.CreateNode(type, localMousePosition, null);
-                graphView.AddElement(node);
+                var node = graphView.CreateNode(type, localMousePosition, null);
                 return true;
             }
             return false;

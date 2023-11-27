@@ -258,7 +258,7 @@ namespace DialogueSystem.Nodes
 
         public virtual void OnChangePosition(Vector2 position, Vector2 delta)
         {
-            Model.Position = position;
+            Model.Position += delta;
         }
         public virtual void OnCreate() => Draw();
         public virtual void OnDestroy() { }
@@ -363,7 +363,7 @@ namespace DialogueSystem.Nodes
                         break;
 
                     case Type t when t == typeof(bool):
-                        bool bDef = data.Value == "true" ? true : false;
+                        bool bDef = data.Value.ToLower() == "true" ? true : false;
                         Toggle toggle = DSUtilities.CreateToggle(
                             "",
                             "",

@@ -15,7 +15,7 @@ namespace DialogueSystem.Toolbars
         private Button saveButton;
         private Button loadButton;
         private Button cleanButton;
-        private Button generateAssetButton;
+        private Button generateScriptButton;
         private Button minimapButton;
         private DSGraphView graphView;
         public DSToolbar(DSGraphView graphView) 
@@ -29,7 +29,7 @@ namespace DialogueSystem.Toolbars
         private void OnCanSaveGraphHandler(bool obj)
         {
             saveButton.SetEnabled(obj);
-            generateAssetButton.SetEnabled(obj);
+            generateScriptButton.SetEnabled(obj);
         }
 
         public void Initialize(string fileName, string label)
@@ -76,7 +76,7 @@ namespace DialogueSystem.Toolbars
             {
                 "ds-toolbar__button"
             });
-            generateAssetButton = DSUtilities.CreateButton("Generate Asset", GenerateAsset, new string[]
+            generateScriptButton = DSUtilities.CreateButton("Generate DialogueScript", GenerateScript, new string[]
             {
                 "ds-toolbar__button"
             });
@@ -91,9 +91,10 @@ namespace DialogueSystem.Toolbars
             this.Add(loadButton);
             this.Add(cleanButton);
             this.Add(minimapButton);
-            this.Add(generateAssetButton);
+            this.Add(generateScriptButton);
 
             saveButton.SetEnabled(false);
+            generateScriptButton.SetEnabled(false);
         }
 
         private void MinimapToggle() => graphView.MiniMap.visible = !graphView.MiniMap.visible;
@@ -108,7 +109,7 @@ namespace DialogueSystem.Toolbars
             textField.value = graphView.Load(path);
         }
         private void CleanGraph() => graphView.CleanGraph();
-        private void GenerateAsset()
+        private void GenerateScript()
         {
             string path = EditorUtility.SaveFilePanel("Select a graph file", Application.dataPath, textField.value, "cs");
             graphView.GenerateAsset(path);
