@@ -18,14 +18,13 @@ namespace DialogueSystem.Nodes
             {
                 Model.AddPort(new DSPortModel(new Type[] { typeof(int) }, PortSide.Output)
                 {
-                    Value = 0,
+                    Value = "0",
                     Type = typeof(int),
                     Cross = false,
                     IsField = true,
                     IsInput = false,
                     IsSingle = true,
                     PortText = DSConstants.Int,
-                    IsSerializedInScript = true,
                 });
             }
         }

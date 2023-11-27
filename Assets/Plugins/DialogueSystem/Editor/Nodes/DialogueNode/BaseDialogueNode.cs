@@ -16,7 +16,7 @@ namespace DialogueSystem.Nodes
         {
             base.Initialize(graphView, position, context: portsContext);
 
-            if (portsContext == null )
+            if (portsContext == null)
             {
                 Model.Text = "Dialogue text";
                 Model.AddPort(new DSPortModel(DSConstants.DialogueTypes, Ports.PortSide.Input)

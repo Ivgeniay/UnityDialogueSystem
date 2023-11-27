@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
             {
                 Model.AddPort(new DSPortModel(new Type[] { typeof(float) }, PortSide.Output)
                 {
-                    Value = 0f,
+                    Value = "0",
                     Type = typeof(float),
                     Cross = false,
                     IsField = true,
@@ -28,7 +28,6 @@ namespace DialogueSystem.Nodes
                     PortSide = PortSide.Output,
                     IsSingle = true,
                     PortText = DSConstants.Float,
-                    IsSerializedInScript = true
                 });
             }
         }

@@ -20,19 +20,6 @@ namespace DialogueSystem.Save
             int counter = 0;
             int counValues = nodes.Count + groups.Count;
 
-            foreach (DSNodeModel node in nodes)
-            {
-                DSNodeModelSO dSNodeModelSO = ScriptableObject.CreateInstance<DSNodeModelSO>();
-                dSNodeModelSO.name = $"{Type.GetType(node.DialogueType).Name}({node.NodeName}";
-                AssetDatabase.AddObjectToAsset(dSNodeModelSO, AssetDatabase.GetAssetPath(this));
-                dSNodeModelSO.Init(node);
-                this.NodeModels.Add(dSNodeModelSO);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-                counter++;
-                callback?.Invoke(counter, counValues);
-            }
-
             foreach (DSGroupModel group in groups)
             {
                 DSGroupModelSO dSGroupModel = ScriptableObject.CreateInstance<DSGroupModelSO>();
@@ -41,7 +28,18 @@ namespace DialogueSystem.Save
                 dSGroupModel.Init(group);
                 this.GroupModels.Add(dSGroupModel);
                 AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                counter++;
+                callback?.Invoke(counter, counValues);
+            }
+
+            foreach (DSNodeModel node in nodes)
+            {
+                DSNodeModelSO dSNodeModelSO = ScriptableObject.CreateInstance<DSNodeModelSO>();
+                dSNodeModelSO.name = $"{Type.GetType(node.DialogueType).Name}({node.NodeName}";
+                AssetDatabase.AddObjectToAsset(dSNodeModelSO, AssetDatabase.GetAssetPath(this));
+                dSNodeModelSO.Init(node);
+                this.NodeModels.Add(dSNodeModelSO);
+                AssetDatabase.SaveAssets();
                 counter++;
                 callback?.Invoke(counter, counValues);
             }

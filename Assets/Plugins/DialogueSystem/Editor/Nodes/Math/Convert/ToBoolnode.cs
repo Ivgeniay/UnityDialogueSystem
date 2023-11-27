@@ -20,7 +20,7 @@ namespace DialogueSystem.Nodes
                 Model.AddPort(new(DSConstants.AvalilableTypes, PortSide.Input)
                 {
                     PortText = $"All",
-                    Value = 0,
+                    Value = "0",
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -31,14 +31,13 @@ namespace DialogueSystem.Nodes
                 Model.AddPort(new(new Type[] { typeof(bool) }, PortSide.Output)
                 {
                     Type = typeof(bool),
-                    Value = 0f,
+                    Value = "false",
                     Cross = false,
                     IsField = false,
                     IsInput = false,
                     IsSingle = true,
                     PortText = typeof(bool).Name,
-                    IsFunction = true,
-                    IsSerializedInScript = true,
+                    IsFunction = true
                 });
             }
         }

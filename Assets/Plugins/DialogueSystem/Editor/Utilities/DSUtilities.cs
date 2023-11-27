@@ -29,10 +29,11 @@ namespace DialogueSystem.Utilities
             label.AddToClassList(styles);
             return label;
         }
-        public static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null)
+        public static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null, bool value = false)
         {
             Toggle toggle = new Toggle
             {
+                value = value,
                 text = text,
                 label = label,
             };

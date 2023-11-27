@@ -26,8 +26,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     PlusIf = true,
                     PortText = DSConstants.Dialogue,
-                    Type = DSConstants.DialogueTypes[0],
-                    IsSerializedInScript = true,
+                    Type = DSConstants.DialogueTypes[0]
                 });
             }
         }
@@ -50,8 +49,8 @@ namespace DialogueSystem.Nodes
                         cross: true,
                         plusIf: true,
                         portSide: PortSide.Output,
-                        availableTypes: DSConstants.DialogueTypes,
-                        isSerializedInScript: true);
+                        availableTypes: DSConstants.DialogueTypes
+                        );
                 },
                 styles: new string[]
                 {

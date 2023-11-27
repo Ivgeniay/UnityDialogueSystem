@@ -15,9 +15,7 @@ using DialogueSystem.Edges;
 using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
-using System;
-using DialogueSystem.TextFields;
-using System.ComponentModel;
+using System; 
 
 namespace DialogueSystem.Nodes
 {
@@ -279,14 +277,14 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isSerializedInScript = true)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null)
         {
             var data = new DSPortModel(availableTypes, portSide)
             {
                 PortID = ID,
                 PortText = portText,
                 Type = type,
-                Value = value,
+                Value = value == null ? string.Empty : value.ToString(),
                 IsIfPort = isIfPort,
                 IsInput = isInput,
                 IsField = isField,
@@ -295,7 +293,6 @@ namespace DialogueSystem.Nodes
                 PlusIf = plusIf,
                 IsFunction = isFunction,
                 IfPortSourceId = ifPortSourceId,
-                IsSerializedInScript = isSerializedInScript,
                 PortSide = portSide,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
@@ -337,7 +334,6 @@ namespace DialogueSystem.Nodes
             port.SetValue(data.Value);
             port.ChangeName(data.PortText);
             port.IsFunctions = data.IsFunction;
-            port.IsSerializedInScript = data.IsSerializedInScript;
             port.PortSide = data.PortSide;
 
             if (data.IsField && data.Type != null)
@@ -345,13 +341,15 @@ namespace DialogueSystem.Nodes
                 switch (data.Type)
                 {
                     case Type t when t == typeof(float):
+                        float def = 0;
+                        if (float.TryParse(data.Value, out def)) {}
                         FloatField floatField = DSUtilities.CreateFloatField(
-                        0,
+                        value: def,
                         onChange: callback =>
                         {
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
-                            data.Value = callback.newValue;
+                            data.Value = callback.newValue.ToString();
                             port.SetValue(callback.newValue);
                         },
                         styles: new string[]
@@ -365,6 +363,7 @@ namespace DialogueSystem.Nodes
                         break;
 
                     case Type t when t == typeof(bool):
+                        bool bDef = data.Value == "true" ? true : false;
                         Toggle toggle = DSUtilities.CreateToggle(
                             "",
                             "",
@@ -372,7 +371,7 @@ namespace DialogueSystem.Nodes
                             {
                                 Toggle target = callBack.target as Toggle;
                                 target.value = callBack.newValue;
-                                data.Value = callBack.newValue;
+                                data.Value = callBack.newValue.ToString();
                                 port.SetValue(callBack.newValue);
                             },
                             styles: new string[]
@@ -380,18 +379,21 @@ namespace DialogueSystem.Nodes
                                 "ds-node__toglefield",
                                 "ds-node__choice-textfield",
                                 "ds-node__textfield__hidden"
-                            });
+                            },
+                            value: bDef);
                         port.Add(toggle);
                         break;
 
                     case Type t when t == typeof(int):
+                        int iDef = 0;
+                        if (int.TryParse(data.Value, out iDef)) { }
                         IntegerField integetField = DSUtilities.CreateIntegerField(
-                        0,
+                        value: iDef,
                         onChange: callback =>
                         {
                             IntegerField target = callback.target as IntegerField;
                             target.value = callback.newValue;
-                            data.Value = callback.newValue;
+                            data.Value = callback.newValue.ToString();
                             port.SetValue(callback.newValue);
 
                         },
@@ -407,7 +409,7 @@ namespace DialogueSystem.Nodes
 
                     case Type t when t == typeof(string) ||  t == typeof(Dialogue):
                         TextField Text = DSUtilities.CreateTextField(
-                        (string)data.Value,
+                        data.Value,
                         onChange: callback =>
                         {
                             TextField target = callback.target as TextField;
@@ -426,13 +428,15 @@ namespace DialogueSystem.Nodes
                         break;
 
                     case Type t when t == typeof(double):
+                        def = 0;
+                        if (float.TryParse(data.Value, out def)) { }
                         FloatField floatField2 = DSUtilities.CreateFloatField(
-                        0,
+                        def,
                         onChange: callback =>
                         {
                             FloatField target = callback.target as FloatField;
                             target.value = callback.newValue;
-                            data.Value = callback.newValue;
+                            data.Value = callback.newValue.ToString();
                             port.SetValue(callback.newValue);
                         },
                         styles: new string[]

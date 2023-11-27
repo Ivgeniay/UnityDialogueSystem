@@ -31,11 +31,10 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     PlusIf = false,
                     PortText = DSConstants.Dialogue,
-                    Type = DSConstants.DialogueTypes[0],
-                    IsSerializedInScript = true,
+                    Type = DSConstants.DialogueTypes[0]
                 });
+                Model.Text = "Start dialogue";
             }
-            Model.Text = "Start dialogue";
         }
     }
 }

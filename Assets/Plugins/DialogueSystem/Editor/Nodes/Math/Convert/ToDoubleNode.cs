@@ -22,7 +22,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                 Model.AddPort(new(DSConstants.AvalilableTypes, PortSide.Input)
                 {
                     PortText = $"All",
-                    Value = 0,
+                    Value = "0",
                     Cross = false,
                     IsField = false,
                     IsInput = true,
@@ -34,14 +34,13 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                 Model.AddPort(new(new Type[] { typeof(double) }, PortSide.Output)
                 {
                     Type = typeof(double),
-                    Value = 0f,
+                    Value = "0",
                     Cross = false,
                     IsField = false,
                     IsInput = false,
                     IsSingle = true,
                     PortText = DSConstants.Double,
                     IsFunction = true,
-                    IsSerializedInScript = true,
                     PortSide = PortSide.Output,
                 });
             }

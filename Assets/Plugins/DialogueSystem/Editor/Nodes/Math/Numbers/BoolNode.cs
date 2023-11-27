@@ -22,8 +22,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = true,
                     Type = typeof(bool),
-                    Value = false,
-                    IsSerializedInScript = true,
+                    Value = "false",
                 });
             }
         }

@@ -15,7 +15,8 @@ namespace DialogueSystem.Database.Save
         //ID ноды к которой присоединен
         [SerializeField] public List<NodePortModel> NodeIDs;
         //Значение по-умолчанию или в процессе работы внутри порта
-        [SerializeField] public object Value;
+        //[SerializeField] public object Value;
+        [SerializeField] public string Value;
         //Порт текст
         [SerializeField] public string PortText;
         //Количество присоединяемых соединение (Одиночное, множественное)
@@ -34,8 +35,6 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsField;
         //Является ли этот порт выходной функцией или содержит только лишь значение
         [SerializeField] public bool IsFunction;
-        //Нужно ли сериализовать этот порт в скрипт-генератор
-        [SerializeField] public bool IsSerializedInScript;
         //Тип порта
         [SerializeField] public Type Type;
         //Список типов для присоединения порта

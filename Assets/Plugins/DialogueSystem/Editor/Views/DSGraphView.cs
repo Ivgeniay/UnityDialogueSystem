@@ -553,27 +553,46 @@ namespace DialogueSystem.Window
             throw new NullReferenceException($"There is not port with id {id} in the graph");
         }
 
-        internal void Save(string fileName)
+        internal string Save(string path)
         {
-            string path = $"Assets/{fileName}.asset";
+            string fileName = Path.GetFileNameWithoutExtension(path);
+            if (string.IsNullOrEmpty(fileName) || string.IsNullOrWhiteSpace(fileName))
+            {
+                Debug.Log("Not saved. Filename is incorrect.");
+                return "DialogueGraph";
+            }
+            if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+            {
+                Debug.Log("Not saved. Path is incorrect.");
+                return fileName;
+            }
+            if (!path.Contains(Application.dataPath))
+            {
+                Debug.Log("Not saved. Path will be in project's folder.");
+                return fileName;
+            }
+
+            path = path.Substring(path.IndexOf("Assets"));
+            //path = $"{path}/{fileName}.asset";
 
             if (File.Exists(path)) File.Delete(path);
-
             GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
             AssetDatabase.CreateAsset(newGraphSO, path);
 
             List<DSNodeModel> nodes = new List<DSNodeModel>();
             List<DSGroupModel> groups = new List<DSGroupModel>();
 
-            foreach (var node in i_Nodes) nodes.Add(node.Model);
-            foreach (var group in i_Groups) groups.Add(group.Model);
-            newGraphSO.Init(fileName, nodes, groups,
-                callback: (cur, from) =>
-                {
-                    OnSaveEvent?.Invoke((float)cur / (float)from);
-                });
+            foreach (BaseNode node in i_Nodes) nodes.Add(node.Model);
+            foreach (BaseGroup group in i_Groups) groups.Add(group.Model);
+            newGraphSO.Init(
+                fileName, 
+                nodes, 
+                groups,
+                callback: (cur, from) => OnSaveEvent?.Invoke((float)cur / (float)from) );
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            return fileName;
         }
 
         internal void CleanGraph()

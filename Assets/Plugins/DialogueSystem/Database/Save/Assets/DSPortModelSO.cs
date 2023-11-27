@@ -7,9 +7,9 @@ namespace DialogueSystem.Database.Save
 {
     public class DSPortModelSO : ScriptableObject
     {
-        [SerializeField] public string PortID;
         [SerializeField] public List<NodePortModelSO> NodeIDs;
-        [SerializeField] public object Value;
+        [SerializeField] public string PortID;
+        [SerializeField] public string Value;
         [SerializeField] public string PortText;
         [SerializeField] public bool IsSingle;
         [SerializeField] public bool IsInput;
@@ -19,7 +19,6 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool Cross;
         [SerializeField] public bool IsField;
         [SerializeField] public bool IsFunction;
-        [SerializeField] public bool IsSerializedInScript;
         [SerializeField] public string Type;
         [SerializeField] public string[] AvailableTypes;
         [SerializeField] public PortSide PortSide;
@@ -34,14 +33,13 @@ namespace DialogueSystem.Database.Save
             IsSingle = dSPortModel.IsSingle;
             IsInput = dSPortModel.IsInput;
             IsIfPort = dSPortModel.IsIfPort;
-            Cross = dSPortModel.Cross;
-            IsField = dSPortModel.IsField;
-            Type = dSPortModel.Type.ToString();
-            AvailableTypes = dSPortModel.AvailableTypes;
             IfPortSourceId = dSPortModel.IfPortSourceId;
             PlusIf = dSPortModel.PlusIf;
+            Cross = dSPortModel.Cross;
+            IsField = dSPortModel.IsField;
             IsFunction = dSPortModel.IsFunction;
-            IsSerializedInScript = dSPortModel.IsSerializedInScript;
+            Type = dSPortModel.Type.ToString();
+            AvailableTypes = dSPortModel.AvailableTypes;
             PortSide = dSPortModel.PortSide;
 
             if (dSPortModel.NodeIDs != null)
@@ -58,8 +56,6 @@ namespace DialogueSystem.Database.Save
 
                         NodeIDs.Add(dSNodePortModelSO);
                         AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
-
                     }
                     if (o == null)
                     {

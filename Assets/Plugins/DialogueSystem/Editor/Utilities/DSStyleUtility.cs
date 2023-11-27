@@ -10,7 +10,8 @@ namespace DialogueSystem.Utilities
             foreach (var sheetName in links)
             {
                 StyleSheet styleSheet = EditorGUIUtility.Load(sheetName) as StyleSheet;
-                element.styleSheets.Add(styleSheet);
+                element?.styleSheets.Add(styleSheet);
+                //if (!styleSheet) element?.styleSheets.Add(styleSheet);
             }
             return element;
         }

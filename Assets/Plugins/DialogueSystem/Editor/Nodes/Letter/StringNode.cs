@@ -26,8 +26,7 @@ namespace DialogueSystem.Nodes
                     IsField = true,
                     IsInput = false,
                     IsSingle = true,
-                    PortText = DSConstants.String,
-                    IsSerializedInScript = true,
+                    PortText = DSConstants.String
                 });
             }
         }

@@ -8,15 +8,15 @@ namespace DialogueSystem.Database.Save
 {
     public class DSNodeModelSO : ScriptableObject
     {
-        [SerializeField] public string ID;
-        [SerializeField] public string NodeName;
-        [SerializeField] public int Minimal;
         [SerializeField] public List<DSPortModelSO> Outputs;
         [SerializeField] public List<DSPortModelSO> Inputs;
-        [SerializeField] public string GroupID;
-        [SerializeField] public string Text;
         [SerializeField] public string DialogueType;
         [SerializeField] public Vector2 Position;
+        [SerializeField] public string NodeName;
+        [SerializeField] public string GroupID;
+        [SerializeField] public string Text;
+        [SerializeField] public int Minimal;
+        [SerializeField] public string ID;
 
         public void Init(DSNodeModel dSNodeModel)
         {
@@ -40,7 +40,6 @@ namespace DialogueSystem.Database.Save
                 dSPortModelSO.Init(portModel);
                 Outputs.Add(dSPortModelSO);
                 AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
             }
 
             foreach (var portModel in dSNodeModel.Inputs)
@@ -52,7 +51,6 @@ namespace DialogueSystem.Database.Save
                 dSPortModelSO.Init(portModel);
                 Inputs.Add(dSPortModelSO);
                 AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
             }
         }
 
@@ -94,10 +92,9 @@ namespace DialogueSystem.Database.Save
                     IsSingle = outputsSO.IsSingle,
                     PortText = outputsSO.PortText,
                     Type = Type.GetType(outputsSO.Type),
-                    Value = outputsSO.Value,
+                    Value = outputsSO.Value?.ToString(),
                     NodeIDs = new(),
                     IsFunction = outputsSO.IsFunction,
-                    IsSerializedInScript = outputsSO.IsSerializedInScript,
                     PlusIf = outputsSO.PlusIf,
                     PortSide = outputsSO.PortSide,
                 };

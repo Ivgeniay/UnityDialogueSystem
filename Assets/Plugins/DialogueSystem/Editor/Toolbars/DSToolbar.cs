@@ -1,9 +1,7 @@
 ﻿using DialogueSystem.Text;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
-using System;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -60,6 +58,7 @@ namespace DialogueSystem.Toolbars
             {
                 TextField target = callback.target as TextField;
                 target.value = callback.newValue.RemoveWhitespaces().RemoveSpecialCharacters();
+                saveButton.SetEnabled(!string.IsNullOrWhiteSpace(callback.newValue));
             },
             styles: new string[]
             {
@@ -98,7 +97,11 @@ namespace DialogueSystem.Toolbars
         }
 
         private void MinimapToggle() => graphView.MiniMap.visible = !graphView.MiniMap.visible;
-        private void Save() => graphView.Save(textField.value);
+        private void Save()
+        {
+            string path = EditorUtility.SaveFilePanel("Select a graph file", Application.dataPath, textField.value, "asset");
+            textField.value = graphView.Save(path);
+        }
         private void Load()
         {
             string path = EditorUtility.OpenFilePanel("Select a graph file", Application.dataPath, "asset");

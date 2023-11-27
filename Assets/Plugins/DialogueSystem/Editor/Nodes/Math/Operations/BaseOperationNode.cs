@@ -27,7 +27,7 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     Type = typeof(double),
-                    Value = 0,
+                    Value = "0",
                 });
 
                 Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Input)
@@ -38,12 +38,12 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     Type = typeof(double),
-                    Value = 0,
+                    Value = "0",
                 });
 
                 Model.AddPort(new DSPortModel(new Type[] { typeof(double), typeof(string), }, PortSide.Output)
                 {
-                    Value = 0,
+                    Value = "0",
                     Cross = false,
                     IsField = false,
                     IsInput = false,
@@ -51,7 +51,6 @@ namespace DialogueSystem.Nodes
                     Type = typeof(double),
                     IsFunction = true,
                     PortText = typeof(double).Name,
-                    IsSerializedInScript = true,
                 });
             }
         }
