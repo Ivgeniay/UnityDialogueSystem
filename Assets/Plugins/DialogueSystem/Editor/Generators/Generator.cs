@@ -1,6 +1,8 @@
 ﻿using DialogueSystem.Nodes;
 using DialogueSystem.Window;
+using System.IO;
 using System.Text;
+using UnityEngine;
 
 namespace DialogueSystem.Generators
 {
@@ -12,12 +14,18 @@ namespace DialogueSystem.Generators
             graphView = view;
         }
 
-        internal void Generate(string filename)
+        internal void Generate(string path)
         {
-            string className = string.IsNullOrEmpty(filename) == true ? "MyClass" : filename;
-            ScriptGen scrGen = new(graphView, filename);
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.Log("Generate is not done. Path is incorrect.");
+                return;
+            }
+            string className = Path.GetFileNameWithoutExtension(path);
+            className = string.IsNullOrEmpty(path) == true ? "MyClass" : className;
+            ScriptGen scrGen = new(graphView, path.Substring(0, path.IndexOf(className) - 1), className);
 
-            var _script = scrGen.Draw(new StringBuilder());
+            string _script = scrGen.Draw(new StringBuilder());
             scrGen.Build();
         }
     }

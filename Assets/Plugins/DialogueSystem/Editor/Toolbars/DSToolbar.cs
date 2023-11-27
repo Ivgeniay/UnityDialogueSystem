@@ -108,7 +108,11 @@ namespace DialogueSystem.Toolbars
             textField.value = graphView.Load(path);
         }
         private void CleanGraph() => graphView.CleanGraph();
-        private void GenerateAsset() => graphView.GenerateAsset(textField.value);
+        private void GenerateAsset()
+        {
+            string path = EditorUtility.SaveFilePanel("Select a graph file", Application.dataPath, textField.value, "cs");
+            graphView.GenerateAsset(path);
+        }
         private void OnSaveHandler(float obj) => progressBar.value = obj;
         
     }

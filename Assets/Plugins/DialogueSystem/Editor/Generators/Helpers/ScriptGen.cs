@@ -1,5 +1,6 @@
 ﻿using DialogueSystem.Window;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -11,14 +12,16 @@ namespace DialogueSystem.Generators
         private object[] scriptContext;
         private DSGraphView dsGrathView;
         private string className;
+        private string path;
 
         public string script;
         ClassGenerator classGenerator = null;
 
-        internal ScriptGen(DSGraphView dsGrathView, string className)
+        internal ScriptGen(DSGraphView dsGrathView, string path, string className)
         {
             this.dsGrathView = dsGrathView;
             this.className = className;
+            this.path = path;
             usingGen = new(
                 "UnityEngine",
                 "System",
@@ -100,9 +103,9 @@ namespace DialogueSystem.Generators
         {
 #if UNITY_EDITOR
             Debug.Log(script);
-            //string filePath = Application.dataPath + "/" + Class.GetClassName() + ".cs";
-            //File.WriteAllText(filePath, script);
-            //UnityEditor.AssetDatabase.Refresh();
+            string filePath = path + "/" + className + ".cs";
+            File.WriteAllText(filePath, script);
+            UnityEditor.AssetDatabase.Refresh();
 #endif
         }
     }
