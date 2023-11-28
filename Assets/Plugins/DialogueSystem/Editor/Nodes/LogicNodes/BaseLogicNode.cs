@@ -59,7 +59,6 @@ namespace DialogueSystem.Nodes
                     if (connectedPort != null && connectedPort.Value != null)
                     {
                         ChangePortValueAndType(port, connectedPort.Type);
-
                         var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
                         infos.Type = connectedPort.Type;
@@ -67,8 +66,7 @@ namespace DialogueSystem.Nodes
                 }
                 else if (!port.connected && port != _port)
                 {
-                    port.SetValue(Activator.CreateInstance(port.Type));
-
+                    port.SetValue(DSUtilities.GetDefaultValue(port.Type));
                     var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                     infos.Value = port.Value;
                     infos.Type = port.Type;

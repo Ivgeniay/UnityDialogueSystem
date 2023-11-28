@@ -41,6 +41,11 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string[] AvailableTypes;
         //С какой стороны расположен порт
         [SerializeField] public PortSide PortSide;
+        //Возможность назначать Anchor для порта
+        [SerializeField] public bool IsAnchorable;
+        //Имя якоря
+        [SerializeField] public string Anchor;
+
         public DSPortModel(Type[] availableTypes, PortSide PortSide)
         {
             PortID = Guid.NewGuid().ToString();

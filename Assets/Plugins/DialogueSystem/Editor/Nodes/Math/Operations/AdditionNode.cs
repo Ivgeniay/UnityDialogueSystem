@@ -25,7 +25,7 @@ namespace DialogueSystem.Nodes
             return sb.ToString();
         }
 
-        internal override Delegate LambdaGenerationContext(ParameterExpression[] parameters)
+        internal Delegate LambdaGenerationContext(ParameterExpression[] parameters)
         {
             var anyString = parameters.Any(e => e.Type == typeof(string));
             LambdaExpression lambda = null;

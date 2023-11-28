@@ -23,9 +23,15 @@ namespace DialogueSystem.Generators
 
         private static void CollectElementsByType<T>(VisualElement element, List<T> elementsOfType, Func<object, bool> predicate = null)
         {
-            if (element is T typedElement && predicate(typedElement))
+            if (predicate == null)
             {
-                elementsOfType.Add(typedElement);
+                if (element is T typedElement)
+                    elementsOfType.Add(typedElement);
+            }
+            else
+            {
+                if (element is T typedElement && predicate(typedElement))
+                    elementsOfType.Add(typedElement);
             }
 
             foreach (var child in element.Children())

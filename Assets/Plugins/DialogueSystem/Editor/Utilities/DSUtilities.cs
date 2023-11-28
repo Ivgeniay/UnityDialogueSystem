@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,8 +16,6 @@ namespace DialogueSystem.Utilities
 {
     public static class DSUtilities
     {
- 
-
         public static Label CreateLabel(string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
         {
             Label label = new Label()
@@ -95,21 +92,22 @@ namespace DialogueSystem.Utilities
             return textField;
         }
 
-        public static DSTextField CreateDSTextField(string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        public static DSTextField CreateDSTextField(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             DSTextField textField = new()
             {
                 value = value,
                 label = label,
             };
+            textField.Initialize(graphView);
             textField.IsSerializedInScript = true;
             if (onChange is not null) textField.RegisterValueChangedCallback(onChange);
             textField.AddToClassList(styles);
             return textField;
         }
-        public static DSTextField CreateDSTextArea(string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        public static DSTextField CreateDSTextArea(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
-            DSTextField textField = CreateDSTextField(value, label, onChange, styles);
+            DSTextField textField = CreateDSTextField(graphView, value, label, onChange, styles);
             textField.multiline = true;
             return textField;
         }

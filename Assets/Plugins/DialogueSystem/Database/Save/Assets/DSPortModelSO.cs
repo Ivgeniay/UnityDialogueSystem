@@ -25,6 +25,8 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string Type;
         [SerializeField] public string[] AvailableTypes;
         [SerializeField] public PortSide PortSide;
+        [SerializeField] public string Anchor;
+        [SerializeField] public bool IsAnchorable;
 
         public void Init(DSPortModel dSPortModel, UnityEngine.Object parent)
         {
@@ -44,6 +46,8 @@ namespace DialogueSystem.Database.Save
             Type = dSPortModel.Type.ToString();
             AvailableTypes = dSPortModel.AvailableTypes;
             PortSide = dSPortModel.PortSide;
+            IsAnchorable = dSPortModel.IsAnchorable;
+            Anchor = dSPortModel.Anchor;
 
             if (dSPortModel.NodeIDs != null)
             {

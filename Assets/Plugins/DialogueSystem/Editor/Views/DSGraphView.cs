@@ -18,6 +18,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System;
+using DialogueSystem.Anchor;
 
 namespace DialogueSystem.Window
 {
@@ -39,6 +40,7 @@ namespace DialogueSystem.Window
         private Dictionary<string, DSGroupErrorData> groups;
         private Dictionary<BaseGroup, Dictionary<string, DSNodeErrorData>> groupedNodes;
 
+        internal Dictionary<BasePort, string> Anchors = new();
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
         private Dictionary<Type, int> nessesaryTypes = new Dictionary<Type, int>()
@@ -118,7 +120,7 @@ namespace DialogueSystem.Window
         }
         internal BaseNode CreateNode(Type type, Vector2 position, List<object> portsContext)
         {
-            var node = DSUtilities.CreateNode(this, type, position, portsContext);
+            BaseNode node = DSUtilities.CreateNode(this, type, position, portsContext);
             AddElement(node);
             i_Nodes.Add(node);
             OnSaveEnableHandler();
@@ -127,7 +129,6 @@ namespace DialogueSystem.Window
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             var group = DSUtilities.CreateGroup(this, type, mousePosition, title, tooltip);
-
             AddElement(group);
 
             List<BaseNode> innerNode = new List<BaseNode>();
@@ -489,6 +490,40 @@ namespace DialogueSystem.Window
             }
         }
 
+        internal void AddOrUpdateAnchor(BasePort basePort, string anchorName)
+        {
+            //Debug.Log($"{basePort.Name} with {anchorName}");
+            if (string.IsNullOrWhiteSpace(anchorName))
+            {
+                RemoveAnchor(basePort);
+                return;
+            }
+            if (Anchors.TryGetValue(basePort, out string anchor)) Anchors[basePort] = anchorName;
+            else Anchors.Add(basePort, anchorName);
+            anchorObservirs.ForEach(e => { e.OnAnchorUpdate(basePort, Anchors[basePort]); });
+
+            //if (Model.anchors.TryGetValue(basePort.ID, out anchor)) Model.anchors[basePort.ID] = anchorName;
+            //else Model.anchors.Add(basePort.ID, anchorName);
+        }
+
+        internal void RemoveAnchor(BasePort basePort)
+        {
+            //Debug.Log($"Remove {basePort.Name}");
+            if (Anchors.TryGetValue(basePort, out string anchor)) Anchors.Remove(basePort);
+            anchorObservirs.ForEach(e => { e.OnAnchorDelete(basePort); });
+            //if (Model.anchors.TryGetValue(basePort.ID, out anchor)) Model.anchors.Remove(basePort.ID);
+        }
+        private List<IAnchorObserver> anchorObservirs = new();
+
+        internal void AnchorVisitorsRegister(IAnchorObserver anchorObserver)
+        {
+            if (!anchorObservirs.Contains(anchorObserver)) anchorObservirs.Add(anchorObserver);
+        }
+        internal void AnchorVisitorsUnRegister(IAnchorObserver anchorObserver)
+        {
+            if (anchorObservirs.Contains(anchorObserver)) anchorObservirs.Remove(anchorObserver);
+        }
+
         #endregion
         #region Styles
         private void AddStyles() =>
@@ -582,7 +617,6 @@ namespace DialogueSystem.Window
             }
 
             path = path.Substring(path.IndexOf("Assets"));
-            //path = $"{path}/{fileName}.asset";
 
             if (File.Exists(path)) File.Delete(path);
             GraphSO newGraphSO = ScriptableObject.CreateInstance<GraphSO>();
@@ -636,23 +670,20 @@ namespace DialogueSystem.Window
 
             foreach (var nodeModel in graphSO.NodeModels)
             {
-                var node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> { nodeModel });
+                BaseNode node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> { nodeModel });
                 if (!string.IsNullOrWhiteSpace(node.Model.GroupID))
                 {
                     BaseGroup group = GetGroupById(node.Model.GroupID);
                     if (group != null)
                     {
                         group.AddElement(node);
-                        //group.SetPosition(new Rect(group.Model.Position.x, group.Model.Position.y, 0, 0));
-                        //this.elementsAddedToGroup?.Invoke(group, new List<BaseNode>() { node });
                     }
                 }
             }
 
-            foreach (var node in i_Nodes)
+            foreach (BaseNode node in i_Nodes)
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
-
                 foreach (var output in node.Model.Outputs)
                 {
                     ToMakeConnections(output, node.GetOutputPorts());
@@ -673,15 +704,15 @@ namespace DialogueSystem.Window
                 }
                 else
                 {
-                    foreach (var portIdModel in portModel.NodeIDs)
+                    foreach (NodePortModel portIdModel in portModel.NodeIDs)
                     {
-                        var inputNode = i_Nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
+                        BaseNode inputNode = i_Nodes.Where(e => e.Model.ID == portIdModel.NodeID).FirstOrDefault();
                         if (inputNode != null)
                         {
-                            foreach (var portId in portIdModel.PortIDs)
+                            foreach (string portId in portIdModel.PortIDs)
                             {
-                                var inp = inputNode.GetInputPorts();
-                                var neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
+                                List<BasePort> inp = inputNode.GetInputPorts();
+                                BasePort neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
                                 if (neededInputPort != null)
                                 {
                                     DSEdge edge = new DSEdge
@@ -693,6 +724,10 @@ namespace DialogueSystem.Window
                                     edge.input.Connect(edge);
                                     edge.output.Connect(edge);
                                     AddElement(edge);
+
+                                    BaseNode outputNode = edge.output.node as BaseNode;
+                                    inputNode.OnConnectInputPort(neededInputPort, edge);
+                                    outputNode.OnConnectOutputPort(port, edge);
                                 }
                             }
                         }
@@ -701,6 +736,7 @@ namespace DialogueSystem.Window
             }
         }
         internal void GenerateAsset(string path) => generator.Generate(path);
+
         #endregion
     }
 }

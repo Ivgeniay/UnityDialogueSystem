@@ -15,7 +15,8 @@ using DialogueSystem.Edges;
 using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
-using System; 
+using System;
+using DialogueSystem.TextFields;
 
 namespace DialogueSystem.Nodes
 {
@@ -104,10 +105,7 @@ namespace DialogueSystem.Nodes
             foreach (DSPortModel output in Model.Outputs)
                 AddPortByType(output);
         }
-        protected virtual void DrawMainContainer(VisualElement container)
-        {
-
-        }
+        protected virtual void DrawMainContainer(VisualElement container) { }
         protected virtual void DrawExtensionContainer(VisualElement container) { }
         protected virtual void Draw()
         {
@@ -148,18 +146,6 @@ namespace DialogueSystem.Nodes
             DisconnectInputPorts();
             DisconnectOutputPorts();
         }
-        private void DisconnectInputPorts() => DisconnectPort(inputContainer);
-        private void DisconnectOutputPorts() => DisconnectPort(outputContainer);
-        private void DisconnectPort(VisualElement container)
-        {
-            foreach (Port port in container.Children())
-            {
-                if (port.connected)
-                {
-                    graphView.DeleteElements(port.connections);
-                }
-            }
-        }
         internal protected List<BasePort> GetInputPorts()
         {
             //из-за того что if инпут порт находится в Output контейнере приходится делать такую замудренную шляпу
@@ -198,7 +184,19 @@ namespace DialogueSystem.Nodes
             }
 
             return outputPorts;
-            //outputContainer.Children().Cast<BasePort>().ToList();
+        }
+        internal virtual string GetLetterFromNumber(int number)
+        {
+            number = Math.Abs(number);
+
+            string result = "";
+            do
+            {
+                result = (char)('A' + (number % 26)) + result;
+                number /= 26;
+            } while (number-- > 0);
+
+            return result;
         }
         private List<BasePort> GetAllOutputPortsRecursive(VisualElement element)
         {
@@ -218,18 +216,17 @@ namespace DialogueSystem.Nodes
             }
             return outputPorts;
         }
-        internal virtual string GetLetterFromNumber(int number)
+        private void DisconnectInputPorts() => DisconnectPort(inputContainer);
+        private void DisconnectOutputPorts() => DisconnectPort(outputContainer);
+        private void DisconnectPort(VisualElement container)
         {
-            number = Math.Abs(number);
-
-            string result = "";
-            do
+            foreach (Port port in container.Children())
             {
-                result = (char)('A' + (number % 26)) + result;
-                number /= 26;
-            } while (number-- > 0);
-
-            return result;
+                if (port.connected)
+                {
+                    graphView.DeleteElements(port.connections);
+                }
+            }
         }
 
         #endregion
@@ -261,7 +258,16 @@ namespace DialogueSystem.Nodes
             Model.Position += delta;
         }
         public virtual void OnCreate() => Draw();
-        public virtual void OnDestroy() { }
+        public virtual void OnDestroy() 
+        {
+            List<BasePort> ports = new();
+            ports.AddRange(GetInputPorts());
+            ports.AddRange(GetOutputPorts());
+            foreach (var item in ports) item.OnDistroy();
+
+            List<DSTextField> dsText = this.GetElementsByType<DSTextField>();
+            foreach (var item in dsText) item.OnDistroy();
+        }
         public virtual void OnGroupUp(BaseGroup group)
         {
             Model.GroupID = group.Model.ID;
@@ -277,7 +283,7 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isAnchorable = false)
         {
             var data = new DSPortModel(availableTypes, portSide)
             {
@@ -294,6 +300,7 @@ namespace DialogueSystem.Nodes
                 IsFunction = isFunction,
                 IfPortSourceId = ifPortSourceId,
                 PortSide = portSide,
+                IsAnchorable = isAnchorable,
                 AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
             };
 
@@ -310,11 +317,7 @@ namespace DialogueSystem.Nodes
                 if (isIt)
                     return (null, null);
             }
-
-            //if (data.IsInput) Model.Inputs.Add(data);
-            //else Model.Outputs.Add(data);
             Model.AddPort(data);
-
             return AddPortByType(data);
         }
         protected virtual (BasePort port, DSPortModel data) AddPortByType(DSPortModel data)
@@ -335,6 +338,9 @@ namespace DialogueSystem.Nodes
             port.ChangeName(data.PortText);
             port.IsFunctions = data.IsFunction;
             port.PortSide = data.PortSide;
+            port.IsAnchorable = data.IsAnchorable;
+            port.GrathView = graphView;
+            if (!string.IsNullOrWhiteSpace(data.Anchor) && data.IsAnchorable) port.Anchor = data.Anchor;
 
             if (data.IsField && data.Type != null)
             {
@@ -460,6 +466,7 @@ namespace DialogueSystem.Nodes
                 "X",
                 () =>
                 {
+                    port.OnDistroy();
                     if (!string.IsNullOrEmpty(data.IfPortSourceId) && !string.IsNullOrWhiteSpace(data.IfPortSourceId))
                     {
                         BasePort sourcePort = graphView.GetPortById(data.IfPortSourceId);
@@ -582,7 +589,6 @@ namespace DialogueSystem.Nodes
 
         #region Lambdas
         internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
-        internal virtual Delegate LambdaGenerationContext(ParameterExpression[] parameters) => null;
         #endregion
     }
 

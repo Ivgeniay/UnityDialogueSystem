@@ -1,11 +1,15 @@
 ﻿using UnityEditor.Experimental.GraphView;
 using DialogueSystem.Manipulations;
+using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
+using DialogueSystem.Window;
 using DialogueSystem.Edges;
 using System.Reflection;
 using UnityEngine;
 using System;
-using DialogueSystem.Abstract;
+using DialogueSystem.Nodes;
+using System.Linq;
+using DialogueSystem.Database.Save;
 
 namespace DialogueSystem.Ports
 {
@@ -18,11 +22,14 @@ namespace DialogueSystem.Ports
         public Type Type { get; private set; }
         public string Name { get; private set; }
         public bool IsSerializedInScript { get; set; }
+        public DSGraphView GrathView { get; internal set; }
 
+        public string Anchor = string.Empty;
 
         public Type[] AvailableTypes;
         public PortSide PortSide;
-        public Color capColor;
+        public bool IsAnchorable = false;
+        private Color defaultColor;
         
         public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) { }
         public static BasePort CreateBasePort<TEdge>(Orientation orientation, Direction direction, Capacity capacity, Type type) where TEdge : DSEdge, new()
@@ -42,12 +49,29 @@ namespace DialogueSystem.Ports
             if (edgeConnectorField != null)
                 edgeConnectorField.SetValue(port, edgeConnectorInstance);
 
-            port.AddManipulator(port.m_EdgeConnector);
-
-            StartDragManipulator startDrag= new StartDragManipulator(port);
-            port.AddManipulator(startDrag);
-
+            port.AddManipulators();
+            port.defaultColor = port.portColor;
             return port;
+        }
+
+        internal void OnDistroy()
+        {
+            if (!string.IsNullOrWhiteSpace(Anchor))
+            {
+                GrathView?.RemoveAnchor(this);
+                BaseNode node = this.node as BaseNode;
+                DSPortModel model = null;
+                switch (PortSide)
+                {
+                    case PortSide.Input:
+                        model = node.Model.Inputs.FirstOrDefault(e => e.PortID == ID);
+                        break;
+                    case PortSide.Output:
+                        model = node.Model.Outputs.FirstOrDefault(e => e.PortID == ID);
+                        break;
+                }
+                if (model != null) model.Anchor = string.Empty;
+            }
         }
 
         public override void Connect(Edge edge)
@@ -92,6 +116,42 @@ namespace DialogueSystem.Ports
                 BasePortManager.CallStopDrag(this);
         }
 
+        private void AddManipulators()
+        {
+            this.AddManipulator(this.m_EdgeConnector);
+            StartDragManipulator startDrag = new StartDragManipulator(this);
+            this.AddManipulator(startDrag);
+
+            this.AddManipulator(CreateContextualMenu());
+        }
+        internal void AddOrUpdateAnchor(string anchorName)
+        {
+            Anchor = anchorName;
+            BaseNode node = this.node as BaseNode;
+            DSPortModel model = null;
+            switch (PortSide)
+            {
+                case PortSide.Input:
+                    model = node.Model.Inputs.FirstOrDefault(e => e.PortID == ID);
+                    break;
+                case PortSide.Output:
+                    model = node.Model.Outputs.FirstOrDefault(e => e.PortID == ID);
+                    break;
+            }
+            if (model != null) model.Anchor = anchorName;
+            GrathView?.AddOrUpdateAnchor(this, anchorName);
+            if (string.IsNullOrWhiteSpace(Anchor))
+            {
+                this.portColor = defaultColor;
+                this.tooltip = null;
+            }
+            else
+            {
+                if (ColorUtility.TryParseHtmlString("#FDD057", out Color col)) this.portColor = col;
+                else this.portColor = Color.yellow;
+                this.tooltip = Anchor;
+            }
+        }
 
         internal void SetValue(object value) => Value = value; 
         internal void SetPortType(Type type)
@@ -103,6 +163,18 @@ namespace DialogueSystem.Ports
         {
             portName = name;
             Name = name;
+        }
+
+        private IManipulator CreateContextualMenu()
+        {
+            ContextualMenuManipulator contextualMenuManipulator = new(e =>
+            {
+                if (IsAnchorable)
+                {
+                    e.menu.AppendAction("Anchor", a => { DSAnchorWindow.OpenWindow(this); });
+                }
+            });
+            return contextualMenuManipulator;
         }
     }
 }

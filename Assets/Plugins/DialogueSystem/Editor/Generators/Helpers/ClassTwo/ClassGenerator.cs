@@ -401,7 +401,7 @@ namespace DialogueSystem.Generators
                         {
                             dsGrathViewClass.ClassDrawer.AddInitializeObject(
                                 name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                initObjects: $"\"{dialogue.Model.Text}\"");
+                                initObjects: $"$\"{dialogue.Model.Text}\"");
                         }
                     }
                     break;

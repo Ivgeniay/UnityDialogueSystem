@@ -28,6 +28,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     Type = typeof(double),
                     Value = "0",
+                    IsAnchorable = true,
                 });
 
                 Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Input)
@@ -39,6 +40,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     Type = typeof(double),
                     Value = "0",
+                    IsAnchorable = true,
                 });
 
                 Model.AddPort(new DSPortModel(new Type[] { typeof(double), typeof(string), }, PortSide.Output)
@@ -51,6 +53,7 @@ namespace DialogueSystem.Nodes
                     Type = typeof(double),
                     IsFunction = true,
                     PortText = typeof(double).Name,
+                    IsAnchorable = true,
                 });
             }
         }
@@ -80,7 +83,8 @@ namespace DialogueSystem.Nodes
                             typeof(float),
                             typeof(double),
                             typeof(bool),
-                        });
+                        },
+                        isAnchorable: true);
                 },
                 styles: new string[]
                 {

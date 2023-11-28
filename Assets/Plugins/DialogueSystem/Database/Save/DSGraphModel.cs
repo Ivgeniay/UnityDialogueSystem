@@ -14,6 +14,7 @@ namespace DialogueSystem.Database.Save
         [field: SerializeField] public List<string> OldGroupNames { get; set; }
         [field: SerializeField] public List<string> OldUngroupedNodeNames { get; set; }
         [field: SerializeField] public SerializableDictionary<string, List<string>> OldUGroupedNodeNames { get; set; }
+        [field: SerializeField] public SerializableDictionary<string, string> anchors { get; set; } 
 
         public void Init(string filename)
         {
@@ -23,6 +24,7 @@ namespace DialogueSystem.Database.Save
             OldGroupNames = new();
             OldUngroupedNodeNames = new();
             OldUGroupedNodeNames = new();
+            anchors = new();
         }
     }
 }

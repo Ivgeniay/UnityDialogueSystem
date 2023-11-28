@@ -33,7 +33,7 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        internal virtual TextField GetDialogueTextField() => textField;
+        internal virtual DSTextField GetDialogueTextField() => textField;
 
         protected override void DrawExtensionContainer(VisualElement container)
         {
@@ -42,14 +42,18 @@ namespace DialogueSystem.Nodes
 
             Foldout textFolout = DSUtilities.CreateFoldout("DialogueText", true);
             textField = DSUtilities.CreateDSTextArea(
+                graphView,
                 value: Model.Text.ToString(),
                 onChange: callback =>
                 {
-                    var target = callback.target as DSTextField;
+                    DSTextField target = callback.target as DSTextField;
 
-                    target.value = callback.newValue;
+                    if (target != null)
+                    {
+                        target.value = callback.newValue;
+                        target.Value = callback.newValue;
+                    }
                     Model.Text = callback.newValue;
-                    target.Value = callback.newValue;
                 },
                 styles: new string[]
                     {

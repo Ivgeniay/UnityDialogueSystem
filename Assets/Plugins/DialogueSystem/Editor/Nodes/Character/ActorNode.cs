@@ -70,7 +70,8 @@ namespace DialogueSystem
                     isField: false,
                     cross: false,
                     portSide: PortSide.Output,
-                    availableTypes: new Type[] { item.Value.Type }
+                    availableTypes: new Type[] { item.Value.Type },
+                    isAnchorable: true
                     );
                 foldout.Add(result.port);
             }
