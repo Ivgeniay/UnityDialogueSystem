@@ -8,6 +8,6 @@ namespace DialogueSystem.Generators
         public Visibility Visibility;
         public string Name; 
         public MethodParamsInfo[] Parameters;
-        public Type[] ReturnParameters;
+        public string[] ReturnParameters;
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine.UIElements;
+using static DialogueSystem.DialogueDisposer.DSDialogueOption;
 
 namespace DialogueSystem.Generators
 {
@@ -11,14 +12,18 @@ namespace DialogueSystem.Generators
     {
         private string ClassName = "";
         private Visibility ClassVisibility = Visibility.None;
-        public StringBuilder DeclarationClass { get; private set; } 
-        public StringBuilder CtorClass { get; private set; } 
-        public List<StringBuilder> Propertyes { get; private set; } = new();
-        public List<StringBuilder> Fields { get; private set; } = new();
-        public List<StringBuilder> InnerClasses { get; private set; } = new();
-        public List<StringBuilder> Methods { get; private set; } = new();
-        public List<StringBuilder> InitializeObjects { get; private set; } = new();
+        internal StringBuilder DeclarationClass { get; private set; }
+        internal StringBuilder CtorClass { get; private set; } 
+        internal List<StringBuilder> Propertyes { get; private set; } = new();
+        internal List<StringBuilder> Fields { get; private set; } = new();
+        internal List<StringBuilder> InnerClasses { get; private set; } = new();
+        internal List<StringBuilder> Methods { get; private set; } = new();
+        internal List<StringBuilder> InitializeObjects { get; private set; } = new();
+        internal string StartDialogueVarname = string.Empty;
+
         private List<MethodParamsInfo> InitializeParameters = null;
+        private List<MethodInfo> InitializeMethods = null;
+
 
         public ICLassDrawer ClassDeclaration(string className, Attribute attribute, Visibility visibility, Type[] inherets = null)
         {
@@ -240,9 +245,18 @@ namespace DialogueSystem.Generators
         }
         public ICLassDrawer AddMethod(string methodName, Attribute attribute, Visibility visibility, string returnType = null, MethodParamsInfo[] parameters = null, string value = null)
         {
+            if (InitializeMethods == null) InitializeMethods = new();
+            InitializeMethods.Add(new MethodInfo()
+            {
+                Visibility = visibility,
+                Name = methodName,
+                Parameters = parameters,
+                ReturnParameters = returnType == null ? null : new[] { returnType },
+            });
+
             StringBuilder method = new();
             method
-                .Append(GHelper.GetVisibility(ClassVisibility))
+                .Append(GHelper.GetVisibility(visibility))
                 .Append(GHelper.SPACE);
 
             if (returnType == null) method.Append("void");
@@ -271,6 +285,32 @@ namespace DialogueSystem.Generators
 
             Methods.Add(method);
             return this;
+        }
+        public string CallMethod(string MethodName, params MethodParamsInfo[] parameters)
+        {
+            StringBuilder methodCall = new();
+
+            MethodInfo info = InitializeMethods.FirstOrDefault(m => m.Name == MethodName);
+            if (info != null)
+            {
+                methodCall
+                    .Append(info.Name)
+                    .Append(GHelper.BR_OP);
+
+                if (parameters != null)
+                {
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        methodCall.Append(parameters[i].ParamName);
+                        if (i < parameters.Length - 1) methodCall.Append(", ");
+                    }
+                }
+                methodCall
+                    .Append(GHelper.BR_CL)
+                    .Append(GHelper.QUOTES);
+            }
+
+            return methodCall.ToString();
         }
         public ICLassDrawer AddInitializeParameter(MethodParamsInfo methodParamsInfo)
         {
@@ -337,8 +377,26 @@ namespace DialogueSystem.Generators
             if (InitializeObjects != null && InitializeObjects.Count > 0)
             {
                 StringBuilder valueToInitMethod = new(); 
-                foreach (var item in InitializeObjects) valueToInitMethod.AppendLine(item.ToString()); 
-                AddMethod("Initialize", Attribute.None, Visibility.@private, null, InitializeParameters == null ? null : InitializeParameters.ToArray(), valueToInitMethod.ToString());
+                foreach (var item in InitializeObjects) valueToInitMethod.AppendLine(item.ToString());
+                AddMethod(
+                    "Initialize", 
+                    Attribute.None, 
+                    Visibility.@private, 
+                    null, 
+                    InitializeParameters == null ? null : InitializeParameters.ToArray(), 
+                    valueToInitMethod.ToString());
+
+                StringBuilder startDialogueValue = new StringBuilder()
+                    .AppendLine(CallMethod("Initialize", InitializeParameters == null ? null : InitializeParameters.ToArray()))
+                    .AppendLine($"return {StartDialogueVarname};");
+
+                AddMethod(
+                    "StartDialogue",
+                    Attribute.None,
+                    Visibility.@public,
+                    GHelper.GetVarType(typeof(DSDialogue)),
+                    InitializeParameters == null ? null : InitializeParameters.ToArray(),
+                    startDialogueValue.ToString());
             }
 
             if (Methods != null && Methods.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Methods)).Append(GHelper.TR);

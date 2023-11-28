@@ -16,14 +16,13 @@ namespace DialogueSystem.Assets
         public int Age;
         public string Name;
         public int Intellect { get; private set; }
-        private DialogueFileNameR dialogueFileName;
+        private DialogueFileName1 dialogueFileName;
 
         private void Awake()
         {
             dialogueFileName = new();
-            TestActor2 testActor2 = new TestActor2();
-            testActor2.Awake();
-            dialogueFileName.Initialize(this);
+            var startDialogue = dialogueFileName.StartDialogue(this);
+            DialogueFileName1.TestDialogue(startDialogue);
         }
 
     }

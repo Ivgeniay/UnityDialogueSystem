@@ -1,10 +1,10 @@
 ﻿using DialogueSystem.Abstract;
 using DialogueSystem.Nodes;
-using DialogueSystem.Ports;
-using DialogueSystem.Utilities;
 using System.Collections.Generic;
+using DialogueSystem.Utilities;
 using UnityEngine.UIElements;
 using DialogueSystem.Window;
+using DialogueSystem.Ports;
 using System.Reflection;
 using System.Linq;
 using System.Text;
@@ -303,6 +303,11 @@ namespace DialogueSystem.Generators
                     innerDsClass = CreateInnerDialogueClass(dialogue);
                     mainVarInfo = AddDSClassDialogueToMain(innerDsClass, intoDSClassInfo);
 
+                    if (dialogue is StartDialogueNode startDialogue)
+                    {
+                        intoDSClassInfo.ClassDrawer.StartDialogueVarname = mainVarInfo.Name;
+                    }
+
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
                     for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
                     {
@@ -353,7 +358,6 @@ namespace DialogueSystem.Generators
                                                 model.dialogueLink = string.Concat(outputNodeVarInfo.Name);
                                                 optionsModel.Add(model);
                                             }
-
                                             break;
                                     }
                                 }
@@ -594,9 +598,7 @@ namespace DialogueSystem.Generators
         {
             dsGrathViewClass.ClassDrawer.ClassDeclaration(dsGrathViewClass.ClassName, Attribute.None, Visibility.@public, new System.Type[] { typeof(DialogueDisposer) });
             foreach (var item in dsGrathViewClass.InnerClassInfo)
-            {
                 dsGrathViewClass.ClassDrawer.AddInnerClass(item.ClassDrawer);
-            }
 
             return dsGrathViewClass.ClassDrawer;
         }

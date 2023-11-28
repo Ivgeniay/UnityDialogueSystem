@@ -5,6 +5,7 @@
             None,
             @public,
             @internal,
-            @private
+            @private,
+            @protected,
         }
 }

@@ -42,6 +42,8 @@ namespace DialogueSystem.Generators
                     return "private";
                 case Visibility.@internal:
                     return "internal";
+                case Visibility.@protected:
+                    return "protected";
             }
             throw new NotImplementedException();
         }

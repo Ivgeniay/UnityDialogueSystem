@@ -43,7 +43,7 @@ public class DialogueFileNameR : DialogueSystem.DialogueDisposer
             new DialogueSystem.DialogueDisposer.DSDialogueOption(text: "Hello", nextDialogues: DSDialogue_0)
         };
 
-        Dialogue(DSDialogue_3);
+        TestDialogue(DSDialogue_3);
     }
     #endregion
     #region InnerClasses

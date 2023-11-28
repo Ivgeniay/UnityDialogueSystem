@@ -1,9 +1,9 @@
 ﻿using UnityEditor.Experimental.GraphView;
-using System.Collections.Generic;
 using System.Globalization;
 using DialogueSystem.Ports;
 using System.Linq;
 using System;
+using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Nodes
 {
@@ -71,7 +71,7 @@ namespace DialogueSystem.Nodes
             base.OnDestroyConnectionInput(port, edge);
             var outputs = GetOutputPorts();
             foreach (BasePort outputPort in outputs)
-                outputPort.SetValue(null);
+                outputPort.SetValue(DSUtilities.GetDefaultValue(outputPort.Type));
         }
 
 
@@ -122,17 +122,6 @@ namespace DialogueSystem.Nodes
         public float ConvertIntToFloat(int value) => (float)value;
         public float ConvertBoolToFloat(bool value) => value ? 1f : 0f;
         #endregion
-        protected void ChangeOutputPortType(Type type)
-        {
-            var outs = GetOutputPorts();
-            if (outs != null)
-            {
-                foreach (var outPort in outs)
-                {
-                    outPort.SetPortType(type);
-                    outPort.ChangeName(type.Name);
-                }
-            }
-        }
+        
     }
 }

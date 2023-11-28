@@ -552,6 +552,19 @@ namespace DialogueSystem.Nodes
         {
             port.SetPortType(type);
             port.ChangeName(type.Name);
+            var model_port = Model.Inputs.FirstOrDefault(p => p.PortID == port.ID);
+            if (model_port == null) model_port = Model.Outputs.FirstOrDefault(p => p.PortID == port.ID);
+            if (model_port != null)
+                model_port.Type = type;
+        }
+        protected void ChangeOutputPortType(Type type)
+        {
+            var outs = GetOutputPorts();
+            if (outs != null)
+            {
+                foreach (var outPort in outs)
+                    ChangePortValueAndType(outPort, type);
+            }
         }
         #endregion
 

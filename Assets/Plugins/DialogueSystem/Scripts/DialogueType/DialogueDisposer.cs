@@ -7,16 +7,16 @@ namespace DialogueSystem
 {
     public class DialogueDisposer
     {
-        protected void Dialogue(DSDialogue dia)
+        public static void TestDialogue(DSDialogue startDialogue)
         {
-            Debug.Log("Dialogue text: " + dia.Text);
-            var opt = dia.GetOptions();
+            Debug.Log("Dialogue text: " + startDialogue.Text);
+            var opt = startDialogue.GetOptions();
             foreach (var op in opt) Option(op);
         }
-        protected void Option(DSDialogueOption option)
+        public static void Option(DSDialogueOption option)
         {
             Debug.Log("Options text: " + option.Text);
-            if (option.NextDialogue != null) Dialogue(option.NextDialogue);
+            if (option.NextDialogue != null) TestDialogue(option.NextDialogue);
         }
 
         public record DSDialogueOption

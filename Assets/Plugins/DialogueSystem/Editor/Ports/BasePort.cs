@@ -97,7 +97,7 @@ namespace DialogueSystem.Ports
         internal void SetPortType(Type type)
         {
             Type = type;
-            Type = type;
+            portType = type;
         } 
         internal void ChangeName(string name)
         {

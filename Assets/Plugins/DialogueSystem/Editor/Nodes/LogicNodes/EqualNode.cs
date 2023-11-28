@@ -25,8 +25,8 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     PortText = DSConstants.All,
-                    Type = null,
-                    Value = null,
+                    Type = typeof(int),
+                    Value = "0",
                 });
 
                 Model.AddPort(new(DSConstants.AvalilableTypes, Ports.PortSide.Input)
@@ -37,8 +37,8 @@ namespace DialogueSystem.Nodes
                     IsInput = true,
                     IsSingle = true,
                     PortText = DSConstants.All,
-                    Type = null,
-                    Value = null,
+                    Type = typeof(int),
+                    Value = "0",
                 });
             }
         }
