@@ -1,8 +1,8 @@
-﻿using DialogueSystem.Window;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
+using DialogueSystem.Window;
 using System.Text;
 using UnityEngine;
+using System.IO;
 
 namespace DialogueSystem.Generators
 {

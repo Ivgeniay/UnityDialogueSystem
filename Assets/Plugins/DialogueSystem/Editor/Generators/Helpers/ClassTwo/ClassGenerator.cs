@@ -16,10 +16,12 @@ namespace DialogueSystem.Generators
 {
     internal class ClassGenerator : GHelper
     {
-        DSClassInfo<DSGraphView> dsGrathViewClass = null;
+        private DSClassInfo<DSGraphView> dsGrathViewClass = null;
+        private DSGraphView graphView = null;
 
         internal ClassGenerator(DSGraphView grathView, string className)
         {
+            this.graphView = grathView;
             dsGrathViewClass = new(grathView);
             dsGrathViewClass.ClassName = className;
         }
@@ -399,9 +401,26 @@ namespace DialogueSystem.Generators
                         }
                         if (innerDsClass.VariableInfo[i].Name == "Text" && innerDsClass.VariableInfo[i].Type == GHelper.GetVarType(typeof(string)))
                         {
+                            string t = dialogue.Model.Text;
+
+                            foreach (KeyValuePair<BasePort, string> item in graphView.Anchors)
+                            {
+                                if (t.Contains(item.Value))
+                                {
+                                    BaseNode node = item.Key.node as BaseNode;
+                                    DSClassInfo init = Initialize(node, intoDSClassInfo);
+                                    VariableInfo linkPortVarInfo = init.GetVariable(item.Key);
+                                    VariableInfo linkNodeVarInfo = intoDSClassInfo.GetVariable(node);
+
+                                    string varname = string.Concat(linkNodeVarInfo.Name, ".", linkPortVarInfo.Name);
+                                    if (linkPortVarInfo.DataHolder.IsFunctions) varname += "()";
+                                    t = t.Replace(item.Value, varname);
+                                }
+                            }
+
                             dsGrathViewClass.ClassDrawer.AddInitializeObject(
                                 name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                initObjects: $"$\"{dialogue.Model.Text}\"");
+                                initObjects: $"@$\"{t}\"");
                         }
                     }
                     break;

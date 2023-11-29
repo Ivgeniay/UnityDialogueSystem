@@ -9,13 +9,14 @@ namespace DialogueSystem.Assets
         public int Level;
         public string Name;
         public int Intellect { get; private set; }
-        private DialogueFileName1 dialogueFileName;
+        private DialogueFileName222 dialogueFileName;
 
         private void Awake()
         {
             dialogueFileName = new();
-            var startDialogue = dialogueFileName.StartDialogue(this);
-            DialogueFileName1.TestDialogue(startDialogue);
+            //var startDialogue = dialogueFileName.StartDialogue(this);
+            var startDialogue = dialogueFileName.StartDialogue();
+            DialogueFileName222.TestDialogue(startDialogue);
         }
 
     }
