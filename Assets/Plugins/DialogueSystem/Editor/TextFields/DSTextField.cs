@@ -8,6 +8,11 @@ using System.Collections.Generic;
 using DialogueSystem.Ports;
 using System.Linq;
 using DialogueSystem.Anchor;
+using DialogueSystem.Generators;
+using Unity.Android.Gradle;
+using DialogueSystem.Nodes;
+using System.Text.RegularExpressions;
+using UnityEngine.Windows;
 
 namespace DialogueSystem.TextFields
 {
@@ -30,19 +35,9 @@ namespace DialogueSystem.TextFields
             anchorsTElement = new TextElement();
             this.Add(anchorsTElement);
             this.RegisterValueChangedCallback(OnValueChange);
-            anchors.OnDictionaryChangedEvent += OnAnchorsDicChanged;
+            anchors.OnDictionaryChangedEvent += OnAnchorsDictionaryChanged;
         }
 
-        private void OnAnchorsDicChanged(object sender, DictionaryChangedEventArgs<BasePort, string> e)
-        {
-            if (anchors.Count > 0)
-            {
-                anchorsTElement.text = "Anchors contains: \n";
-                foreach(var item in anchors)
-                    anchorsTElement.text += $"<color=#FDD057>{item.Value}</color>\n";
-            }
-            else anchorsTElement.text = string.Empty;
-        }
 
         internal void OnDistroy()
         {
@@ -63,7 +58,7 @@ namespace DialogueSystem.TextFields
                     e.menu.ClearItems();
                     foreach (var anchor in graphView.Anchors)
                     {
-                        for (int i = 0; i < 100; i++)
+                        if (!anchors.Contains(anchor))
                         {
                             e.menu.AppendAction($"Anchor:{anchor.Value}", a => 
                             {
@@ -92,6 +87,38 @@ namespace DialogueSystem.TextFields
                     foreach (var anchor in presentAnchors)
                         anchors.Remove(anchor);
                 }
+            }
+        }
+        private void OnAnchorsDictionaryChanged(object sender, DictionaryChangedEventArgs<BasePort, string> e)
+        {
+            List<TextElement> childs = anchorsTElement.GetElementsByType<TextElement>(e => e != anchorsTElement);
+            foreach (var child in childs) anchorsTElement.Remove(child);
+                
+            if (anchors.Count > 0)
+            {
+                foreach (var item in anchors)
+                {
+                    TextElement newChild = new TextElement();
+                    newChild.text = $"<color=#FDD057>{item.Value}</color>";
+                    newChild.AddManipulator(new Clickable(() => AnchorClickEvent(newChild), 0, 0));
+                    anchorsTElement.Add(newChild);
+                }
+            }
+            else anchorsTElement.text = string.Empty;
+        }
+
+        private void AnchorClickEvent(TextElement textElement)
+        {
+            Regex regex = new Regex(@"<color=[^>]+>([^<]+)</color>");
+            Match match = regex.Match(textElement.text);
+            string data = "d_a_t_a";
+            if (match.Success) data = match.Groups[1].Value;
+
+            BasePort port = anchors.FirstOrDefault(e => e.Value.Contains($"{data}")).Key;
+            if (port != null)
+            {
+                graphView.AddToSelection(port.node);
+                graphView.FrameSelection();
             }
         }
 

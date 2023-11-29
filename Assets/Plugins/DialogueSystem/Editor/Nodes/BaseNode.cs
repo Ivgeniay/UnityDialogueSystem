@@ -228,7 +228,6 @@ namespace DialogueSystem.Nodes
                 }
             }
         }
-
         #endregion
 
         #region MonoEvents

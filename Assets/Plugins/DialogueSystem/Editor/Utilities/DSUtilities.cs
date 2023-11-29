@@ -1,16 +1,16 @@
-﻿using DialogueSystem.Generators;
+﻿using UnityEditor.Experimental.GraphView;
+using System.Collections.Generic;
+using DialogueSystem.Generators;
+using DialogueSystem.TextFields;
+using UnityEngine.UIElements;
 using DialogueSystem.Groups;
+using DialogueSystem.Window;
 using DialogueSystem.Nodes;
 using DialogueSystem.Ports;
-using DialogueSystem.TextFields;
-using DialogueSystem.Window;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using UnityEditor.Experimental.GraphView;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
+using System;
 
 namespace DialogueSystem.Utilities
 {

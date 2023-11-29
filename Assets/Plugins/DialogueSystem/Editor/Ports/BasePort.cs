@@ -10,6 +10,7 @@ using System;
 using DialogueSystem.Nodes;
 using System.Linq;
 using DialogueSystem.Database.Save;
+using UnityEditor;
 
 namespace DialogueSystem.Ports
 {
@@ -29,6 +30,7 @@ namespace DialogueSystem.Ports
         public Type[] AvailableTypes;
         public PortSide PortSide;
         public bool IsAnchorable = false;
+
         private Color defaultColor;
         
         public BasePort(Orientation portOrientation, Direction portDirection, Capacity portCapacity, Type type) : base(portOrientation, portDirection, portCapacity, type) { }
@@ -51,11 +53,15 @@ namespace DialogueSystem.Ports
 
             port.AddManipulators();
             port.defaultColor = port.portColor;
+            EditorApplication.update += port.Update;
             return port;
         }
 
+        private void Update() { }
         internal void OnDistroy()
         {
+            EditorApplication.update -= Update;
+
             if (!string.IsNullOrWhiteSpace(Anchor))
             {
                 GrathView?.RemoveAnchor(this);
@@ -176,5 +182,6 @@ namespace DialogueSystem.Ports
             });
             return contextualMenuManipulator;
         }
+
     }
 }

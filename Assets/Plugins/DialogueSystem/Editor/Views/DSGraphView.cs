@@ -544,7 +544,7 @@ namespace DialogueSystem.Window
             if (isSearchWindow)
                 worldMP -= editorWindow.position.position;
 
-            var local = contentViewContainer.WorldToLocal(worldMP);
+            Vector2 local = contentViewContainer.WorldToLocal(worldMP);
             return local;
         }
         internal List<T> GetListNodesOfType<T>() =>
