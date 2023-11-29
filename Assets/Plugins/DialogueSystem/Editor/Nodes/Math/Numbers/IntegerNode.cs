@@ -23,7 +23,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = true,
+                    IsSingle = false,
                     PortText = DSConstants.Int,
                 });
             }

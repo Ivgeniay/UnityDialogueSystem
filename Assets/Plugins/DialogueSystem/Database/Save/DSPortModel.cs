@@ -50,6 +50,8 @@ namespace DialogueSystem.Database.Save
         {
             PortID = Guid.NewGuid().ToString();
             this.PortSide = PortSide;
+            if (PortSide == PortSide.Input) IsInput = true;
+            else IsInput = false;
             this.AvailableTypes = availableTypes.Select(el => el.ToString()).ToArray();
         }
 

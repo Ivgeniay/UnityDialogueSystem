@@ -205,6 +205,7 @@ namespace DialogueSystem.Utilities
                 .ToList();
 
         public static bool IsAvalilableType(Type type) => DSConstants.AvalilableTypes.Contains(type);
+        public static bool IsPrimitiveType(Type type) => DSConstants.PrimitiveTypes.Contains(type);
         public static string GenerateWindowSearchNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);

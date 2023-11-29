@@ -22,11 +22,8 @@ namespace DialogueSystem.Nodes
                 Model.AddPort(new DSPortModel(DSConstants.DialogueTypes, Ports.PortSide.Input)
                 {
                     PortText = DSConstants.Dialogue,
-                    Cross = false,
-                    IsField = false,
                     IsInput = true,
                     IsSingle = true,
-                    PlusIf = false,
                     Type = DSConstants.DialogueTypes[0],
                     Value = null,
                 });

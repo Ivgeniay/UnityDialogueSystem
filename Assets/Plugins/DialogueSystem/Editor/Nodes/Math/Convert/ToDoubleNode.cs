@@ -19,7 +19,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
 
             if (portsContext == null)
             {
-                Model.AddPort(new(DSConstants.AvalilableTypes, PortSide.Input)
+                Model.AddPort(new(DSConstants.PrimitiveTypes, PortSide.Input)
                 {
                     PortText = $"All",
                     Value = "0",
@@ -38,7 +38,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     Cross = false,
                     IsField = false,
                     IsInput = false,
-                    IsSingle = true,
+                    IsSingle = false,
                     PortText = DSConstants.Double,
                     IsFunction = true,
                     PortSide = PortSide.Output,

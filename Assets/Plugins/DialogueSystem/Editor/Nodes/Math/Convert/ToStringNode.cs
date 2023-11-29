@@ -34,7 +34,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = false,
-                    IsSingle = true,
+                    IsSingle = false,
                     PortText = DSConstants.String,
                     IsFunction = true
                 });

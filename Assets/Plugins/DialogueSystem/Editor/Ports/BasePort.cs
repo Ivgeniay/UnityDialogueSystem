@@ -94,8 +94,6 @@ namespace DialogueSystem.Ports
         }
         public override void Disconnect(Edge edge)
         {
-            base.Disconnect(edge);
-
             if (edge != null)
             {
                 GraphView graphView = GetFirstAncestorOfType<GraphView>();
@@ -107,7 +105,23 @@ namespace DialogueSystem.Ports
                     graphView.RemoveElement(edge);
                 }
             }
-        } 
+            base.Disconnect(edge);
+        }
+
+        public override void DisconnectAll()
+        {
+            var connect = connections.ToList();
+            for (int i = 0; i < connect.Count(); i++)
+            {
+                BasePort inp = connect[i].input as BasePort;
+                BasePort outp = connect[i].output as BasePort;
+                inp.Disconnect(connect[i]);
+                outp.Disconnect(connect[i]);
+            }
+
+            base.DisconnectAll();
+        }
+
         public override void OnStartEdgeDragging()
         {
             if (this.m_EdgeConnector?.edgeDragHelper?.draggedPort == this)

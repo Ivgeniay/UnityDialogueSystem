@@ -15,17 +15,14 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.AddPort(new DSPortModel(new Type[]
-                {
-                    typeof(string)
-                }, Ports.PortSide.Output)
+                Model.AddPort(new DSPortModel(new Type[] { typeof(string) }, Ports.PortSide.Output)
                 {
                     Value = string.Empty,
                     Type = typeof(string),
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = true,
+                    IsSingle = false,
                     PortText = DSConstants.String
                 });
             }

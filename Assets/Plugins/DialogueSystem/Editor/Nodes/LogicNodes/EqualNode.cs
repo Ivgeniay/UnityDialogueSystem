@@ -17,7 +17,7 @@ namespace DialogueSystem.Nodes
 
             if (portsContext == null)
             {
-                Model.AddPort(new(DSConstants.AvalilableTypes, Ports.PortSide.Input)
+                Model.AddPort(new(DSConstants.PrimitiveTypes, Ports.PortSide.Input)
                 {
                     Cross = false,
                     IsField = false,
@@ -29,7 +29,7 @@ namespace DialogueSystem.Nodes
                     Value = "0",
                 });
 
-                Model.AddPort(new(DSConstants.AvalilableTypes, Ports.PortSide.Input)
+                Model.AddPort(new(DSConstants.PrimitiveTypes, Ports.PortSide.Input)
                 {
                     Cross = false,
                     IsField = false,

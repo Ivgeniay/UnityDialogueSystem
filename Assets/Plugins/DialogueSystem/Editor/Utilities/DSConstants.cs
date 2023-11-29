@@ -1,13 +1,17 @@
 ﻿using DialogueSystem.DialogueType;
+using System.Collections.Generic;
+using UnityEngine;
 using System;
 
 namespace DialogueSystem.Utilities
 {
     public static class DSConstants
     {
-        public readonly static Type[] AvalilableTypes;
-        public readonly static Type[] NumberTypes;
-        public readonly static Type[] DialogueTypes;
+        public static Type[] AvalilableTypes { get; private set; }
+        public static Type[] NumberTypes { get; private set; }
+        public static Type[] PrimitiveTypes { get; private set; }
+        public static Type[] DialogueTypes { get; private set; }
+        public static Type[] CollectionsTypes { get; private set; }
 
         public readonly static string All;
         public readonly static string Number;
@@ -33,6 +37,20 @@ namespace DialogueSystem.Utilities
                 typeof(bool),
                 typeof(Dialogue),
             };
+
+            PrimitiveTypes = new Type[]
+            {
+                typeof(string),
+                typeof(int),
+                typeof(Int16),
+                typeof(Int32),
+                typeof(Int64),
+                typeof(float),
+                typeof(Single),
+                typeof(double),
+                typeof(bool),
+            };
+
             NumberTypes = new Type[]
             {
                 typeof(int),
@@ -43,9 +61,13 @@ namespace DialogueSystem.Utilities
                 typeof(Single),
                 typeof(double),
             };
-            DialogueTypes = new Type[]
+
+            DialogueTypes = new Type[] { typeof(Dialogue), };
+
+            CollectionsTypes = new Type[]
             {
-                typeof(Dialogue),
+                typeof(List<>),
+                typeof(Dictionary<,>)
             };
 
             All = "All";

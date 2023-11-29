@@ -557,7 +557,7 @@ namespace DialogueSystem.Nodes
         protected void ChangePortValueAndType(BasePort port, Type type)
         {
             port.SetPortType(type);
-            port.ChangeName(type.Name);
+            port.ChangeName(GHelper.GetVarType(type));
             var model_port = Model.Inputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port == null) model_port = Model.Outputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port != null)

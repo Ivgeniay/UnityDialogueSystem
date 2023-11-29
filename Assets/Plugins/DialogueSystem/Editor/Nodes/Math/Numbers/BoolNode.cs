@@ -19,7 +19,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = true,
                     IsInput = false,
-                    IsSingle = true,
+                    IsSingle = false,
                     Type = typeof(bool),
                     Value = "false",
                 });
