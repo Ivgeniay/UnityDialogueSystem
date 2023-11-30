@@ -23,7 +23,7 @@ namespace DialogueSystem.TextFields
         public bool IsAnchored { get => anchors.Count > 0; }
 
         private DSGraphView graphView;
-        private ObservableDictionary<BasePort, string> anchors = new();
+        internal ObservableDictionary<BasePort, string> anchors = new();
         TextElement anchorsTElement;
 
         public void Initialize(DSGraphView graphView)

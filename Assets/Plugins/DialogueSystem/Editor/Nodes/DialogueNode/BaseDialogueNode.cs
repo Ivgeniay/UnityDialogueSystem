@@ -59,12 +59,15 @@ namespace DialogueSystem.Nodes
                     }
                 );
             textField.Name = "DialogueText";
+            textField.anchors.OnDictionaryChangedEvent += (sender, args) => { SetEnableSetting(!textField.IsAnchored); };
 
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);
             container.Add(customDataContainer);
 
             base.DrawExtensionContainer(container);
+
+            InitializeSettingElement(container);
         }
     }
 }

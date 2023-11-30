@@ -5,9 +5,9 @@ using System;
 
 [System.Serializable] public class DialogueFileName22 : DialogueSystem.DialogueDisposer{
 	#region Fields
-	private System.Int32 Int32_0 = 24;
+	private System.Int32 Int32_0 = 25;
 	private DSDialogue DSDialogue_0 = new();
-	private DSDialogue DSDialogue_1 = new(){
+	[SerializeField] private DSDialogue DSDialogue_1 = new(){
 		Text = @$"Start dialogue",
 	};
 	#endregion
@@ -15,7 +15,7 @@ using System;
 	private void Initialize(){
 		DSDialogue_0.Text = @$"End {
 			Int32_0
-		} dialogue";
+		}  dialogue";
 		DSDialogue_0.DSDialogueOption = new System.Collections.Generic.List<DialogueSystem.DialogueDisposer.DSDialogueOption>{
 			
 		};

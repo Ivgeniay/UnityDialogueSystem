@@ -17,6 +17,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using System.ComponentModel;
+using Codice.Client.BaseCommands;
 
 namespace DialogueSystem.Nodes
 {
@@ -30,11 +31,15 @@ namespace DialogueSystem.Nodes
         public virtual object Value => Model.Text;
         public virtual bool IsFunctions => false;
         public bool IsSerializedInScript => true;
-        public Generators.Visibility Visibility { get; set; } = Generators.Visibility.@private;
-        public Generators.Attribute Attribute { get; set; } = Generators.Attribute.None;
+        public Generators.Visibility Visibility { get => Model.Visibility; set => Model.Visibility = value; }
+        public Generators.Attribute Attribute { get => Model.Attribute; set => Model.Attribute = value; }
 
         protected TextField titleTF { get; set; }
         protected DSGraphView graphView { get; set; }
+        protected DropdownField dropdownAttributes;
+        protected DropdownField dropdownVisible;
+        protected Foldout settings;
+
         private Color defaultbackgroundColor;
 
         internal virtual void Initialize(DSGraphView graphView, Vector2 position, List<object> context)
@@ -112,43 +117,48 @@ namespace DialogueSystem.Nodes
 
         protected void InitializeSettingElement(VisualElement container)
         {
-            Foldout foldout = DSUtilities.CreateFoldout("Settings", true);
+            settings = DSUtilities.CreateFoldout("Settings", true);
 
-            DropdownField dropdownAttributes = new();
+            dropdownAttributes = new();
             dropdownAttributes.label = "Attriputes";
-            Generators.Attribute[] attributes = (Generators.Attribute[])Enum.GetValues(typeof(Generators.Attribute));
-            foreach (Generators.Attribute attribute in attributes)
-                dropdownAttributes.choices.Add(attribute.ToString());
+            dropdownAttributes.choices.Add(Generators.Attribute.None.ToString());
+            dropdownAttributes.choices.Add(Generators.Attribute.SerializeField.ToString());
             dropdownAttributes.value = Model.Attribute.ToString();
             dropdownAttributes.RegisterValueChangedCallback<string>((e) =>
             {
-                if (Enum.TryParse<Generators.Attribute>(e.newValue, true, out var result))
-                {
-                    Model.Attribute = result;
-                    Attribute = result;
-                }
+                if (Enum.TryParse<Generators.Attribute>(e.newValue, true, out var result)) Attribute = result;
             });
 
-            DropdownField dropdownVisible = new();
+            dropdownVisible = new();
             dropdownVisible.label = "Visibility";
-            Generators.Visibility[] attributes2 = (Generators.Visibility[])Enum.GetValues(typeof(Generators.Visibility));
-            foreach (Generators.Visibility attribute in attributes)
-                dropdownVisible.choices.Add(attribute.ToString());
-            dropdownVisible.value = Model.Visibility.ToString(); // Generators.Visibility.@private.ToString();
+            dropdownVisible.choices.Add(Generators.Visibility.@private.ToString());
+            dropdownVisible.choices.Add(Generators.Visibility.@public.ToString());
+            dropdownVisible.value = Model.Visibility.ToString();
             dropdownVisible.RegisterValueChangedCallback<string>((e) =>
             {
-                if (Enum.TryParse<Generators.Visibility>(e.newValue, true, out var result))
-                {
-                    Model.Visibility = result;
-                    Visibility = result;
-                }
+                if (Enum.TryParse<Generators.Visibility>(e.newValue, true, out var result)) Visibility = result;
             });
 
-            foldout.Add(dropdownAttributes);
-            foldout.Add(dropdownVisible);
-            container.Add(foldout);
+            settings.Add(dropdownAttributes);
+            settings.Add(dropdownVisible);
+
+            container.Add(settings);
         }
-        
+        protected void SetEnableSetting(bool enable)
+        {
+            settings.SetEnabled(enable);
+            if (enable)
+            {
+                if (Enum.TryParse<Generators.Attribute>(dropdownAttributes.value, true, out var result)) Attribute = result;
+                if (Enum.TryParse<Generators.Visibility>(dropdownVisible.value, true, out var res)) Visibility = res;
+            }
+            else
+            {
+                Attribute = Generators.Attribute.None;
+                Visibility = Generators.Visibility.@private;
+            }
+        }
+
         protected virtual void Draw()
         {
             DrawTitleContainer(titleContainer);
