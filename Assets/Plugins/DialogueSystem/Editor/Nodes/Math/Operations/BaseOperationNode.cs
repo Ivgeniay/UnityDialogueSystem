@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace DialogueSystem.Nodes
 {
-    public abstract class BaseOperationNode : BaseMathNode
+    internal abstract class BaseOperationNode : BaseMathNode
     {
 
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
@@ -28,7 +28,6 @@ namespace DialogueSystem.Nodes
                     IsSingle = true,
                     Type = typeof(double),
                     Value = "0",
-                    IsAnchorable = true,
                 });
 
                 Model.AddPort(new DSPortModel(DSConstants.PrimitiveTypes, PortSide.Input)
@@ -40,7 +39,6 @@ namespace DialogueSystem.Nodes
                     IsSingle = false,
                     Type = typeof(double),
                     Value = "0",
-                    IsAnchorable = true,
                 });
 
                 Model.AddPort(new DSPortModel(new Type[] { typeof(double), typeof(string), }, PortSide.Output)

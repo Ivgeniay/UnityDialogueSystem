@@ -28,6 +28,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = DSConstants.Double,
+                    IsAnchorable = true,
                 });
             }
         }

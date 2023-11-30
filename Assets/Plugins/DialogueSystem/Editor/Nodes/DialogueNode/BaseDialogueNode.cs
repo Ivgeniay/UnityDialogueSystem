@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace DialogueSystem.Nodes
 {
-    public abstract class BaseDialogueNode : BaseNode
+    internal abstract class BaseDialogueNode : BaseNode
     {
         private DSTextField textField; 
 
@@ -48,7 +48,7 @@ namespace DialogueSystem.Nodes
                     if (target != null)
                     {
                         target.value = callback.newValue;
-                        target.Value = callback.newValue;
+                        //target.Value = callback.newValue;
                     }
                     Model.Text = callback.newValue;
                 },
@@ -63,6 +63,8 @@ namespace DialogueSystem.Nodes
             textFolout.Add(textField);
             customDataContainer.Add(textFolout);
             container.Add(customDataContainer);
+
+            base.DrawExtensionContainer(container);
         }
     }
 }

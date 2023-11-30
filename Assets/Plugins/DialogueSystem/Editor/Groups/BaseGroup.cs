@@ -47,13 +47,13 @@ namespace DialogueSystem.Groups
         #endregion
 
         #region Mono
-        public virtual void OnTitleChanged(string title) 
+        internal virtual void OnTitleChanged(string title) 
         {
             Model.GroupName = title;
         }
-        public virtual void OnCreate(List<BaseNode> innerNode){}
-        public virtual void OnDestroy(){}
-        public void OnChangePosition(Vector2 position, Vector2 delta) 
+        internal virtual void OnCreate(List<BaseNode> innerNode){}
+        internal virtual void OnDestroy(){}
+        internal void OnChangePosition(Vector2 position, Vector2 delta) 
         {
             Model.Position = position;
             for (int i = 0; i < nodes.Count; i++)

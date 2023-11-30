@@ -9,8 +9,6 @@ namespace DialogueSystem.Generators
 {
     internal class ClassDrawer : ICLassDrawer
     {
-        private string ClassName = "";
-        private Visibility ClassVisibility = Visibility.None;
         internal StringBuilder DeclarationClass { get; private set; }
         internal StringBuilder CtorClass { get; private set; } 
         internal List<StringBuilder> Propertyes { get; private set; } = new();
@@ -19,10 +17,19 @@ namespace DialogueSystem.Generators
         internal List<StringBuilder> Methods { get; private set; } = new();
         internal List<StringBuilder> InitializeObjects { get; private set; } = new();
         internal string StartDialogueVarname = string.Empty;
-
+        
+        private Dictionary<Tt, StringBuilder> fieldsData = new();
         private List<MethodParamsInfo> InitializeParameters = null;
         private List<MethodInfo> InitializeMethods = null;
+        private Visibility ClassVisibility = Visibility.None;
+        private string ClassName = "";
 
+        private class Tt
+        {
+            public VariableInfo info;
+            public VariableInfo infofather;
+            public StringBuilder initialize;
+        }
 
         public ICLassDrawer ClassDeclaration(string className, Attribute attribute, Visibility visibility, Type[] inherets = null)
         {
@@ -93,6 +100,13 @@ namespace DialogueSystem.Generators
         }
         public ICLassDrawer AddField(VariableInfo variable, Attribute attribute, bool isNew = true, object value = null)
         {
+            Tt t = fieldsData.FirstOrDefault(e => e.Key.infofather == variable).Key;
+            if (t == null)
+            {
+                t = new Tt() { infofather = variable, initialize = null };
+                fieldsData.Add(t, null);
+            }
+
             string type = variable.Type;
             if (variable.DataHolder != null && variable.DataHolder.IsFunctions)
             {
@@ -106,11 +120,21 @@ namespace DialogueSystem.Generators
             StringBuilder field = new();
             Type type = Type.GetType(returnType);
 
-            field
+
+            if (attribute != Attribute.None)
+            {
+                field
                 .Append(GHelper.GetAttribute(attribute))
-                .Append(GHelper.SPACE)
+                .Append(GHelper.SPACE);
+            }
+            if (visibility != Visibility.None)
+            {
+                field
                 .Append(GHelper.GetVisibility(visibility))
-                .Append(GHelper.SPACE)
+                .Append(GHelper.SPACE);
+            }
+
+            field 
                 .Append(returnType)
                 .Append(GHelper.SPACE)
                 .Append(fieldName);
@@ -136,7 +160,11 @@ namespace DialogueSystem.Generators
             }
             field.Append(GHelper.QUOTES).Append(GHelper.TR); ;
 
+            Tt t = fieldsData.FirstOrDefault(e => e.Key.infofather.Name == fieldName).Key;
+            if (t != null) fieldsData[t] = field;
+            
             Fields.Add(field);
+
             return this;
         }
         public ICLassDrawer AddInnerClass(ClassDrawer classDrawer)
@@ -370,7 +398,22 @@ namespace DialogueSystem.Generators
             if (Propertyes != null && Propertyes.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
             
             if (Fields != null && Fields.Count > 0) classBuilder.Append(GHelper.REG).Append(GHelper.SPACE).Append(nameof(Fields)).Append(GHelper.TR);
-            foreach (StringBuilder item in Fields) classBuilder.Append(item);
+            foreach (StringBuilder item in Fields)
+            {
+                Tt t = fieldsData.FirstOrDefault(e => e.Value == item).Key;
+                if (t != null)
+                {
+                    if (t.initialize != null && !string.IsNullOrWhiteSpace(t.initialize.ToString()))
+                    {
+                        StringBuilder result = new();
+                        string resultString = item.ToString();
+                        result.Append(resultString.Replace(GHelper.QUOTES, t.initialize.ToString()));
+                        classBuilder.Append(result);
+                    }
+                    else classBuilder.Append(item);
+                }
+                else classBuilder.Append(item);
+            }
             if (Fields != null && Fields.Count > 0) classBuilder.Append(GHelper.ENDREG).Append(GHelper.TR);
 
             if (InitializeObjects != null && InitializeObjects.Count > 0)
@@ -409,6 +452,39 @@ namespace DialogueSystem.Generators
             classBuilder.Append(GHelper.BR_F_CL);
 
             return classBuilder.ToString();
+        }
+
+        internal void AddInitializeObjectInHeader(VariableInfo innerClassVar, VariableInfo fatherClassVar, string context)
+        {
+            StringBuilder sb = new();
+            Tt t = fieldsData.FirstOrDefault(e => e.Key.infofather == fatherClassVar).Key;
+            if (t == null)
+            {
+                t = new Tt()
+                {
+                    info = innerClassVar,
+                    infofather = fatherClassVar,
+                    initialize = sb
+                };
+                fieldsData.Add(t, null);
+            }
+            else
+            {
+                t.infofather = fatherClassVar;
+                t.initialize = sb;
+            }
+            
+
+            sb
+                .Append(GHelper.BR_F_OP)
+                .Append(innerClassVar.Name)
+                .Append(GHelper.SPACE)
+                .Append("=")
+                .Append(GHelper.SPACE)
+                .Append(context)
+                .Append(GHelper.COMMA)
+                .Append(GHelper.BR_F_CL)
+                .Append(GHelper.QUOTES);
         }
     }
 }

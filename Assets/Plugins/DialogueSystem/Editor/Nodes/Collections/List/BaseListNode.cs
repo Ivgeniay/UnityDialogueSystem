@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Text;
-using System;
-using DialogueSystem.Ports;
+﻿using DialogueSystem.Ports;
 using DialogueSystem.Utilities;
 using UnityEditor.Experimental.GraphView;
 
 namespace DialogueSystem.Nodes
 {
-    internal abstract class BaseList : BaseCollections
+    internal abstract class BaseListNode : BaseCollectionsNode
     {
 
         public override void OnDestroyConnectionInput(BasePort port, Edge edge)

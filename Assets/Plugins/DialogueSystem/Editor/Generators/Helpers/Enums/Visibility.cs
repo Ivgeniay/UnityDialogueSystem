@@ -1,6 +1,6 @@
 ﻿namespace DialogueSystem.Generators
 {
-    internal enum Visibility
+    public enum Visibility
         {
             None,
             @public,

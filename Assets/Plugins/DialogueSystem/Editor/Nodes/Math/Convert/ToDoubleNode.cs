@@ -42,6 +42,7 @@ namespace Assets.Plugins.DialogueSystem.Editor.Nodes.Math.Convert
                     PortText = DSConstants.Double,
                     IsFunction = true,
                     PortSide = PortSide.Output,
+                    IsAnchorable = true,
                 });
             }
         }

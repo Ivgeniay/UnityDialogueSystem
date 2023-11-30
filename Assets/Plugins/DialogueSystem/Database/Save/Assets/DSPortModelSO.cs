@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Ports;
+﻿using DialogueSystem.Generators;
+using DialogueSystem.Ports;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -27,8 +28,10 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public PortSide PortSide;
         [SerializeField] public string Anchor;
         [SerializeField] public bool IsAnchorable;
+        [SerializeField] public Visibility Visibility = Visibility.@public;
+        [SerializeField] public Generators.Attribute Attribute;
 
-        public void Init(DSPortModel dSPortModel, UnityEngine.Object parent)
+        internal void Init(DSPortModel dSPortModel, UnityEngine.Object parent)
         {
             NodeIDs = new List<NodePortModelSO>();
 
@@ -48,6 +51,8 @@ namespace DialogueSystem.Database.Save
             PortSide = dSPortModel.PortSide;
             IsAnchorable = dSPortModel.IsAnchorable;
             Anchor = dSPortModel.Anchor;
+            Visibility = dSPortModel.Visibility; 
+            Attribute = dSPortModel.Attribute;
 
             if (dSPortModel.NodeIDs != null)
             {

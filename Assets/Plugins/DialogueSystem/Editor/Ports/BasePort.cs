@@ -23,6 +23,9 @@ namespace DialogueSystem.Ports
         public Type Type { get; private set; }
         public string Name { get; private set; }
         public bool IsSerializedInScript { get; set; }
+        public Generators.Visibility Visibility { get; set; } = Generators.Visibility.@public;
+        public Generators.Attribute Attribute { get; set; }
+
         public DSGraphView GrathView { get; internal set; }
 
         public string Anchor = string.Empty;

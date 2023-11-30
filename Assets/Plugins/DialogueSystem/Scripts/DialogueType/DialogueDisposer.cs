@@ -5,6 +5,7 @@ using static DialogueSystem.DialogueDisposer.DSDialogueOption;
 
 namespace DialogueSystem
 {
+    [System.Serializable]
     public class DialogueDisposer
     {
         public static void TestDialogue(DSDialogue startDialogue)
@@ -19,6 +20,7 @@ namespace DialogueSystem
             if (option.NextDialogue != null) TestDialogue(option.NextDialogue);
         }
 
+        [System.Serializable]
         public record DSDialogueOption
         {
             public string Text { get; private set; }
@@ -32,11 +34,12 @@ namespace DialogueSystem
                 Func = func == null ? () => true : func;
             }
 
+            [System.Serializable]
             public class DSDialogue
             {
                 #region Fields
                 [SerializeField] public System.String Text;
-                [SerializeField] public List<DSDialogueOption> DSDialogueOption = new();
+                public List<DSDialogueOption> DSDialogueOption = new();
                 #endregion
 
                 public IEnumerable<DSDialogueOption> GetOptions()

@@ -31,6 +31,7 @@ namespace DialogueSystem.Nodes
                     PortText = DSConstants.Bool,
                     Value = "false",
                     IsFunction = true,
+                    IsAnchorable = true,
                 });
             }
         }

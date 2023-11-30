@@ -1,6 +1,6 @@
 ﻿namespace DialogueSystem.Generators
 {
-    internal enum Attribute
+    public enum Attribute
         {
             None,
             SerializeField,

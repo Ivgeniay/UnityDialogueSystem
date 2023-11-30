@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DialogueSystem.Generators;
+using System;
 
 namespace DialogueSystem.Abstract
 {
@@ -10,5 +11,7 @@ namespace DialogueSystem.Abstract
         public object Value { get; }
         public bool IsFunctions { get; }
         public bool IsSerializedInScript { get; }
+        public Visibility Visibility { get; }
+        public Generators.Attribute Attribute { get; }
     }
 }

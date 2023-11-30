@@ -39,6 +39,7 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     IsFunction = true,
+                    IsAnchorable = true,
                 });
             }
         }

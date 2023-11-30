@@ -6,7 +6,6 @@ namespace DialogueSystem.Nodes
 {
     internal class MultiplyNode : BaseOperationNode
     {
-        
         internal override string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables)
         {
             StringBuilder sb = new();

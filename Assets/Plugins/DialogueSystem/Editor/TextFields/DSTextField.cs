@@ -1,28 +1,26 @@
-﻿using UnityEditor.Experimental.GraphView;
+﻿using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using DialogueSystem.Generators;
 using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using DialogueSystem.Window;
-using UnityEngine;
-using System;
-using System.Collections.Generic;
+using DialogueSystem.Anchor;
 using DialogueSystem.Ports;
 using System.Linq;
-using DialogueSystem.Anchor;
-using DialogueSystem.Generators;
-using Unity.Android.Gradle;
-using DialogueSystem.Nodes;
-using System.Text.RegularExpressions;
-using UnityEngine.Windows;
+using System;
 
 namespace DialogueSystem.TextFields
 {
-    public class DSTextField : TextField, IDataHolder, IAnchorObserver
+    public class DSTextField : TextField, IDataHolder
     {
-        public Type Type { get => typeof(string); }
+        public Type Type { get => this.GetType();}
         public object Value { get; set; } = "";
         public bool IsFunctions { get; set; } = false;
         public string Name { get; set; } = "Text";
         public bool IsSerializedInScript { get; set; }
+        public Generators.Visibility Visibility { get; } = Generators.Visibility.@private;
+        public Generators.Attribute Attribute { get; } = Generators.Attribute.None;
+        public bool IsAnchored { get => anchors.Count > 0; }
 
         private DSGraphView graphView;
         private ObservableDictionary<BasePort, string> anchors = new();
@@ -31,24 +29,25 @@ namespace DialogueSystem.TextFields
         public void Initialize(DSGraphView graphView)
         {
             this.graphView = graphView;
+
             AddManipulators();
+
             anchorsTElement = new TextElement();
             this.Add(anchorsTElement);
-            this.RegisterValueChangedCallback(OnValueChange);
-            anchors.OnDictionaryChangedEvent += OnAnchorsDictionaryChanged;
+            this.RegisterValueChangedCallback(OnTextFieldValueChange);
+
+            graphView.Anchors.OnDictionaryChangedEvent += OnGraphAnchorsChangedHandler;
+            anchors.OnDictionaryChangedEvent += OnOwnAnchorsDictionaryChanged;
+            CheckStartValue(graphView.Anchors);
         }
-
-
-        internal void OnDistroy()
-        {
-            graphView.AnchorVisitorsUnRegister(this);
+        internal void OnDistroy() {
+            graphView.Anchors.OnDictionaryChangedEvent -= OnGraphAnchorsChangedHandler;
         }
 
         private void AddManipulators()
         {
             this.AddManipulator(CreateContextualMenuAnchors());
         }
-
         private IManipulator CreateContextualMenuAnchors()
         {
             ContextualMenuManipulator contextualMenuManipulator = new(e =>
@@ -63,7 +62,6 @@ namespace DialogueSystem.TextFields
                             e.menu.AppendAction($"Anchor:{anchor.Value}", a => 
                             {
                                 anchors.Add(anchor.Key, anchor.Value);
-                                graphView.AnchorVisitorsRegister(this);
                                 this.value = this.value.Insert(this.cursorIndex, $"{{{anchor.Value}}}");
                             });
                         }
@@ -72,9 +70,21 @@ namespace DialogueSystem.TextFields
             });
             return contextualMenuManipulator;
         }
-        private void OnValueChange(ChangeEvent<string> evt)
+
+        private void CheckStartValue(ObservableDictionary<BasePort, string> anchors)
+        {
+            foreach (var anchor in anchors)
+            {
+                if (this.text.Contains("{" + anchor.Value + "}"))
+                    this.anchors.Add(anchor.Key, anchor.Value);
+            }
+        }
+
+        private void OnTextFieldValueChange(ChangeEvent<string> evt)
         {
             DSTextField target = evt.target as DSTextField;
+            Value = evt.newValue;
+
             if (target != null)
             {
                 List<BasePort> presentAnchors = anchors
@@ -89,7 +99,7 @@ namespace DialogueSystem.TextFields
                 }
             }
         }
-        private void OnAnchorsDictionaryChanged(object sender, DictionaryChangedEventArgs<BasePort, string> e)
+        private void OnOwnAnchorsDictionaryChanged(object sender, DictionaryChangedEventArgs<BasePort, string> e)
         {
             List<TextElement> childs = anchorsTElement.GetElementsByType<TextElement>(e => e != anchorsTElement);
             foreach (var child in childs) anchorsTElement.Remove(child);
@@ -100,14 +110,13 @@ namespace DialogueSystem.TextFields
                 {
                     TextElement newChild = new TextElement();
                     newChild.text = $"<color=#FDD057>{item.Value}</color>";
-                    newChild.AddManipulator(new Clickable(() => AnchorClickEvent(newChild), 0, 0));
+                    newChild.AddManipulator(new Clickable(() => OnAnchorClickEvent(newChild), 0, 0));
                     anchorsTElement.Add(newChild);
                 }
             }
             else anchorsTElement.text = string.Empty;
         }
-
-        private void AnchorClickEvent(TextElement textElement)
+        private void OnAnchorClickEvent(TextElement textElement)
         {
             Regex regex = new Regex(@"<color=[^>]+>([^<]+)</color>");
             Match match = regex.Match(textElement.text);
@@ -121,16 +130,28 @@ namespace DialogueSystem.TextFields
                 graphView.FrameSelection();
             }
         }
-
+        private void OnGraphAnchorsChangedHandler(object sender, DictionaryChangedEventArgs<BasePort, string> e)
+        {
+            if (e.ChangeType == DictionaryChangeType.Update) OnAnchorUpdate(e.Key, e.Value);
+            else if (e.ChangeType == DictionaryChangeType.Remove) OnAnchorDelete(e.Key);
+            else if (e.ChangeType == DictionaryChangeType.Add)
+            {
+                if (this.anchors.TryGetValue(e.Key, out string value)) { }
+                else
+                {
+                    if (text.Contains("{" + e.Value + "}")) 
+                        anchors.Add(e.Key, e.Value);
+                }
+            }
+        }
         public void OnAnchorUpdate(BasePort port, string newRegex)
         {
             if (anchors.TryGetValue(port, out string regex))
             {
-                this.text = this.text.Replace(regex, newRegex);
+                this.text = this.text.Replace("{" + regex + "}", "{" + newRegex + "}");
                 anchors[port] = newRegex;
             }
         }
-
         public void OnAnchorDelete(BasePort port)
         {
             if (anchors.TryGetValue(port, out string regex))
@@ -139,6 +160,7 @@ namespace DialogueSystem.TextFields
                 anchors.Remove(port);
             }
         }
+
 
     }
 }

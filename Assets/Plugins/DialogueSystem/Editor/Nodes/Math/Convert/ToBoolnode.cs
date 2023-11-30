@@ -37,7 +37,8 @@ namespace DialogueSystem.Nodes
                     IsInput = false,
                     IsSingle = false,
                     PortText = typeof(bool).Name,
-                    IsFunction = true
+                    IsFunction = true,
+                    IsAnchorable = true,
                 });
             }
         }

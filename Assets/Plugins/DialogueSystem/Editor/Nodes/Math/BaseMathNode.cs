@@ -7,7 +7,7 @@ using DialogueSystem.Utilities;
 
 namespace DialogueSystem.Nodes
 {
-    public abstract class BaseMathNode : BaseNode
+    internal abstract class BaseMathNode : BaseNode
     {
         public override void OnConnectInputPort(BasePort _port, Edge edge)
         {
@@ -43,7 +43,7 @@ namespace DialogueSystem.Nodes
                 }
                 else if (!port.connected && port != _port) 
                 {
-                    port.SetValue(Activator.CreateInstance(port.Type));
+                    port.SetValue(DSUtilities.GetDefaultValue(port.Type)); 
 
                     var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                     infos.Value = port.Value;

@@ -8,7 +8,7 @@ using System;
 
 namespace DialogueSystem.Nodes
 {
-    public class AdditionNode : BaseOperationNode
+    internal class AdditionNode : BaseOperationNode
     {
         internal override string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DialogueSystem.Generators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -18,6 +19,8 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string Text;
         [SerializeField] public int Minimal;
         [SerializeField] public string ID;
+        [SerializeField] public Visibility Visibility;
+        [SerializeField] public Generators.Attribute Attribute;
 
         public void Init(DSNodeModel dSNodeModel, UnityEngine.Object parent)
         {
@@ -31,6 +34,8 @@ namespace DialogueSystem.Database.Save
             Text = dSNodeModel.Text;
             DialogueType = dSNodeModel.DialogueType;
             Position = dSNodeModel.Position;
+            Visibility = dSNodeModel.Visibility;
+            Attribute = dSNodeModel.Attribute;
 
             foreach (var portModel in dSNodeModel.Outputs)
             {
@@ -72,7 +77,8 @@ namespace DialogueSystem.Database.Save
                 Minimal = this.Minimal,
                 NodeName = this.NodeName,
                 Text = this.Text,
-                
+                Visibility = this.Visibility,
+                Attribute = this.Attribute,
             };
 
             DecompForDsPortModelList(Model.Outputs, this.Outputs);
@@ -102,6 +108,11 @@ namespace DialogueSystem.Database.Save
                     IsFunction = outputsSO.IsFunction,
                     PlusIf = outputsSO.PlusIf,
                     PortSide = outputsSO.PortSide,
+                    Anchor = outputsSO.Anchor,
+                    IsAnchorable = outputsSO.IsAnchorable,
+                    AvailableTypes = outputsSO.AvailableTypes,
+                    Attribute = outputsSO.Attribute,
+                    Visibility = outputsSO.Visibility,
                 };
 
                 foreach (NodePortModelSO nodeIds in outputsSO.NodeIDs)

@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnityEngine.UIElements;
 
 namespace DialogueSystem.Nodes
 {
     internal abstract class BaseLetterNode : BaseNode
     {
+        protected override void DrawExtensionContainer(VisualElement container)
+        {
+            base.DrawExtensionContainer(container);
+            InitializeSettingElement(container);
+        }
     }
 }

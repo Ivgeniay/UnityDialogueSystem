@@ -19,6 +19,7 @@ using UnityEditor;
 using System.IO;
 using System;
 using DialogueSystem.Anchor;
+using System.ComponentModel;
 
 namespace DialogueSystem.Window
 {
@@ -40,7 +41,7 @@ namespace DialogueSystem.Window
         private Dictionary<string, DSGroupErrorData> groups;
         private Dictionary<BaseGroup, Dictionary<string, DSNodeErrorData>> groupedNodes;
 
-        internal Dictionary<BasePort, string> Anchors = new();
+        internal ObservableDictionary<BasePort, string> Anchors = new();
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
         private Dictionary<Type, int> nessesaryTypes = new Dictionary<Type, int>()
@@ -154,11 +155,38 @@ namespace DialogueSystem.Window
                 e.menu.AppendAction("Add Group", a =>
                     CreateGroup(typeof(BaseGroup), GetLocalMousePosition(a.eventInfo.mousePosition, false)));
 
+                e.menu.AppendAction("Add Bl", a =>
+                {
+                    Blackboard blackboard = new(this);
+                    blackboard.title = "Title";
+                    blackboard.subTitle = "SubTitle";
+                    blackboard.tooltip = "Tooltip";
+                    blackboard.name = "Name";
+                    blackboard.scrollable = true; 
+                    
+                    BlackboardField blackboardField = new BlackboardField();
+                    BlackboardField blackboardField2 = new BlackboardField(); 
+                    blackboardField.text = "FieldFieldFieldFieldFieldFieldFieldField1";
+                    blackboardField2.text = "FieldFieldFieldFieldFieldFieldFieldField2"; 
+
+                    var stringPropertyRow = new BlackboardRow(new TextField("String Property"), blackboardField);
+                    var intPropertyRow = new BlackboardRow(new IntegerField("Int Property"), blackboardField);
+
+                    blackboard.addItemRequested += (e) =>
+                    {
+                        Debug.Log("Plus");
+                    };
+
+                    blackboard.Add(stringPropertyRow);
+                    blackboard.Add(intPropertyRow);
+                    AddElement(blackboard);
+                });
             });
 
             return contextualMenuManipulator;
         }
 
+        
 
         private IManipulator CreateNodeContextMenu(string actionTitle, Type type)
         {
@@ -353,7 +381,7 @@ namespace DialogueSystem.Window
             MiniMap.SetPosition(new Rect(10f, 40f, 200, 100));
             Add(MiniMap);
         }
-        public void AddUngroupedNode(BaseNode node)
+        internal void AddUngroupedNode(BaseNode node)
         {
             string nodeName = node.Model.NodeName.ToLower();
 
@@ -376,7 +404,7 @@ namespace DialogueSystem.Window
                 ungroupedNodeList[0].SetErrorStyle(errorColor);
             }
         }
-        public void RemoveUngroupedNode(BaseNode node)
+        internal void RemoveUngroupedNode(BaseNode node)
         {
             var nodeName = node.Model.NodeName.ToLower();
             List<BaseNode> ungroupedNodeList = ungroupedNodes[nodeName].Nodes;
@@ -396,7 +424,7 @@ namespace DialogueSystem.Window
                 return;
             }
         }
-        public void AddGroupNode(BaseGroup group, BaseNode node)
+        internal void AddGroupNode(BaseGroup group, BaseNode node)
         {
             string nodeName = node.Model.NodeName.ToLower();
 
@@ -423,7 +451,7 @@ namespace DialogueSystem.Window
                 groupedNodesList[0].SetErrorStyle(errorColor);
             }
         }
-        public void RemoveGroupedNode(BaseGroup group, BaseNode node)
+        internal void RemoveGroupedNode(BaseGroup group, BaseNode node)
         {
             string nodeName = node.Model.NodeName.ToLower();
 
@@ -492,7 +520,6 @@ namespace DialogueSystem.Window
 
         internal void AddOrUpdateAnchor(BasePort basePort, string anchorName)
         {
-            //Debug.Log($"{basePort.Name} with {anchorName}");
             if (string.IsNullOrWhiteSpace(anchorName))
             {
                 RemoveAnchor(basePort);
@@ -500,28 +527,10 @@ namespace DialogueSystem.Window
             }
             if (Anchors.TryGetValue(basePort, out string anchor)) Anchors[basePort] = anchorName;
             else Anchors.Add(basePort, anchorName);
-            anchorObservirs.ForEach(e => { e.OnAnchorUpdate(basePort, Anchors[basePort]); });
-
-            //if (Model.anchors.TryGetValue(basePort.ID, out anchor)) Model.anchors[basePort.ID] = anchorName;
-            //else Model.anchors.Add(basePort.ID, anchorName);
         }
-
         internal void RemoveAnchor(BasePort basePort)
         {
-            //Debug.Log($"Remove {basePort.Name}");
             if (Anchors.TryGetValue(basePort, out string anchor)) Anchors.Remove(basePort);
-            anchorObservirs.ForEach(e => { e.OnAnchorDelete(basePort); });
-            //if (Model.anchors.TryGetValue(basePort.ID, out anchor)) Model.anchors.Remove(basePort.ID);
-        }
-        private List<IAnchorObserver> anchorObservirs = new();
-
-        internal void AnchorVisitorsRegister(IAnchorObserver anchorObserver)
-        {
-            if (!anchorObservirs.Contains(anchorObserver)) anchorObservirs.Add(anchorObserver);
-        }
-        internal void AnchorVisitorsUnRegister(IAnchorObserver anchorObserver)
-        {
-            if (anchorObservirs.Contains(anchorObserver)) anchorObservirs.Remove(anchorObserver);
         }
 
         #endregion
@@ -560,7 +569,7 @@ namespace DialogueSystem.Window
             if (repeatednames && isNesseseryNodes) OnCanSaveGraphEvent?.Invoke(true);
             else OnCanSaveGraphEvent?.Invoke(false);
         }
-        public static bool CheckNodes(List<BaseNode> i_Nodes, Dictionary<Type, int> nessesaryTypes)
+        internal static bool CheckNodes(List<BaseNode> i_Nodes, Dictionary<Type, int> nessesaryTypes)
         {
             Dictionary<Type, int> nodeTypeCounts = i_Nodes
                 .GroupBy(node => node.GetType())

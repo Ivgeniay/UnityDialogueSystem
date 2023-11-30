@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using UnityEditor.Experimental.GraphView;
 using DialogueSystem.Database.Save;
-using DialogueSystem.Ports;
+using System.Collections.Generic;
 using DialogueSystem.Utilities;
-using DialogueSystem.Window;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
 using UnityEngine.UIElements;
+using DialogueSystem.Window;
+using DialogueSystem.Ports;
+using UnityEngine;
+using System.Linq;
+using System;
 
 namespace DialogueSystem.Nodes
 {
-    internal class CreateList : BaseList
+    internal class CreateListNode : BaseListNode
     {
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> context)
         {
@@ -90,10 +90,6 @@ namespace DialogueSystem.Nodes
                 PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
-            }
-            else
-            {
-
             }
 
             foreach (BasePort port in inputPorts)

@@ -23,9 +23,10 @@ namespace DialogueSystem.Generators
             this.className = className;
             this.path = path;
             usingGen = new(
-                "UnityEngine",
-                "System",
-                "static DialogueSystem.DialogueDisposer.DSDialogueOption"
+                    "static DialogueSystem.DialogueDisposer.DSDialogueOption",
+                    "System.Globalization",
+                    "UnityEngine",
+                    "System"
                 );
         }
 
@@ -61,7 +62,7 @@ namespace DialogueSystem.Generators
                     {
                         inAutoProperty = true;
                         result.Append("get");
-                        i += 3; // Пропустим символы "get"
+                        i += 3;
                     }
 
                     if (!inAutoProperty)

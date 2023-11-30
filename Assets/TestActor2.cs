@@ -6,11 +6,11 @@ namespace DialogueSystem.Assets
     {
         public int Ammo = 2;
 
-        private DialogueFileNameR dialogueFileName;
+        //private DialogueFileNameR dialogueFileName;
 
         public void Awake()
         {
-            dialogueFileName = new();
+            //dialogueFileName = new();
             //dialogueFileName.Initialize(this);
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using DialogueSystem.Generators;
 
 namespace DialogueSystem.Utilities
 {
@@ -71,11 +72,11 @@ namespace DialogueSystem.Utilities
             };
 
             All = "All";
-            Int = typeof(int).Name;
-            String = typeof(string).Name;
-            Float = typeof(float).Name;
-            Double = typeof(double).Name;
-            Bool = typeof(bool).Name;
+            Int = typeof(int).Name;// GHelper.GetVarType(typeof(int));
+            String = typeof(string).Name; //GHelper.GetVarType(typeof(string));
+            Float = typeof(float).Name; //GHelper.GetVarType(typeof(float));
+            Double = typeof(double).Name;// GHelper.GetVarType(typeof(double));
+            Bool = typeof(bool).Name; //GHelper.GetVarType(typeof(bool));
             Number = "Number";
             Dialogue = "Dialogue";
         }

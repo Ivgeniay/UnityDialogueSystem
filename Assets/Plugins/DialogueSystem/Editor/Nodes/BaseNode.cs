@@ -4,8 +4,8 @@ using DialogueSystem.DialogueType;
 using Random = UnityEngine.Random;
 using System.Collections.Generic;
 using DialogueSystem.Generators;
+using DialogueSystem.TextFields;
 using DialogueSystem.Utilities;
-using System.Linq.Expressions;
 using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using DialogueSystem.Groups;
@@ -16,20 +16,22 @@ using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
 using System;
-using DialogueSystem.TextFields;
+using System.ComponentModel;
 
 namespace DialogueSystem.Nodes
 {
-    public abstract class BaseNode : Node, IDataHolder
+    internal abstract class BaseNode : Node, IDataHolder
     {
-        public DSNodeModel Model { get; private set; }
-        public BaseGroup Group { get; private set; }
+        internal DSNodeModel Model { get; private set; }
+        internal BaseGroup Group { get; private set; }
 
         public virtual string Name => Model.NodeName;
         public virtual Type Type => Type.GetType(Model.DialogueType);
         public virtual object Value => Model.Text;
         public virtual bool IsFunctions => false;
         public bool IsSerializedInScript => true;
+        public Generators.Visibility Visibility { get; set; } = Generators.Visibility.@private;
+        public Generators.Attribute Attribute { get; set; } = Generators.Attribute.None;
 
         protected TextField titleTF { get; set; }
         protected DSGraphView graphView { get; set; }
@@ -107,6 +109,46 @@ namespace DialogueSystem.Nodes
         }
         protected virtual void DrawMainContainer(VisualElement container) { }
         protected virtual void DrawExtensionContainer(VisualElement container) { }
+
+        protected void InitializeSettingElement(VisualElement container)
+        {
+            Foldout foldout = DSUtilities.CreateFoldout("Settings", true);
+
+            DropdownField dropdownAttributes = new();
+            dropdownAttributes.label = "Attriputes";
+            Generators.Attribute[] attributes = (Generators.Attribute[])Enum.GetValues(typeof(Generators.Attribute));
+            foreach (Generators.Attribute attribute in attributes)
+                dropdownAttributes.choices.Add(attribute.ToString());
+            dropdownAttributes.value = Model.Attribute.ToString();
+            dropdownAttributes.RegisterValueChangedCallback<string>((e) =>
+            {
+                if (Enum.TryParse<Generators.Attribute>(e.newValue, true, out var result))
+                {
+                    Model.Attribute = result;
+                    Attribute = result;
+                }
+            });
+
+            DropdownField dropdownVisible = new();
+            dropdownVisible.label = "Visibility";
+            Generators.Visibility[] attributes2 = (Generators.Visibility[])Enum.GetValues(typeof(Generators.Visibility));
+            foreach (Generators.Visibility attribute in attributes)
+                dropdownVisible.choices.Add(attribute.ToString());
+            dropdownVisible.value = Model.Visibility.ToString(); // Generators.Visibility.@private.ToString();
+            dropdownVisible.RegisterValueChangedCallback<string>((e) =>
+            {
+                if (Enum.TryParse<Generators.Visibility>(e.newValue, true, out var result))
+                {
+                    Model.Visibility = result;
+                    Visibility = result;
+                }
+            });
+
+            foldout.Add(dropdownAttributes);
+            foldout.Add(dropdownVisible);
+            container.Add(foldout);
+        }
+        
         protected virtual void Draw()
         {
             DrawTitleContainer(titleContainer);
@@ -282,7 +324,25 @@ namespace DialogueSystem.Nodes
         #endregion
 
         #region Ports
-        protected virtual (BasePort port, DSPortModel data) AddPortByType(string portText, string ID, Type type, object value, bool isInput, bool isSingle, Type[] availableTypes, PortSide portSide, bool isField = false, bool cross = false, int minimal = 1, bool isIfPort = false, bool plusIf = false, bool isFunction = false, string ifPortSourceId = null, bool isAnchorable = false)
+        protected virtual (BasePort port, DSPortModel data) AddPortByType(
+            string portText, 
+            string ID, 
+            Type type, 
+            object value, 
+            bool isInput, 
+            bool isSingle, 
+            Type[] availableTypes, 
+            PortSide portSide, 
+            bool isField = false,
+            bool cross = false, 
+            int minimal = 1, 
+            bool isIfPort = false, 
+            bool plusIf = false, 
+            bool isFunction = false, 
+            string ifPortSourceId = null, 
+            bool isAnchorable = false, 
+            Generators.Visibility visibility = Generators.Visibility.@public, 
+            Generators.Attribute attribute = Generators.Attribute.None)
         {
             var data = new DSPortModel(availableTypes, portSide)
             {
@@ -300,7 +360,9 @@ namespace DialogueSystem.Nodes
                 IfPortSourceId = ifPortSourceId,
                 PortSide = portSide,
                 IsAnchorable = isAnchorable,
-                AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray()
+                AvailableTypes = availableTypes == null ? new string[] { type.ToString() } : availableTypes.Select(el => el.ToString()).ToArray(),
+                Attribute = attribute,
+                Visibility = visibility,
             };
 
 
@@ -339,6 +401,9 @@ namespace DialogueSystem.Nodes
             port.PortSide = data.PortSide;
             port.IsAnchorable = data.IsAnchorable;
             port.GrathView = graphView;
+            port.Visibility = data.Visibility;
+            port.Attribute = data.Attribute;
+
             if (!string.IsNullOrWhiteSpace(data.Anchor) && data.IsAnchorable) port.Anchor = data.Anchor;
 
             if (data.IsField && data.Type != null)
@@ -377,7 +442,7 @@ namespace DialogueSystem.Nodes
                                 Toggle target = callBack.target as Toggle;
                                 target.value = callBack.newValue;
                                 data.Value = callBack.newValue.ToString();
-                                port.SetValue(callBack.newValue);
+                                port.SetValue(data.Value);
                             },
                             styles: new string[]
                             {
@@ -471,11 +536,23 @@ namespace DialogueSystem.Nodes
                         BasePort sourcePort = graphView.GetPortById(data.IfPortSourceId);
                         sourcePort.IfPortSource = null;
                     }
-                    if (data.IsInput) if (Model.Inputs.Count == Model.Minimal) return;
+                    if (data.IsInput)
+                    {
+                        if (Model.Inputs.Count == Model.Minimal)
+                            return;
+                    }
                     else if (Model.Outputs.Count == Model.Minimal) return;
+
                     if (port.connected)
                     {
-                        var edges = port.connections;
+                        var connect = port.connections.ToList();
+                        for (int i = 0; i < connect.Count(); i++)
+                        {
+                            BasePort inp = connect[i].input as BasePort;
+                            BasePort outp = connect[i].output as BasePort;
+                            inp.Disconnect(connect[i]);
+                            outp.Disconnect(connect[i]);
+                        }
                         graphView.DeleteElements(port.connections);
                     }
                     if (data.IsInput) Model.Inputs.Remove(data);
@@ -550,6 +627,10 @@ namespace DialogueSystem.Nodes
                     outputContainer.Add(port);
                 }
             }
+            if (!string.IsNullOrWhiteSpace(data.Anchor))
+            {
+                port.AddOrUpdateAnchor(data.Anchor);
+            }
 
             return (port, data);
         }
@@ -557,7 +638,8 @@ namespace DialogueSystem.Nodes
         protected void ChangePortValueAndType(BasePort port, Type type)
         {
             port.SetPortType(type);
-            port.ChangeName(GHelper.GetVarType(type));
+            //port.ChangeName(GHelper.GetVarType(type));
+            port.ChangeName(type.Name);
             var model_port = Model.Inputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port == null) model_port = Model.Outputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port != null)
@@ -574,28 +656,17 @@ namespace DialogueSystem.Nodes
         }
         #endregion
 
-        #region Foldout
-        public Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
-        {
-            VisualElement customDataContainer = new VisualElement();
-            customDataContainer.AddToClassList("ds-node__custom-data-container");
-            Foldout foldout = DSUtilities.CreateFoldout(title, collapsed, styles);
-            customDataContainer.Add(foldout);
-            mainContainer.Add(customDataContainer);
-            return foldout;
-        }
-        #endregion
 
         #region Lambdas
         internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
         #endregion
     }
 
-    public class PortInfo
+    internal class PortInfo
     {
-        public object Value;
-        public Type Type;
-        public BasePort port;
-        public BaseNode node;
+        internal object Value;
+        internal Type Type;
+        internal BasePort port;
+        internal BaseNode node;
     }
 }

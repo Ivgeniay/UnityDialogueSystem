@@ -22,6 +22,7 @@ namespace DialogueSystem.Nodes
                     IsSingle = false,
                     Type = typeof(bool),
                     Value = "false",
+                    IsAnchorable = true,
                 });
             }
         }

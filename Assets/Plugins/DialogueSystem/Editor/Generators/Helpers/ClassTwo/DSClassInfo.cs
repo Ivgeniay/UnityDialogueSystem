@@ -6,6 +6,7 @@ using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using System.Linq;
 using System;
+using DialogueSystem.Nodes;
 
 namespace DialogueSystem.Generators
 {
@@ -91,7 +92,11 @@ namespace DialogueSystem.Generators
             foreach (var data in DataHolders)
                 Type += "_" + DSUtilities.GenerateClassPefixFromType(data.Type); 
         }
-        internal override void Initialize() => DataHolders = FillIDataHolders().ToList();
+        internal override void Initialize()
+        {
+            DataHolders = FillIDataHolders().ToList();
+            DataHolders.Sort(new DataHolderComparer());
+        }
 
         private IEnumerable<IDataHolder> FillIDataHolders()
         {
@@ -116,4 +121,28 @@ namespace DialogueSystem.Generators
 
 
     }
+
+    internal class DataHolderComparer : IComparer<IDataHolder>
+    {
+        public int Compare(IDataHolder x, IDataHolder y)
+        {
+            int xOrder = GetClassOrder(x.GetType());
+            int yOrder = GetClassOrder(y.GetType());
+
+            if (xOrder != yOrder) return xOrder - yOrder;
+            return String.Compare(x.GetType().Name, y.GetType().Name, StringComparison.Ordinal);
+        }
+        private int GetClassOrder(Type type)
+        {
+            if (type.IsSubclassOf(typeof(BasePrimitiveNode)))           return 1;
+            else if (type.IsSubclassOf(typeof(BaseLetterNode)))         return 2;
+            else if (type.IsSubclassOf(typeof(BaseActionNode)))         return 3;
+            else if (type.IsSubclassOf(typeof(BaseCollectionsNode)))    return 4;
+            else if (type.IsSubclassOf(typeof(BaseConvertNode)))        return 5;
+            else if (type.IsSubclassOf(typeof(BaseOperationNode)))      return 6;
+            else if (type.IsSubclassOf(typeof(BaseLogicNode)))          return 7;
+            else return int.MaxValue;
+        }
+    }
+
 }

@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using DialogueSystem.Ports;
 using DialogueSystem.Nodes;
 using System.Linq;
+using DialogueSystem.Generators;
 
 namespace DialogueSystem.Database.Save
 {
     [Serializable]
-    public class DSPortModel
+    internal class DSPortModel
     {
         //Собственный ID для сериализации из памяти и соединения с другим портом
         [SerializeField] public string PortID;
@@ -45,8 +46,10 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsAnchorable;
         //Имя якоря
         [SerializeField] public string Anchor;
+        [SerializeField] public Visibility Visibility = Visibility.@public;
+        [SerializeField] public Generators.Attribute Attribute = Generators.Attribute.None;
 
-        public DSPortModel(Type[] availableTypes, PortSide PortSide)
+        internal DSPortModel(Type[] availableTypes, PortSide PortSide)
         {
             PortID = Guid.NewGuid().ToString();
             this.PortSide = PortSide;
@@ -55,7 +58,7 @@ namespace DialogueSystem.Database.Save
             this.AvailableTypes = availableTypes.Select(el => el.ToString()).ToArray();
         }
 
-        public void AddPort(BaseNode node, BasePort port)
+        internal void AddPort(BaseNode node, BasePort port)
         {
             if (NodeIDs == null) NodeIDs = new();
 
@@ -77,7 +80,7 @@ namespace DialogueSystem.Database.Save
                 }
             }
         }
-        public void RemovePort(BaseNode node, BasePort port)
+        internal void RemovePort(BaseNode node, BasePort port)
         {
             if (NodeIDs == null) NodeIDs = new();
 

@@ -16,7 +16,7 @@ namespace DialogueSystem.Utilities
 {
     public static class DSUtilities
     {
-        public static Label CreateLabel(string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
+        internal static Label CreateLabel(string value = null, EventCallback<ChangeEvent<string>> onClick = null, string[] styles = null)
         {
             Label label = new Label()
             {
@@ -26,7 +26,7 @@ namespace DialogueSystem.Utilities
             label.AddToClassList(styles);
             return label;
         }
-        public static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null, bool value = false)
+        internal static Toggle CreateToggle(string text = null, string label = null, EventCallback<ChangeEvent<bool>> onChange = null, string[] styles = null, bool value = false)
         {
             Toggle toggle = new Toggle
             {
@@ -38,7 +38,7 @@ namespace DialogueSystem.Utilities
             toggle.AddToClassList(styles);
             return toggle;
         }
-        public static FloatField CreateFloatField(float value = 0, string label = null, EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
+        internal static FloatField CreateFloatField(float value = 0, string label = null, EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
         {
             FloatField floatField = new FloatField()
             {
@@ -49,7 +49,7 @@ namespace DialogueSystem.Utilities
             floatField.AddToClassList(styles);
             return floatField;
         }
-        public static IntegerField CreateIntegerField(int value = 0, string label = null, EventCallback<ChangeEvent<int>> onChange = null, string[] styles = null)
+        internal static IntegerField CreateIntegerField(int value = 0, string label = null, EventCallback<ChangeEvent<int>> onChange = null, string[] styles = null)
         {
             IntegerField integerField = new IntegerField()
             {
@@ -60,7 +60,7 @@ namespace DialogueSystem.Utilities
             integerField.AddToClassList(styles);
             return integerField;
         }
-        public static ProgressBar CreateProgressBar(float value = 0, float lowValue = 0, float maxValue = 1, string title = "", EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
+        internal static ProgressBar CreateProgressBar(float value = 0, float lowValue = 0, float maxValue = 1, string title = "", EventCallback<ChangeEvent<float>> onChange = null, string[] styles = null)
         {
             ProgressBar progressBar = new ProgressBar()
             {
@@ -73,7 +73,7 @@ namespace DialogueSystem.Utilities
             progressBar.AddToClassList(styles);
             return progressBar;
         }
-        public static TextField CreateTextField (string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        internal static TextField CreateTextField (string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = new()
             {
@@ -85,14 +85,14 @@ namespace DialogueSystem.Utilities
             textField.AddToClassList(styles);
             return textField;
         }
-        public static TextField CreateTextArea(string value = null, string label = null, EventCallback < ChangeEvent<string>> onChange = null, string[] styles = null)
+        internal static TextField CreateTextArea(string value = null, string label = null, EventCallback < ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             TextField textField = CreateTextField(value, label, onChange, styles);
             textField.multiline = true;
             return textField;
         }
 
-        public static DSTextField CreateDSTextField(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        internal static DSTextField CreateDSTextField(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             DSTextField textField = new()
             {
@@ -105,14 +105,14 @@ namespace DialogueSystem.Utilities
             textField.AddToClassList(styles);
             return textField;
         }
-        public static DSTextField CreateDSTextArea(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
+        internal static DSTextField CreateDSTextArea(DSGraphView graphView, string value = null, string label = null, EventCallback<ChangeEvent<string>> onChange = null, string[] styles = null)
         {
             DSTextField textField = CreateDSTextField(graphView, value, label, onChange, styles);
             textField.multiline = true;
             return textField;
         }
 
-        public static Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
+        internal static Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
         {
             var foldout = new Foldout()
             {
@@ -123,7 +123,7 @@ namespace DialogueSystem.Utilities
             foldout.AddToClassList(styles);
             return foldout;
         }
-        public static Button CreateButton(string text, Action onClick = null, string[] styles = null)
+        internal static Button CreateButton(string text, Action onClick = null, string[] styles = null)
         {
             Button btn = new Button(onClick)
             {
@@ -132,7 +132,7 @@ namespace DialogueSystem.Utilities
             btn.AddToClassList(styles);
             return btn;
         }
-        public static BasePort CreatePort(this BaseNode baseNode, string ID, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, object defaultValue = null)
+        internal static BasePort CreatePort(this BaseNode baseNode, string ID, string portname = "", Orientation orientation = Orientation.Horizontal, Direction direction = Direction.Output, Port.Capacity capacity = Port.Capacity.Single, Color color = default, Type type = null, object defaultValue = null)
         {
             if (color == default) color = Color.white;
             type = type == null ? typeof(bool) : type;
@@ -146,8 +146,8 @@ namespace DialogueSystem.Utilities
 
             return port;
         }
-       
-        public static BaseGroup CreateGroup(DSGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
+
+        internal static BaseGroup CreateGroup(DSGraphView graphView, Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
         {
             var group = new BaseGroup(title, mousePosition)
             {
@@ -157,7 +157,7 @@ namespace DialogueSystem.Utilities
             graphView.AddGroup(group);
             return group;
         }
-        public static BaseNode CreateNode(DSGraphView graphView, Type type, Vector2 position, List<object> portsContext)
+        internal static BaseNode CreateNode(DSGraphView graphView, Type type, Vector2 position, List<object> portsContext)
         {
             if (typeof(BaseNode).IsAssignableFrom(type))
             {
@@ -172,7 +172,7 @@ namespace DialogueSystem.Utilities
                 throw new ArgumentException("Type must be derived from BaseNode", nameof(type));
         }
 
-        public static object GetDefaultValue(Type type)
+        internal static object GetDefaultValue(Type type)
         {
             if (type == null) throw new ArgumentNullException();
             object result = default(object);
@@ -182,7 +182,7 @@ namespace DialogueSystem.Utilities
         }
 
 
-        public static List<Type> GetListExtendedClasses(Type baseType)
+        internal static List<Type> GetListExtendedClasses(Type baseType)
         {
             var nodeTypes = GetListExtendedClasses(baseType, Assembly.GetExecutingAssembly());
             try
@@ -195,18 +195,18 @@ namespace DialogueSystem.Utilities
             catch { }
             return nodeTypes;
         }
-        public static List<Type> GetListExtendedClasses(Type baseType, Assembly assembly) =>
+        internal static List<Type> GetListExtendedClasses(Type baseType, Assembly assembly) =>
             assembly.GetTypes()
                 .Where(t => t != baseType && baseType.IsAssignableFrom(t))
                 .ToList();
-        public static List<Type> GetListExtendedIntefaces(Type interfaceType, Assembly assembly) =>
+        internal static List<Type> GetListExtendedIntefaces(Type interfaceType, Assembly assembly) =>
             assembly.GetTypes()
                 .Where(p => interfaceType.IsAssignableFrom(p) && p.IsClass)
                 .ToList();
 
-        public static bool IsAvalilableType(Type type) => DSConstants.AvalilableTypes.Contains(type);
-        public static bool IsPrimitiveType(Type type) => DSConstants.PrimitiveTypes.Contains(type);
-        public static string GenerateWindowSearchNameFromType(Type t)
+        internal static bool IsAvalilableType(Type type) => DSConstants.AvalilableTypes.Contains(type);
+        internal static bool IsPrimitiveType(Type type) => DSConstants.PrimitiveTypes.Contains(type);
+        internal static string GenerateWindowSearchNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);
             name = name.Replace("base", "", StringComparison.OrdinalIgnoreCase);
@@ -222,7 +222,7 @@ namespace DialogueSystem.Utilities
             return name;
         }
 
-        public static string GenerateClassNameFromType(Type t)
+        internal static string GenerateClassNameFromType(Type t)
         {
             var name = t.Name.Replace("node", "", StringComparison.OrdinalIgnoreCase);
             name = name.Replace("base", "", StringComparison.OrdinalIgnoreCase);
@@ -238,7 +238,7 @@ namespace DialogueSystem.Utilities
             name = name.Insert(0, "DS");
             return name;
         }
-        public static string GenerateClassPefixFromType(Type t)
+        internal static string GenerateClassPefixFromType(Type t)
         {
             switch (t)
             {

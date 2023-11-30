@@ -11,6 +11,7 @@ using System.Text;
 using System;
 using static DialogueSystem.DialogueDisposer;
 using static DialogueSystem.DialogueDisposer.DSDialogueOption;
+using DialogueSystem.TextFields;
 
 namespace DialogueSystem.Generators
 {
@@ -31,8 +32,6 @@ namespace DialogueSystem.Generators
             foreach (IDataHolder dataHolder in dsGrathViewClass.DataHolders)
                 Initialize(dataHolder, dsGrathViewClass);
         }
-
-
         private DSClassInfo Initialize(IDataHolder dataHolder, DSClassInfo<DSGraphView> intoDSClassInfo)
         {
             DSClassInfo innerDsClass = intoDSClassInfo.GetInnerDSClass(dataHolder);
@@ -42,21 +41,21 @@ namespace DialogueSystem.Generators
             switch (dataHolder)
             {
                 case BasePrimitiveNode primitive:
-                    innerDsClass = CreateInnerClass(dataHolder);
-                    mainVarInfo = AddDSClassToMain(innerDsClass, intoDSClassInfo);
+                    innerDsClass = CreateInnerPrimitiveClass(dataHolder);
+                    mainVarInfo = AddDSClassPrimitiveToMain(innerDsClass, intoDSClassInfo);
 
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
-                    for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
-                    {
-                        string type = innerDsClass.VariableInfo[i].Type;
-                        dsGrathViewClass.ClassDrawer.AddInitializeObject
-                            (
-                                mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                returnRefType: null,
-                                paramType: Type.GetType(type),
-                                innerDsClass.VariableInfo[i].Value
-                            );
-                    }
+                    //for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                    //{
+                    //    string type = innerDsClass.VariableInfo[i].Type;
+                    //    dsGrathViewClass.ClassDrawer.AddInitializeObject
+                    //        (
+                    //            GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
+                    //            returnRefType: null,
+                    //            paramType: Type.GetType(type),
+                    //            innerDsClass.VariableInfo[i].Value
+                    //        );
+                    //}
                     break;
 
                 case BaseOperationNode operation:
@@ -80,13 +79,15 @@ namespace DialogueSystem.Generators
                                 VariableInfo outputPortVarInfo = outputDsClass.GetVariable(outputPort);
                                 VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputNode);
 
-                                string varname = string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
-                                if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
+                                //string varname = string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
+                                //if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
 
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                        initObjects: varname
+                                        //name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
+                                        initObjects: GetVarname(outputNodeVarInfo, outputPortVarInfo)
+                                        //initObjects: varname
                                     );
                             }
                             else
@@ -94,7 +95,8 @@ namespace DialogueSystem.Generators
                                 object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        //mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                         returnRefType: null,
                                         initObjects: defaultValue
                                     );
@@ -105,19 +107,20 @@ namespace DialogueSystem.Generators
                             List<MethodParamsInfo> inputMethodInfo = new();
                             List<MethodParamsInfo> outputMethodInfo = new();
 
-                            foreach(var variable in innerDsClass.VariableInfo)
+                            foreach(VariableInfo variable in innerDsClass.VariableInfo)
                             {
-                                var port_ = variable.DataHolder as BasePort;
+                                BasePort port_ = variable.DataHolder as BasePort;
                                 if (port_.PortSide == PortSide.Input)
                                 {
                                     MethodParamsInfo methodInfo = new();
-                                    methodInfo.ParamName = mainVarInfo.Name + "." + variable.Name;
-                                    if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
+                                    methodInfo.ParamName = GetVarname(mainVarInfo, variable);
+                                    // mainVarInfo.Name + "." + variable.Name;
+                                    //if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
                                     methodInfo.ParamType = Type.GetType(variable.Type);
                                     inputMethodInfo.Add(methodInfo);
                                 }
                             }
-                            var portNodeScr = node.LambdaGenerationContext(inputMethodInfo.ToArray(), outputMethodInfo.ToArray());
+                            string portNodeScr = node.LambdaGenerationContext(inputMethodInfo.ToArray(), outputMethodInfo.ToArray());
 
                             dsGrathViewClass.ClassDrawer.AddInitializeLambda
                                 (
@@ -149,12 +152,14 @@ namespace DialogueSystem.Generators
                                 VariableInfo outputPortVarInfo = outputDsClass.GetVariable(outputPort);
                                 VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputNode);
 
-                                string varname = string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
-                                if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
+                                string varname = GetVarname(outputNodeVarInfo, outputPortVarInfo);
+                                //string varname = string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
+                                //if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
 
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        //name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                         initObjects: varname
                                     );
                             }
@@ -163,7 +168,8 @@ namespace DialogueSystem.Generators
                                 object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        //mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                         returnRefType: null,
                                         initObjects: defaultValue
                                     );
@@ -180,8 +186,9 @@ namespace DialogueSystem.Generators
                                 if (port_.PortSide == PortSide.Input)
                                 {
                                     MethodParamsInfo methodInfo = new();
-                                    methodInfo.ParamName = mainVarInfo.Name + "." + variable.Name;
-                                    if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
+                                    //methodInfo.ParamName = mainVarInfo.Name + "." + variable.Name;
+                                    methodInfo.ParamName = GetVarname(mainVarInfo, variable); ; //mainVarInfo.Name + "." + variable.Name;
+                                    //if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
                                     methodInfo.ParamType = Type.GetType(variable.Type);
                                     inputMethodInfo.Add(methodInfo);
                                 }
@@ -191,6 +198,7 @@ namespace DialogueSystem.Generators
                             dsGrathViewClass.ClassDrawer.AddInitializeLambda
                                 (
                                     name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                    //name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                     context: portNodeScr
                                 );
                         }
@@ -218,12 +226,14 @@ namespace DialogueSystem.Generators
                                 VariableInfo outputPortVarInfo = outputDsClass.GetVariable(outputPort);
                                 VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputNode);
 
-                                string varname = string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
-                                if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
+                                string varname = GetVarname(outputNodeVarInfo, outputPortVarInfo);
+                                //string.Concat(outputNodeVarInfo.Name + "." + outputPortVarInfo.Name);
+                                //if (outputPortVarInfo.DataHolder.IsFunctions) varname += "()";
 
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        //name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                         initObjects: varname
                                     );
                             }
@@ -232,7 +242,8 @@ namespace DialogueSystem.Generators
                                 object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
-                                        mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        //mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                        GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                         returnRefType: null,
                                         initObjects: defaultValue
                                     );
@@ -267,22 +278,23 @@ namespace DialogueSystem.Generators
                     break;
 
                 case BaseLetterNode letter:
-                    innerDsClass = CreateInnerClass(dataHolder);
-                    mainVarInfo = AddDSClassToMain(innerDsClass, intoDSClassInfo);
+                    innerDsClass = CreateInnerPrimitiveClass(dataHolder);
+                    mainVarInfo = AddDSClassPrimitiveToMain(innerDsClass, intoDSClassInfo);
 
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
-                    for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
-                    {
-                        string type = innerDsClass.VariableInfo[i].Type;
-                        dsGrathViewClass.ClassDrawer.AddInitializeObject
-                            (
-                                mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                returnRefType: null,
-                                //paramType: Type.GetType(innerDsClass.Type),
-                                paramType: Type.GetType(type),
-                                innerDsClass.VariableInfo[i].Value
-                            );
-                    }
+                    //for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                    //{
+                    //    string type = innerDsClass.VariableInfo[i].Type;
+                    //    dsGrathViewClass.ClassDrawer.AddInitializeObject
+                    //        (
+                    //            //mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                    //            GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
+                    //            returnRefType: null,
+                    //            //paramType: Type.GetType(innerDsClass.Type),
+                    //            paramType: Type.GetType(type),
+                    //            innerDsClass.VariableInfo[i].Value
+                    //        );
+                    //}
                     break;
 
                 case ActorNode actor:
@@ -305,10 +317,8 @@ namespace DialogueSystem.Generators
                     innerDsClass = CreateInnerDialogueClass(dialogue);
                     mainVarInfo = AddDSClassDialogueToMain(innerDsClass, intoDSClassInfo);
 
-                    if (dialogue is StartDialogueNode startDialogue)
-                    {
-                        intoDSClassInfo.ClassDrawer.StartDialogueVarname = mainVarInfo.Name;
-                    }
+                    if (dialogue is StartDialogueNode startDialogue) 
+                        intoDSClassInfo.ClassDrawer.StartDialogueVarname = mainVarInfo.Name; 
 
                     //ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ВНУТРЕННИХ КЛАСОВ ВНУТРИ МЕЙНА
                     for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
@@ -350,9 +360,7 @@ namespace DialogueSystem.Generators
                                                     VariableInfo outputConnectedToIfPortVarInfo = dsClassConnectedToIfNode.GetVariable(connectedToIfPort);
                                                     VariableInfo outputConnectedToIfPortNodeVarInfo = intoDSClassInfo.GetVariable(connectedToIfNode);
 
-                                                    string varname = string.Concat(outputConnectedToIfPortNodeVarInfo.Name + "." + outputConnectedToIfPortVarInfo.Name);
-                                                    if (outputConnectedToIfPortVarInfo.DataHolder.IsFunctions) varname += "()";
-
+                                                    string varname = GetVarname(outputConnectedToIfPortNodeVarInfo, outputConnectedToIfPortVarInfo);
                                                     model.predicate = string.Concat(" () => ", varname);
                                                 }
                                                 else model.predicate = string.Empty;
@@ -393,34 +401,50 @@ namespace DialogueSystem.Generators
                             }
 
                             dsGrathViewClass.ClassDrawer.AddInitializeObject(
-                                name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
                                 returnRefType: typeof(List<DSDialogueOption>).FullName,
                                 paramType: typeof(DSDialogueOption),
-                                //test);
                                 initParams.ToArray());
                         }
-                        if (innerDsClass.VariableInfo[i].Name == "Text" && innerDsClass.VariableInfo[i].Type == GHelper.GetVarType(typeof(string)))
+
+                        if (innerDsClass.VariableInfo[i].Type == GHelper.GetVarType(typeof(DSTextField)))
                         {
-                            string t = dialogue.Model.Text;
-
-                            foreach (KeyValuePair<BasePort, string> item in graphView.Anchors)
+                            DSTextField textField = innerDsClass.VariableInfo[i].DataHolder as DSTextField;
+                            if (textField != null)
                             {
-                                if (t.Contains(item.Value))
-                                {
-                                    BaseNode node = item.Key.node as BaseNode;
-                                    DSClassInfo init = Initialize(node, intoDSClassInfo);
-                                    VariableInfo linkPortVarInfo = init.GetVariable(item.Key);
-                                    VariableInfo linkNodeVarInfo = intoDSClassInfo.GetVariable(node);
+                                innerDsClass.VariableInfo[i].Name = "Text";
+                                string t = dialogue.Model.Text;
+                                //string t = innerDsClass.VariableInfo[i].Value?.ToString();
 
-                                    string varname = string.Concat(linkNodeVarInfo.Name, ".", linkPortVarInfo.Name);
-                                    if (linkPortVarInfo.DataHolder.IsFunctions) varname += "()";
-                                    t = t.Replace(item.Value, varname);
+                                if (textField.IsAnchored)
+                                {
+                                    foreach (KeyValuePair<BasePort, string> item in graphView.Anchors)
+                                    {
+                                        if (t.Contains(item.Value))
+                                        {
+                                            BaseNode node = item.Key.node as BaseNode;
+                                            DSClassInfo init = Initialize(node, intoDSClassInfo);
+                                            VariableInfo linkPortVarInfo = init.GetVariable(item.Key);
+                                            VariableInfo linkNodeVarInfo = intoDSClassInfo.GetVariable(node);
+
+                                            string varname = GetVarname(linkNodeVarInfo, linkPortVarInfo);
+                                            t = t.Replace(item.Value, varname);
+                                        }
+                                    }
+
+                                    dsGrathViewClass.ClassDrawer.AddInitializeObject(
+                                        name: GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
+                                        initObjects: $"@$\"{t}\"");
+                                }
+                                else
+                                {
+                                    dsGrathViewClass.ClassDrawer.AddInitializeObjectInHeader(
+                                        innerClassVar: innerDsClass.VariableInfo[i],
+                                        fatherClassVar: mainVarInfo,
+                                        context: $"@$\"{t}\"");
                                 }
                             }
-
-                            dsGrathViewClass.ClassDrawer.AddInitializeObject(
-                                name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                initObjects: $"@$\"{t}\"");
+                            
                         }
                     }
                     break;
@@ -428,6 +452,8 @@ namespace DialogueSystem.Generators
 
             return innerDsClass;
         }
+        
+
         private DSClassInfo CreateInnerClass(IDataHolder dataHolder)
         {
             //СОЗДАНИЕ DSCLASS ПОД ОТДЕЛЬННУЮ НОДУ
@@ -441,14 +467,47 @@ namespace DialogueSystem.Generators
             foreach (var item in innerDsClass.DataHolders)
             {
                 string fieldname = item.Name;
-                var info = new VariableInfo()
+                VariableInfo info = new VariableInfo()
                 {
                     ClassInfo = innerDsClass,
                     DataHolder = item,
                     Value = item.Value,
                     Name = fieldname + $"_{innerDsClass.VariableInfo.Count}",
                     Type = item.Type.FullName,
-                    Visibility = Visibility.@public,
+                    Visibility = item.Visibility,   // Visibility.@public,
+                };
+                innerDsClass.VariableInfo.Add(info);
+            }
+
+            //ЗАДАЕМ ЗНАЧЕНИЕ ПОЛЯМ ДЛЯ ВНУТРЕННИХ КЛАССОВ
+            for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                innerDsClass.VariableInfo[i].Value = innerDsClass.DataHolders[i].Value;
+
+            return innerDsClass;
+        }
+        private DSClassInfo CreateInnerPrimitiveClass(IDataHolder dataHolder)
+        {
+            //СОЗДАНИЕ DSCLASS ПОД ОТДЕЛЬННУЮ НОДУ
+            Type genericType = typeof(DSClassInfo<>).MakeGenericType(dataHolder.GetType());
+            ConstructorInfo constructor = genericType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(VisualElement) }, null);
+            object instance = constructor.Invoke(new object[] { dataHolder as VisualElement });
+            DSClassInfo innerDsClass = (DSClassInfo)instance;
+            innerDsClass.IDataHolder = dataHolder;
+
+            //СОЗДАНИЕ ВНУТРЕННИХ ПЕРЕМЕННЫХ ДЛЯ ЭКЗЕМПЛЯРА ВНУТРЕННОГО КЛАССА
+            foreach (var item in innerDsClass.DataHolders)
+            {
+                if (item is BasePort port) innerDsClass.SetType(item.Type.FullName);
+
+                string fieldname = item.Name;
+                var info = new VariableInfo()
+                {
+                    ClassInfo = innerDsClass,
+                    DataHolder = item,
+                    Value = item.Value,
+                    Name = string.Empty, 
+                    Type = item.Type.FullName,
+                    Visibility = item.Visibility, //Visibility.@public,
                 };
                 innerDsClass.VariableInfo.Add(info);
             }
@@ -482,7 +541,7 @@ namespace DialogueSystem.Generators
                     Value = item.Value,
                     Name = "Actor." + GHelper.RemoveSpacesAndContentBetweenParentheses(fieldname),
                     Type = item.Type.FullName,
-                    Visibility = Visibility.@public,
+                    Visibility = item.Visibility, //Visibility.@public,
                 };
                 innerDsClass.VariableInfo.Add(info);
             }
@@ -512,23 +571,23 @@ namespace DialogueSystem.Generators
                     Value = item.Value,
                     Name = fieldname + $"_{innerDsClass.VariableInfo.Count}",
                     Type = GHelper.GetVarType(item.Type),
-                    Visibility = Visibility.@public,
+                    Visibility = item.Visibility,
                 };
                 innerDsClass.VariableInfo.Add(info);
             }
-            VariableInfo text = new VariableInfo()
-            {
-                Type = GHelper.GetVarType(typeof(string)),
-                Name = "Text",
-                Visibility = Visibility.@public,
-            };
+            //VariableInfo text = new VariableInfo()
+            //{
+            //    Type = GHelper.GetVarType(typeof(string)),
+            //    Name = "Text",
+            //    Visibility = Visibility.@public,
+            //};
             VariableInfo options = new VariableInfo()
             {
                 Type = "List<" + GHelper.GetVarType(typeof(DSDialogueOption)) + ">",
                 Name = typeof(DSDialogueOption).Name,
                 Visibility = Visibility.@public,
             };
-            innerDsClass.VariableInfo.Add(text);
+            //innerDsClass.VariableInfo.Add(text);
             innerDsClass.VariableInfo.Add(options);
 
             return innerDsClass;
@@ -542,7 +601,7 @@ namespace DialogueSystem.Generators
             {
                 var classDrawer = innerDsClass.ClassDrawer;
                 classDrawer.ClassDeclaration(innerDsClass.Type, Attribute.SystemSerializable, Visibility.@private);
-                foreach (var info in innerDsClass.VariableInfo)
+                foreach (VariableInfo info in innerDsClass.VariableInfo)
                     classDrawer.AddField(info, attribute: Attribute.SerializeField, false);
             }
 
@@ -551,15 +610,35 @@ namespace DialogueSystem.Generators
             {
                 ClassInfo = innerDsClass,
                 DataHolder = innerDsClass.IDataHolder,
-                Visibility = Visibility.@private,
+                Visibility = innerDsClass.IDataHolder.Visibility,
                 Type = innerDsClass.Type,
                 Name = innerDsClass.Type + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
                 Value = null,
             };
             dsGrathViewClass.VariableInfo.Add(mainVarInfo);
 
+            //ДОБАВЛЕНИЕ ПОЛЯ ВНУТРЕННИХ КЛАССОВ В МЕЙН 
+            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: innerDsClass.IDataHolder.Attribute, true);
+
+            return mainVarInfo;
+        }
+        private VariableInfo AddDSClassPrimitiveToMain(DSClassInfo innerDsClass, DSClassInfo<DSGraphView> intoDSClassInfo)
+        {
+            //СОЗДАНИЕ ПЕРЕМЕННОЙ ДЛЯ ГЛАВНОГО КЛАССА
+            VariableInfo mainVarInfo = new VariableInfo()
+            {
+                ClassInfo = innerDsClass,
+                DataHolder = innerDsClass.IDataHolder,
+                Visibility = innerDsClass.IDataHolder.Visibility, //Visibility.@private,
+                Type = innerDsClass.Type,
+                Name = Type.GetType(innerDsClass.Type).Name + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
+                Value = null,
+            };
+            dsGrathViewClass.VariableInfo.Add(mainVarInfo);
+
             //ДОБАВЛЕНИЕ ПОЛЯ ВНУТРЕННИХ КЛАССОВ В МЕЙН
-            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: Attribute.SerializeField, true);
+            for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: innerDsClass.IDataHolder.Attribute, false, innerDsClass.VariableInfo[i].Value);
 
             return mainVarInfo;
         }
@@ -579,7 +658,7 @@ namespace DialogueSystem.Generators
             {
                 ClassInfo = innerDsClass,
                 DataHolder = innerDsClass.IDataHolder,
-                Visibility = Visibility.@private,
+                Visibility = innerDsClass.IDataHolder.Visibility, //Visibility.@private,
                 Type = innerDsClass.Type,
                 Name = innerDsClass.Type + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
                 Value = null,
@@ -587,7 +666,7 @@ namespace DialogueSystem.Generators
             dsGrathViewClass.VariableInfo.Add(mainVarInfo);
 
             //ДОБАВЛЕНИЕ ПОЛЯ ВНУТРЕННИХ КЛАССОВ В МЕЙН
-            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: Attribute.SerializeField, true);
+            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: innerDsClass.IDataHolder.Attribute, true);
 
             return mainVarInfo;
         }
@@ -608,14 +687,25 @@ namespace DialogueSystem.Generators
             dsGrathViewClass.VariableInfo.Add(mainVarInfo);
 
             //ДОБАВЛЕНИЕ ПОЛЯ ВНУТРЕННИХ КЛАССОВ В МЕЙН
-            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: Attribute.SerializeField, true);
+            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: innerDsClass.IDataHolder.Attribute, true);
 
             return mainVarInfo;
         }
 
+
+        private string GetVarname(VariableInfo mainInfo, VariableInfo innerInfo)
+        {
+            string name = string.Empty;
+            if (string.IsNullOrWhiteSpace(innerInfo.Name)) name = mainInfo.Name;
+            else name = mainInfo.Name + "." + innerInfo.Name;
+            if (innerInfo.DataHolder != null && innerInfo.DataHolder.IsFunctions && !name.Contains("()")) name += "()";
+            return name;
+        }
+
+
         internal ClassDrawer GetDrawer()
         {
-            dsGrathViewClass.ClassDrawer.ClassDeclaration(dsGrathViewClass.ClassName, Attribute.None, Visibility.@public, new System.Type[] { typeof(DialogueDisposer) });
+            dsGrathViewClass.ClassDrawer.ClassDeclaration(dsGrathViewClass.ClassName, Attribute.SystemSerializable, Visibility.@public, new System.Type[] { typeof(DialogueDisposer) });
             foreach (var item in dsGrathViewClass.InnerClassInfo)
                 dsGrathViewClass.ClassDrawer.AddInnerClass(item.ClassDrawer);
 

@@ -23,7 +23,8 @@ namespace DialogueSystem.Nodes
                     IsField = true,
                     IsInput = false,
                     IsSingle = false,
-                    PortText = DSConstants.String
+                    PortText = DSConstants.String,
+                    IsAnchorable = true,
                 });
             }
         }

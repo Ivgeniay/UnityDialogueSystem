@@ -3,14 +3,15 @@ using UnityEngine;
 using System;
 using DialogueSystem.Ports;
 using System.Linq;
+using DialogueSystem.Generators;
 
 namespace DialogueSystem.Database.Save
 {
     [Serializable]
     public class DSNodeModel
     {
-        [SerializeField] public List<DSPortModel> Outputs = new();
-        [SerializeField] public List<DSPortModel> Inputs = new();
+        [SerializeField] internal List<DSPortModel> Outputs = new();
+        [SerializeField] internal List<DSPortModel> Inputs = new();
         [SerializeField] public string DialogueType;
         [SerializeField] public Vector2 Position;
         [SerializeField] public string NodeName;
@@ -18,14 +19,16 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string Text;
         [SerializeField] public int Minimal;
         [SerializeField] public string ID;
+        [SerializeField] public Visibility Visibility = Visibility.@private;
+        [SerializeField] public Generators.Attribute Attribute = Generators.Attribute.None;
 
-        public void Init()
+        internal void Init()
         {
             Outputs = new List<DSPortModel>();
             Inputs = new List<DSPortModel>();
         }
 
-        public void AddPort(DSPortModel port)
+        internal void AddPort(DSPortModel port)
         {
             if (port.PortSide == Ports.PortSide.Input) Inputs.Add(port);
             else if (port.PortSide == Ports.PortSide.Output) Outputs.Add(port);

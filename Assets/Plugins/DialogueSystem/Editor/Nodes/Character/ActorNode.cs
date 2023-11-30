@@ -11,7 +11,7 @@ using DialogueSystem.Utilities;
 
 namespace DialogueSystem
 {
-    public class ActorNode : BaseNode
+    internal class ActorNode : BaseNode
     {
         public Type ActorType { 
             get
@@ -27,12 +27,6 @@ namespace DialogueSystem
                 return ty;
             }
         }
-
-        private Dictionary<string, Type> publicFields = new(); 
-        private Dictionary<string, Type> publicProperties = new();
-
-        Dictionary<string, TypeInfo> fieldsInfo = new();
-        Dictionary<string, TypeInfo> propertyInfo = new();
 
         internal override void Initialize(DSGraphView graphView, Vector2 position, List<object> portsContext)
         {
@@ -75,10 +69,9 @@ namespace DialogueSystem
                     );
                 foldout.Add(result.port);
             }
+
             RefreshExpandedState();
         }
-
-
 
 
         internal static Dictionary<string, Type> GetPublicFields(Type type)
@@ -104,6 +97,15 @@ namespace DialogueSystem
 
         private static bool IsBackingFieldForProperty(string field) => field.StartsWith("<");
 
+        public Foldout CreateFoldout(string title, bool collapsed = false, string[] styles = null)
+        {
+            VisualElement customDataContainer = new VisualElement();
+            customDataContainer.AddToClassList("ds-node__custom-data-container");
+            Foldout foldout = DSUtilities.CreateFoldout(title, collapsed, styles);
+            customDataContainer.Add(foldout);
+            mainContainer.Add(customDataContainer);
+            return foldout;
+        }
 
 
         public class TypeInfo

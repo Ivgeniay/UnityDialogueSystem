@@ -36,6 +36,8 @@ namespace DialogueSystem.Generators
         {
             switch (visibility)
             {
+                case Visibility.None: 
+                    return string.Empty;
                 case Visibility.@public:
                     return "public";
                 case Visibility.@private:
@@ -105,8 +107,6 @@ namespace DialogueSystem.Generators
         }
 
         internal static string GetVarType(Type type) => ConvertTypeToString(type);
-        
-
         internal static string GetVarType<T>() => GetVarType(typeof(T));
 
         public static string ConvertTypeToString(Type type)
