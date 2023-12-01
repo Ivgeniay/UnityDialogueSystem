@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using DialogueSystem.Generators;
+using UnityEditorInternal;
 
 namespace DialogueSystem.Utilities
 {
@@ -13,6 +14,10 @@ namespace DialogueSystem.Utilities
         public static Type[] PrimitiveTypes { get; private set; }
         public static Type[] DialogueTypes { get; private set; }
         public static Type[] CollectionsTypes { get; private set; }
+        public static Type[] TypeTypes { get; private set; } 
+        public static Type[] AllTypes { get; private set; } 
+
+        public static string DEFAULT_ASSEMBLY = "Assembly-CSharp"; 
 
         public readonly static string All;
         public readonly static string Number;
@@ -64,6 +69,8 @@ namespace DialogueSystem.Utilities
             };
 
             DialogueTypes = new Type[] { typeof(Dialogue), };
+            TypeTypes = new Type[] { typeof(Type) };
+            AllTypes = new Type[] { typeof(AllTypes) };
 
             CollectionsTypes = new Type[]
             {

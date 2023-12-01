@@ -4,13 +4,13 @@ using DialogueSystem.Generators;
 using DialogueSystem.Utilities;
 using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
+using DialogueSystem.Nodes;
 using System.Linq;
 using System;
-using DialogueSystem.Nodes;
 
 namespace DialogueSystem.Generators
 {
-    internal abstract class DSClassInfo
+    internal abstract class DSClassInfo: IDisposable
     {
         internal IDataHolder IDataHolder { get; set; }
         internal protected List<IDataHolder> DataHolders { get; protected set; }
@@ -75,6 +75,17 @@ namespace DialogueSystem.Generators
                 return hash;
             }
         }
+
+        public void Dispose()
+        {
+            DataHolders?.Clear();
+            InnerClassInfo?.Clear();
+            VariableInfo?.Clear();
+            MethodInfo?.Clear();
+            LambdaInfo?.Clear();
+
+            ClassDrawer?.Dispose();
+        }
     }
 
 
@@ -92,6 +103,7 @@ namespace DialogueSystem.Generators
             foreach (var data in DataHolders)
                 Type += "_" + DSUtilities.GenerateClassPefixFromType(data.Type); 
         }
+
         internal override void Initialize()
         {
             DataHolders = FillIDataHolders().ToList();

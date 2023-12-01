@@ -3,10 +3,11 @@ using DialogueSystem.Window;
 using System.Text;
 using UnityEngine;
 using System.IO;
+using System;
 
 namespace DialogueSystem.Generators
 {
-    internal class ScriptGen
+    internal class ScriptGen : IDisposable
     {
         private UsingGen usingGen;
         private object[] scriptContext;
@@ -108,6 +109,11 @@ namespace DialogueSystem.Generators
             File.WriteAllText(filePath, script);
             UnityEditor.AssetDatabase.Refresh();
 #endif
+        }
+
+        public void Dispose()
+        {
+            classGenerator?.Dispose();
         }
     }
 

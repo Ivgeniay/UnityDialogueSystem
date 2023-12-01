@@ -15,7 +15,8 @@ namespace DialogueSystem.Assets
         private void Awake()
         {
             dialogueFileNametest = new();
-            var dialogue = dialogueFileNametest.StartDialogue();
+            DialogueDisposer.DSDialogueOption.DSDialogue dialogue = null;
+            //dialogue = dialogueFileNametest.StartDialogue(this);
             DialogueFileNametest.TestDialogue(dialogue);
         }
 

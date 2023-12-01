@@ -23,10 +23,11 @@ namespace DialogueSystem.Generators
             }
             string className = Path.GetFileNameWithoutExtension(path);
             className = string.IsNullOrEmpty(path) == true ? "MyClass" : className;
-            ScriptGen scrGen = new(graphView, path.Substring(0, path.IndexOf(className) - 1), className);
-
-            string _script = scrGen.Draw(new StringBuilder());
-            scrGen.Build();
+            using (ScriptGen scrGen = new(graphView, path.Substring(0, path.IndexOf(className) - 1), className))
+            {
+                string _script = scrGen.Draw(new StringBuilder());
+                scrGen.Build();
+            }
         }
     }
 }

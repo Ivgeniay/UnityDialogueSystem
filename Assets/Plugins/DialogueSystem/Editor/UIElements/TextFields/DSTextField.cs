@@ -9,7 +9,7 @@ using DialogueSystem.Ports;
 using System.Linq;
 using System;
 
-namespace DialogueSystem.TextFields
+namespace DialogueSystem.UIElement
 {
     public class DSTextField : TextField, IDataHolder
     {

@@ -30,6 +30,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public bool IsAnchorable;
         [SerializeField] public Visibility Visibility = Visibility.@public;
         [SerializeField] public Generators.Attribute Attribute;
+        [SerializeField] public UnityEngine.Object AssetSource;
 
         internal void Init(DSPortModel dSPortModel, UnityEngine.Object parent)
         {
@@ -53,6 +54,7 @@ namespace DialogueSystem.Database.Save
             Anchor = dSPortModel.Anchor;
             Visibility = dSPortModel.Visibility; 
             Attribute = dSPortModel.Attribute;
+            AssetSource = dSPortModel.AssetSource;
 
             if (dSPortModel.NodeIDs != null)
             {

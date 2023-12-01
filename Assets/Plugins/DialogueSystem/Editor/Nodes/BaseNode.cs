@@ -4,7 +4,7 @@ using DialogueSystem.DialogueType;
 using Random = UnityEngine.Random;
 using System.Collections.Generic;
 using DialogueSystem.Generators;
-using DialogueSystem.TextFields;
+using DialogueSystem.UIElement;
 using DialogueSystem.Utilities;
 using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
@@ -15,9 +15,7 @@ using DialogueSystem.Edges;
 using DialogueSystem.Text;
 using UnityEngine;
 using System.Linq;
-using System;
-using System.ComponentModel;
-using Codice.Client.BaseCommands;
+using System; 
 
 namespace DialogueSystem.Nodes
 {
@@ -36,8 +34,8 @@ namespace DialogueSystem.Nodes
 
         protected TextField titleTF { get; set; }
         protected DSGraphView graphView { get; set; }
-        protected DropdownField dropdownAttributes;
-        protected DropdownField dropdownVisible;
+        protected DSDropdownField dropdownAttributes;
+        protected DSDropdownField dropdownVisible;
         protected Foldout settings;
 
         private Color defaultbackgroundColor;
@@ -162,9 +160,9 @@ namespace DialogueSystem.Nodes
         protected virtual void Draw()
         {
             DrawTitleContainer(titleContainer);
-            DrawMainContainer(mainContainer);
             DrawOutputContainer(outputContainer);
             DrawInputContainer(inputContainer);
+            DrawMainContainer(mainContainer);
             DrawExtensionContainer(extensionContainer);
 
             RefreshExpandedState();
@@ -285,11 +283,18 @@ namespace DialogueSystem.Nodes
         #region MonoEvents
         public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
+            BasePort connectedPort = edge.output as BasePort;
+            if (!BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes)) return;
+
             var tt = Model.Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.AddPort(edge.input.node as BaseNode, edge.input as BasePort);
         }
         public virtual void OnConnectInputPort(BasePort port, Edge edge)
         {
+            BasePort connectedPort = edge.output as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
+
             var tt = Model.Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.AddPort(edge.output.node as BaseNode, edge.output as BasePort);
         }
@@ -376,8 +381,7 @@ namespace DialogueSystem.Nodes
             };
 
 
-            if (!DSUtilities.IsAvalilableType(type))
-                return (null, data);
+            //if (!DSUtilities.IsAvalilableType(type)) return (null, data);
 
             if (isIfPort)
             {
@@ -413,6 +417,7 @@ namespace DialogueSystem.Nodes
             port.GrathView = graphView;
             port.Visibility = data.Visibility;
             port.Attribute = data.Attribute;
+            port.AssetSource = data.AssetSource;
 
             if (!string.IsNullOrWhiteSpace(data.Anchor) && data.IsAnchorable) port.Anchor = data.Anchor;
 
@@ -628,40 +633,31 @@ namespace DialogueSystem.Nodes
             }
             else
             {
-                if (data.IsInput)
-                {
-                    inputContainer.Add(port);
-                }
-                else
-                {
-                    outputContainer.Add(port);
-                }
+                if (data.IsInput) inputContainer.Add(port);
+                else outputContainer.Add(port);
             }
-            if (!string.IsNullOrWhiteSpace(data.Anchor))
-            {
-                port.AddOrUpdateAnchor(data.Anchor);
-            }
+            if (!string.IsNullOrWhiteSpace(data.Anchor)) port.AddOrUpdateAnchor(data.Anchor);
 
             return (port, data);
         }
 
-        protected void ChangePortValueAndType(BasePort port, Type type)
+        protected void ChangePortValueAndType(BasePort port, Type type, string portname = null)
         {
             port.SetPortType(type);
-            //port.ChangeName(GHelper.GetVarType(type));
-            port.ChangeName(type.Name);
+            port.ChangeName(portname == null ? GHelper.GetShortVarType(type) : portname);
             var model_port = Model.Inputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port == null) model_port = Model.Outputs.FirstOrDefault(p => p.PortID == port.ID);
             if (model_port != null)
                 model_port.Type = type;
         }
-        protected void ChangeOutputPortType(Type type)
+
+        protected void ChangeOutputPortsTypeAndName(Type type, string portname = null)
         {
-            var outs = GetOutputPorts();
+            List<BasePort> outs = GetOutputPorts();
             if (outs != null)
             {
                 foreach (var outPort in outs)
-                    ChangePortValueAndType(outPort, type);
+                    ChangePortValueAndType(outPort, type, portname);
             }
         }
         #endregion

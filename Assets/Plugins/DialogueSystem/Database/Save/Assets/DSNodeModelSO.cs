@@ -1,7 +1,9 @@
 ﻿using DialogueSystem.Generators;
+using DialogueSystem.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -91,7 +93,15 @@ namespace DialogueSystem.Database.Save
         {
             foreach (DSPortModelSO outputsSO in dSPortModelSO)
             {
-                var aTypes = outputsSO.AvailableTypes.Select(x => Type.GetType(x)).ToArray();
+                Type[] aTypes = outputsSO.AvailableTypes.Select(x => Type.GetType(x)).ToArray();
+
+                Type type = Type.GetType(outputsSO.Type);
+                if (!string.IsNullOrWhiteSpace(outputsSO.Type) && type == null)
+                {
+                    Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
+                    type = assembly.GetType(outputsSO.Type);
+                }
+
                 DSPortModel portModel = new DSPortModel(aTypes, outputsSO.PortSide)
                 {
                     PortID = outputsSO.PortID,
@@ -102,7 +112,7 @@ namespace DialogueSystem.Database.Save
                     IsInput = outputsSO.IsInput,
                     IsSingle = outputsSO.IsSingle,
                     PortText = outputsSO.PortText,
-                    Type = Type.GetType(outputsSO.Type),
+                    Type = type,
                     Value = outputsSO.Value?.ToString(),
                     NodeIDs = new(),
                     IsFunction = outputsSO.IsFunction,
@@ -113,6 +123,7 @@ namespace DialogueSystem.Database.Save
                     AvailableTypes = outputsSO.AvailableTypes,
                     Attribute = outputsSO.Attribute,
                     Visibility = outputsSO.Visibility,
+                    AssetSource = outputsSO.AssetSource,
                 };
 
                 foreach (NodePortModelSO nodeIds in outputsSO.NodeIDs)

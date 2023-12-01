@@ -46,8 +46,8 @@ namespace DialogueSystem.Window
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
         private Dictionary<Type, int> nessesaryTypes = new Dictionary<Type, int>()
         {
-            { typeof(StartDialogueNode), 1 },
-            { typeof(EndDialogueNode), 1}
+            //{ typeof(StartDialogueNode), 1 },
+            //{ typeof(EndDialogueNode), 1}
         };
 
         private int _repeatedNameAmount;
@@ -684,9 +684,7 @@ namespace DialogueSystem.Window
                 {
                     BaseGroup group = GetGroupById(node.Model.GroupID);
                     if (group != null)
-                    {
                         group.AddElement(node);
-                    }
                 }
             }
 
@@ -694,9 +692,8 @@ namespace DialogueSystem.Window
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
                 foreach (var output in node.Model.Outputs)
-                {
                     ToMakeConnections(output, node.GetOutputPorts());
-                }
+                
             }
 
             return Model.FileName;

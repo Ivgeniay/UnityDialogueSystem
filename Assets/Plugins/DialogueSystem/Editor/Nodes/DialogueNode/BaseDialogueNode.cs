@@ -1,5 +1,5 @@
 using DialogueSystem.Database.Save;
-using DialogueSystem.TextFields;
+using DialogueSystem.UIElement;
 using DialogueSystem.Utilities;
 using DialogueSystem.Window;
 using System.Collections.Generic;

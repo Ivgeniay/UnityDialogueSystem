@@ -5,6 +5,7 @@ using DialogueSystem.Abstract;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+using System.Text.RegularExpressions;
 
 namespace DialogueSystem.Generators
 {
@@ -179,6 +180,28 @@ namespace DialogueSystem.Generators
                 dataHolders.AddRange(FindAllDataHolders(childElement));
 
             return dataHolders;
+        }
+
+        internal static string GetShortVarType(Type type)
+        {
+            string fullName = GetVarType(type);
+            string pattern = @"(?<type>[^,<>]+)(?:(?<gen><[^<>]+>)+)?";
+            string result = Regex.Replace(fullName, pattern, match => GetShortType(match.Groups["type"].Value) + match.Groups["gen"].Value);
+
+            return result;
+        }
+        private static string GetShortType(string type)
+        {
+            string[] parts = type.Split('.');
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (parts[i] == "System") { continue; }
+                if (parts[i].StartsWith("System."))
+                    parts[i] = parts[i].Substring("System.".Length);
+            }
+
+            return string.Join(".", parts);
         }
     }
 }

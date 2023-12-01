@@ -1,5 +1,7 @@
-﻿using System;
+﻿using DialogueSystem.DialogueType;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DialogueSystem.Ports
 {
@@ -50,6 +52,10 @@ namespace DialogueSystem.Ports
 
         public static bool HaveCommonTypes(Type[] array1, Type[] array2)
         {
+            if (array1.Length == 0) return false;
+            if (array2.Length == 0) return false;
+            if (array1.Contains(typeof(AllTypes)) || array2.Contains(typeof(AllTypes))) return true;
+
             foreach (var type1 in array1)
             {
                 foreach (var type2 in array2)

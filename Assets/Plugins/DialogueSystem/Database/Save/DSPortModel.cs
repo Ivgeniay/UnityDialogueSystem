@@ -48,6 +48,7 @@ namespace DialogueSystem.Database.Save
         [SerializeField] public string Anchor;
         [SerializeField] public Visibility Visibility = Visibility.@public;
         [SerializeField] public Generators.Attribute Attribute = Generators.Attribute.None;
+        [SerializeField] public UnityEngine.Object AssetSource;
 
         internal DSPortModel(Type[] availableTypes, PortSide PortSide)
         {

@@ -1,7 +1,7 @@
 ﻿using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
 using DialogueSystem.Generators;
-using DialogueSystem.TextFields;
+using DialogueSystem.UIElement;
 using UnityEngine.UIElements;
 using DialogueSystem.Groups;
 using DialogueSystem.Window;

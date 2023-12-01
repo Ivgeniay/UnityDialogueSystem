@@ -25,6 +25,7 @@ namespace DialogueSystem.Ports
         public bool IsSerializedInScript { get; set; }
         public Generators.Visibility Visibility { get; set; } = Generators.Visibility.@public;
         public Generators.Attribute Attribute { get; set; }
+        public UnityEngine.Object AssetSource { get; set; }
 
         public DSGraphView GrathView { get; internal set; }
 
@@ -64,7 +65,7 @@ namespace DialogueSystem.Ports
         internal void OnDistroy()
         {
             EditorApplication.update -= Update;
-
+            BasePortManager.UnRegister(this);
             if (!string.IsNullOrWhiteSpace(Anchor))
             {
                 GrathView?.RemoveAnchor(this);
@@ -176,7 +177,11 @@ namespace DialogueSystem.Ports
             }
         }
 
-        internal void SetValue(object value) => Value = value; 
+        internal void SetValue(object value)
+        {
+            if (value is UnityEngine.Object uObj) AssetSource = uObj;
+            Value = value;
+        }
         internal void SetPortType(Type type)
         {
             Type = type;

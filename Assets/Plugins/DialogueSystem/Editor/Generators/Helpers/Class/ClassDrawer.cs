@@ -486,5 +486,17 @@ namespace DialogueSystem.Generators
                 .Append(GHelper.BR_F_CL)
                 .Append(GHelper.QUOTES);
         }
+
+        internal void Dispose()
+        {
+            Propertyes?.Clear();
+            Fields?.Clear();
+            InnerClasses?.Clear();
+            Methods?.Clear();
+            InitializeObjects?.Clear();
+            fieldsData?.Clear();
+            InitializeParameters?.Clear();
+            InitializeMethods?.Clear();
+        }
     }
 }

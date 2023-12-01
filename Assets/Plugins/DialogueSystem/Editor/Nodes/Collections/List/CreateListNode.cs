@@ -8,6 +8,8 @@ using DialogueSystem.Ports;
 using UnityEngine;
 using System.Linq;
 using System;
+using DialogueSystem.Generators;
+using System.Text;
 
 namespace DialogueSystem.Nodes
 {
@@ -37,23 +39,24 @@ namespace DialogueSystem.Nodes
                     IsSingle = false,
                     IsInput = false,
                     Value = "",
+                    IsFunction = true,
                     IsAnchorable = true,
                 });
             }
         }
-
         protected override void DrawMainContainer(VisualElement container)
         {
             base.DrawMainContainer(container);
 
+            BasePort firstInputPort = GetInputPorts()[0];
             Button addChoiceBtn = DSUtilities.CreateButton(
                 "AddInput",
                 () =>
                 {
                     var t = AddPortByType(
                         ID: Guid.NewGuid().ToString(),
-                        portText: "Element_" + this.Model.Inputs.Count,
-                        type: typeof(float),
+                        portText: firstInputPort.portName,
+                        type: firstInputPort.Type,
                         value: "",
                         isInput: true,
                         isSingle: true,
@@ -66,10 +69,10 @@ namespace DialogueSystem.Nodes
             );
             container.Insert(1, addChoiceBtn);
         }
-
         public override void OnConnectInputPort(BasePort _port, Edge edge)
         {
             base.OnConnectInputPort(_port, edge);
+            BasePort connectedPort = edge.output as BasePort;
 
             List<BasePort> inputPorts = GetInputPorts();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
@@ -83,7 +86,6 @@ namespace DialogueSystem.Nodes
                     Value = inputPorts[i].Type.IsValueType == true ? Activator.CreateInstance(inputPorts[i].Type) : ""
                 };
 
-            BasePort connectedPort = edge.output as BasePort;
             if (connectedPort != null && connectedPort.Value != null)
             {
                 ChangePortValueAndType(_port, connectedPort.Type);
@@ -104,7 +106,34 @@ namespace DialogueSystem.Nodes
                 }
             }
 
+            Debug.Log($"{Model.NodeName}: input port: {_port.portName}-{_port.Type} connected {connectedPort.portName}-{connectedPort.Type}");
             Do(portInfos);
+        }
+
+        internal override string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb
+                .Append("System.Collections.Generic.List<T> GetList<T>(params T[] param) => new System.Collections.Generic.List<T>(param);")
+                .Append(GHelper.TR)
+                .Append("return ")
+                .Append("GetList")
+                .Append(GHelper.L_TRIANGE)
+                .Append(inputVariables[0].ParamType.FullName)
+                .Append(GHelper.R_TRIANGE)
+                .Append(GHelper.BR_OP);
+
+            for (int i = 0; i < inputVariables.Length; i++)
+            {
+                sb.Append(inputVariables[i].ParamName);
+                if (i < inputVariables.Length - 1) sb.Append(GHelper.COMMA).Append(GHelper.SPACE);
+            }
+            
+            sb
+                .Append(GHelper.BR_CL)
+                .Append(GHelper.QUOTES);
+
+            return sb.ToString();
         }
 
         public override void Do(PortInfo[] portInfos)
@@ -112,7 +141,7 @@ namespace DialogueSystem.Nodes
             base.Do(portInfos);
 
             Type listType = typeof(List<>).MakeGenericType(portInfos[0].Type);
-            ChangeOutputPortType(listType);
+            ChangeOutputPortsTypeAndName(listType, $"ListOf{portInfos[0].Type.Name}");
         }
     }
 }

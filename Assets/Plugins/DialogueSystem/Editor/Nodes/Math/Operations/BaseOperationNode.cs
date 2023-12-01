@@ -99,7 +99,7 @@ namespace DialogueSystem.Nodes
             BasePort output = GetOutputPorts()[0];
 
             bool isStr = portInfos.Any(e => e.port.Type == typeof(string));
-            ChangeOutputPortType(isStr == true ? typeof(string) : typeof(double));
+            ChangeOutputPortsTypeAndName(isStr == true ? typeof(string) : typeof(double));
         }
 
     }

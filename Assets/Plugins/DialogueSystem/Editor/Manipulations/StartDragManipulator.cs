@@ -1,18 +1,13 @@
 ﻿using DialogueSystem.Ports;
-using System;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace DialogueSystem.Manipulations
 {
     public class StartDragManipulator : MouseManipulator
     {
-        private BasePort basePort;
         public StartDragManipulator(BasePort basePort)
         {
             BasePortManager.Register(basePort);
-            this.basePort = basePort;
-
             activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
         }
 
@@ -34,8 +29,6 @@ namespace DialogueSystem.Manipulations
             var result = CanStartManipulation(e);
             if (result)
             {
-                //Debug.Log($"Edge drag stop from {basePort.portName}");
-                //BasePortManager.CallStopDrag(basePort);
                 e.StopPropagation();
             }
         }
@@ -45,8 +38,6 @@ namespace DialogueSystem.Manipulations
             var result = CanStartManipulation(e);
             if (result)
             {
-                //Debug.Log($"Edge drag started from {basePort.portName}");
-                //BasePortManager.CallStartDrag(basePort);
                 e.StopPropagation();
             }
         }
