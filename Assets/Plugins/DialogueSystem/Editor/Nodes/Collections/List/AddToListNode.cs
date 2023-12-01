@@ -54,9 +54,13 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        public override void OnConnectInputPort(BasePort _port, Edge edge)
+        public override void OnConnectInputPort(BasePort port, Edge edge)
         {
-            base.OnConnectInputPort(_port, edge);
+            base.OnConnectInputPort(port, edge);
+
+            BasePort connectedPort = edge.output as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
 
             List<BasePort> inputPorts = GetInputPorts();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
@@ -70,24 +74,23 @@ namespace DialogueSystem.Nodes
                     Value = inputPorts[i].Type.IsValueType == true ? Activator.CreateInstance(inputPorts[i].Type) : ""
                 };
 
-            BasePort connectedPort = edge.output as BasePort;
             Type type = connectedPort.Type;
             if (connectedPort != null && connectedPort.Value != null)
             {
-                ChangePortValueAndType(_port, connectedPort.Type);
-                PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
+                ChangePortValueAndType(port, connectedPort.Type);
+                PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
             }
 
             for (int i = 0; i < inputPorts.Count; i++)
             {
-                BasePort port = inputPorts[i];
-                if (port != _port)
+                BasePort _port = inputPorts[i];
+                if (_port != port)
                 {
-                    if (port.Type != connectedPort.Type) port.DisconnectAll();
-                    ChangePortValueAndType(port, connectedPort.Type);
-                    PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                    if (_port.Type != connectedPort.Type) _port.DisconnectAll();
+                    ChangePortValueAndType(_port, connectedPort.Type);
+                    PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                     infos.Value = connectedPort.Value;
                     infos.Type = connectedPort.Type;
                 }

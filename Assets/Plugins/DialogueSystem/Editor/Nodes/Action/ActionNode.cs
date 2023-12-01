@@ -61,9 +61,12 @@ namespace DialogueSystem.Nodes
             container.Add(badge);
         }
 
-        public override void OnConnectInputPort(BasePort _port, Edge edge)
+        public override void OnConnectInputPort(BasePort port, Edge edge)
         {
-            base.OnConnectInputPort(_port, edge);
+            base.OnConnectInputPort(port, edge);
+            BasePort connectedPort = edge.output as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
 
             List<BasePort> inputPorts = GetInputPorts();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
@@ -77,17 +80,16 @@ namespace DialogueSystem.Nodes
                     Value = inputPorts[i].Type.IsValueType == true ? Activator.CreateInstance(inputPorts[i].Type) : ""
                 };
 
-            BasePort connectedPort = edge.output as BasePort;
-            if (connectedPort != null && connectedPort.Value != null && _port != inputPorts[0])
+            if (connectedPort != null && connectedPort.Value != null && port != inputPorts[0])
             { 
-                ChangePortValueAndType(_port, connectedPort.Type);
-                PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
+                ChangePortValueAndType(port, connectedPort.Type);
+                PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
             }
             for (int i = 1; i < inputPorts.Count; i++)
             {
-                if (inputPorts[i] != _port && !inputPorts[i].connected)
+                if (inputPorts[i] != port && !inputPorts[i].connected)
                 {
                     if (inputPorts[i].Type != connectedPort.Type) inputPorts[i].DisconnectAll();
                     ChangePortValueAndType(inputPorts[i], connectedPort.Type);

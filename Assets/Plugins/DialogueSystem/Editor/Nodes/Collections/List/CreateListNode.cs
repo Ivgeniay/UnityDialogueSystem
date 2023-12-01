@@ -69,10 +69,12 @@ namespace DialogueSystem.Nodes
             );
             container.Insert(1, addChoiceBtn);
         }
-        public override void OnConnectInputPort(BasePort _port, Edge edge)
+        public override void OnConnectInputPort(BasePort port, Edge edge)
         {
-            base.OnConnectInputPort(_port, edge);
+            base.OnConnectInputPort(port, edge);
             BasePort connectedPort = edge.output as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
 
             List<BasePort> inputPorts = GetInputPorts();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
@@ -88,25 +90,24 @@ namespace DialogueSystem.Nodes
 
             if (connectedPort != null && connectedPort.Value != null)
             {
-                ChangePortValueAndType(_port, connectedPort.Type);
-                PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
+                ChangePortValueAndType(port, connectedPort.Type);
+                PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
             }
 
-            foreach (BasePort port in inputPorts)
+            foreach (BasePort _port in inputPorts)
             {
-                if (port != _port)
+                if (_port != port)
                 {
-                    if (port.Type != connectedPort.Type) port.DisconnectAll();
-                    ChangePortValueAndType(port, connectedPort.Type);
-                    PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                    if (_port.Type != connectedPort.Type) _port.DisconnectAll();
+                    ChangePortValueAndType(_port, connectedPort.Type);
+                    PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                     infos.Value = connectedPort.Value;
                     infos.Type = connectedPort.Type;
                 }
             }
 
-            Debug.Log($"{Model.NodeName}: input port: {_port.portName}-{_port.Type} connected {connectedPort.portName}-{connectedPort.Type}");
             Do(portInfos);
         }
 

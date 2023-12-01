@@ -16,7 +16,7 @@ namespace DialogueSystem.Generators
         internal List<StringBuilder> InnerClasses { get; private set; } = new();
         internal List<StringBuilder> Methods { get; private set; } = new();
         internal List<StringBuilder> InitializeObjects { get; private set; } = new();
-        internal string StartDialogueVarname = string.Empty;
+        internal string StartDialogueVarname = "null";
         
         private Dictionary<Tt, StringBuilder> fieldsData = new();
         private List<MethodParamsInfo> InitializeParameters = null;

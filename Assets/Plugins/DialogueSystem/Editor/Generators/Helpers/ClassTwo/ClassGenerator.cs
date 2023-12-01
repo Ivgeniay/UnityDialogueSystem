@@ -1,19 +1,19 @@
-﻿using DialogueSystem.Abstract;
-using DialogueSystem.Nodes;
+﻿using static DialogueSystem.DialogueDisposer.DSDialogueOption;
+using static DialogueSystem.DialogueDisposer;
+using UnityEditor.Experimental.GraphView;
+using DialogueSystem.DialogueType;
 using System.Collections.Generic;
 using DialogueSystem.Utilities;
+using DialogueSystem.UIElement;
+using DialogueSystem.Abstract;
 using UnityEngine.UIElements;
 using DialogueSystem.Window;
 using DialogueSystem.Ports;
+using DialogueSystem.Nodes;
 using System.Reflection;
 using System.Linq;
 using System.Text;
 using System;
-using static DialogueSystem.DialogueDisposer;
-using static DialogueSystem.DialogueDisposer.DSDialogueOption;
-using DialogueSystem.UIElement;
-using DialogueSystem.DialogueType;
-using UnityEditor.Experimental.GraphView;
 
 namespace DialogueSystem.Generators
 {
@@ -76,7 +76,7 @@ namespace DialogueSystem.Generators
                             }
                             else
                             {
-                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
+                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(DSUtilities.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
                                         GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
@@ -97,9 +97,7 @@ namespace DialogueSystem.Generators
                                 {
                                     MethodParamsInfo methodInfo = new();
                                     methodInfo.ParamName = GetVarname(mainVarInfo, variable);
-                                    // mainVarInfo.Name + "." + variable.Name;
-                                    //if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
-                                    methodInfo.ParamType = Type.GetType(variable.Type);
+                                    methodInfo.ParamType = DSUtilities.GetType(variable.Type);
                                     inputMethodInfo.Add(methodInfo);
                                 }
                             }
@@ -145,7 +143,7 @@ namespace DialogueSystem.Generators
                             }
                             else
                             {
-                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
+                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(DSUtilities.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
                                         GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
@@ -166,7 +164,7 @@ namespace DialogueSystem.Generators
                                 {
                                     MethodParamsInfo methodInfo = new();
                                     methodInfo.ParamName = GetVarname(mainVarInfo, variable);
-                                    methodInfo.ParamType = Type.GetType(variable.Type);
+                                    methodInfo.ParamType = DSUtilities.GetType(variable.Type);
                                     inputMethodInfo.Add(methodInfo);
                                 }
                             }
@@ -212,7 +210,7 @@ namespace DialogueSystem.Generators
                             }
                             else
                             {
-                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(Type.GetType(innerDsClass.VariableInfo[i].Type));
+                                object defaultValue = innerDsClass.ClassDrawer.GetDefaultValue(DSUtilities.GetType(innerDsClass.VariableInfo[i].Type));
                                 dsGrathViewClass.ClassDrawer.AddInitializeObject
                                     (
                                         GetVarname(mainVarInfo, innerDsClass.VariableInfo[i]),
@@ -234,7 +232,7 @@ namespace DialogueSystem.Generators
                                     MethodParamsInfo methodInfo = new();
                                     methodInfo.ParamName = mainVarInfo.Name + "." + variable.Name;
                                     if (variable.DataHolder.IsFunctions) methodInfo.ParamName = string.Concat(methodInfo.ParamName, "()");
-                                    methodInfo.ParamType = Type.GetType(variable.Type);
+                                    methodInfo.ParamType = DSUtilities.GetType(variable.Type);
                                     inputMethodInfo.Add(methodInfo);
                                 }
                             }
@@ -442,7 +440,7 @@ namespace DialogueSystem.Generators
                                             else
                                             {
                                                 methodInfo.ParamName = GHelper.GetValueWithPrefix(port_.Type, DSUtilities.GetDefaultValue(port_.Type));
-                                                methodInfo.ParamType = Type.GetType(GHelper.GetVarType(port_.Type));
+                                                methodInfo.ParamType = DSUtilities.GetType(GHelper.GetVarType(port_.Type));
                                             }
                                             inputMethodInfo.Add(methodInfo);
                                         }
@@ -563,7 +561,7 @@ namespace DialogueSystem.Generators
         {
             //СОЗДАНИЕ DSCLASS ПОД ОТДЕЛЬННУЮ НОДУ
             Type genericType = typeof(DSClassInfo<>).MakeGenericType(dialogueNode.GetType());
-            ConstructorInfo constructor = genericType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(VisualElement) }, null);
+            ConstructorInfo constructor = genericType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, null, new[] { typeof(VisualElement) }, null);
             object instance = constructor.Invoke(new object[] { dialogueNode as VisualElement });
             DSClassInfo innerDsClass = (DSClassInfo)instance;
             innerDsClass.IDataHolder = dialogueNode;
@@ -635,7 +633,7 @@ namespace DialogueSystem.Generators
                 DataHolder = innerDsClass.IDataHolder,
                 Visibility = innerDsClass.IDataHolder.Visibility, //Visibility.@private,
                 Type = innerDsClass.Type,
-                Name = Type.GetType(innerDsClass.Type).Name + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
+                Name = DSUtilities.GetType(innerDsClass.Type).Name + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
                 Value = null,
             };
             dsGrathViewClass.VariableInfo.Add(mainVarInfo);

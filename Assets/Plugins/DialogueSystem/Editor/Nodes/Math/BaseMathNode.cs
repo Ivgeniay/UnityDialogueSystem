@@ -9,9 +9,13 @@ namespace DialogueSystem.Nodes
 {
     internal abstract class BaseMathNode : BaseNode
     {
-        public override void OnConnectInputPort(BasePort _port, Edge edge)
+        public override void OnConnectInputPort(BasePort port, Edge edge)
         {
-            base.OnConnectInputPort(_port, edge);
+            base.OnConnectInputPort(port, edge);
+
+            BasePort connectedPort = edge.output as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
 
             var inputPorts = GetInputPorts();
 
@@ -27,36 +31,36 @@ namespace DialogueSystem.Nodes
                 };
             
 
-            foreach (BasePort port in inputPorts)
+            foreach (BasePort _port in inputPorts)
             {
-                if (port.connected)
+                if (_port.connected)
                 {
-                    BasePort connectedPort = port.connections.First().output as BasePort;
+                    connectedPort = _port.connections.First().output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(port, connectedPort.Type);
+                        ChangePortValueAndType(_port, connectedPort.Type);
 
-                        var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                        var infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
                         infos.Type = connectedPort.Type;
                     }
                 }
-                else if (!port.connected && port != _port) 
+                else if (!_port.connected && _port != port) 
                 {
-                    port.SetValue(DSUtilities.GetDefaultValue(port.Type)); 
+                    _port.SetValue(DSUtilities.GetDefaultValue(_port.Type)); 
 
-                    var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
-                    infos.Value = port.Value;
-                    infos.Type = port.Type;
+                    var infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
+                    infos.Value = _port.Value;
+                    infos.Type = _port.Type;
                 }
-                else if (!port.connected && port == _port)
+                else if (!_port.connected && _port == port)
                 {
-                    BasePort connectedPort = edge.output as BasePort;
+                    connectedPort = edge.output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(port, connectedPort.Type);
+                        ChangePortValueAndType(_port, connectedPort.Type);
 
-                        var infos = portInfos.Where(e => e.port == port).FirstOrDefault();
+                        var infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
                         infos.Type = connectedPort.Type;
                     }

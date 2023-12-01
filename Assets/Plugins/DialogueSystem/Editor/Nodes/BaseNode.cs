@@ -284,7 +284,8 @@ namespace DialogueSystem.Nodes
         public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
             BasePort connectedPort = edge.output as BasePort;
-            if (!BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes)) return;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
 
             var tt = Model.Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
             if (tt != null) tt.AddPort(edge.input.node as BaseNode, edge.input as BasePort);

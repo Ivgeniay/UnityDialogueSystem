@@ -42,8 +42,12 @@ namespace DialogueSystem.Nodes
         public override void OnConnectInputPort(BasePort port, Edge edge)
         {
             base.OnConnectInputPort(port, edge);
+
             BasePort connectedPort = edge.output as BasePort;
-            if (connectedPort != null)// && objectField?.objectType != null)
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            if (!continues) return;
+
+            if (connectedPort != null)
             {
                 if (objectField.objectType == null || !objectField.objectType.Equals(connectedPort.Type))
                 { 
@@ -53,8 +57,6 @@ namespace DialogueSystem.Nodes
                 }
             }
             objectField.SetEnabled(objectField.objectType != null);
-
-            Debug.Log($"{Model.NodeName}: input port: {port.portName}-{port.Type} connected {connectedPort.portName}-{connectedPort.Type}");
         }
 
         public override void OnDestroyConnectionInput(BasePort port, Edge edge)

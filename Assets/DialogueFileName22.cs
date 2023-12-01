@@ -1,16 +1,11 @@
 using static DialogueSystem.DialogueDisposer.DSDialogueOption;	
 using System.Globalization;	
 using UnityEngine;	
-using System;
-using DialogueSystem.Assets;
+using System;	
 
 [System.Serializable] public class DialogueFileName22 : DialogueSystem.DialogueDisposer{
-	#region Fields 
-	private System.Int32 Int32_0 = 3;
-	private System.Int32 Int32_1 = 2;
-	private System.Int32 Int32_2 = 1;
-	private DSCreate_List_i_i_i_i_Li DSCreate_List_i_i_i_i_Li_0 = new();
-	private ActorNode_TestActor ActorNode_TestActor_0 = new();
+	#region Fields
+	private DSCreate_List_Te_Te_Te_Te_Li DSCreate_List_Te_Te_Te_Te_Li_0 = new();
 	private DSDialogue DSDialogue_0 = new(){
 		Text = @$"End dialogue",
 	};
@@ -19,11 +14,10 @@ using DialogueSystem.Assets;
 	};
 	#endregion
 	#region Methods
-	private void Initialize(DialogueSystem.Assets.TestActor actor){
-		ActorNode_TestActor_0.Actor = actor;
-		DSCreate_List_i_i_i_i_Li_0.ListOfInt32_4 = () =>{
+	private void Initialize(){
+		DSCreate_List_Te_Te_Te_Te_Li_0.ListOfTestActor_4 = () =>{
 			System.Collections.Generic.List<T> GetList<T>(params T[] param) => new System.Collections.Generic.List<T>(param);
-			return GetList<System.Int32>(Int32_2, Int32_0, Int32_1, ActorNode_TestActor_0.Actor.Age);
+			return GetList<DialogueSystem.Assets.TestActor>(null, null, null, null);
 		};
 		DSDialogue_0.DSDialogueOption = new System.Collections.Generic.List<DialogueSystem.DialogueDisposer.DSDialogueOption>{
 			
@@ -33,22 +27,16 @@ using DialogueSystem.Assets;
 		};
 		
 	}
-	public DialogueSystem.DialogueDisposer.DSDialogueOption.DSDialogue StartDialogue(DialogueSystem.Assets.TestActor actor){
-		Initialize(actor);
+	public DialogueSystem.DialogueDisposer.DSDialogueOption.DSDialogue StartDialogue(){
+		Initialize();
 		return DSDialogue_1;
 		
 	}
 	#endregion
 	#region InnerClasses
-	[System.Serializable] private class DSCreate_List_i_i_i_i_Li{
+	[System.Serializable] private class DSCreate_List_Te_Te_Te_Te_Li{
 		#region Fields
-		[SerializeField] public Func<System.Collections.Generic.List<System.Int32>> ListOfInt32_4;
-		#endregion
-		
-	}
-	[System.Serializable] private class ActorNode_TestActor{
-		#region Fields
-		[SerializeField] public DialogueSystem.Assets.TestActor Actor;
+		[SerializeField] public Func<System.Collections.Generic.List<DialogueSystem.Assets.TestActor>> ListOfTestActor_4;
 		#endregion
 		
 	}

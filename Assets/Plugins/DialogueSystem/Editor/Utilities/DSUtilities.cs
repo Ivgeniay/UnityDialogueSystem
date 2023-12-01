@@ -176,11 +176,22 @@ namespace DialogueSystem.Utilities
         {
             if (type == null) throw new ArgumentNullException();
             object result = default(object);
-            if (type.IsValueType) result = Activator.CreateInstance(type);
+            if (type.IsValueType) result = CreateInstance(type);
             else if (type == typeof(string)) result = string.Empty;
+            else result = CreateInstance(type);
+
+            if (result == null)
+            {
+                string fullTypeName = type.FullName + ", " + DSConstants.DEFAULT_ASSEMBLY;// "Namespace.TypeName, AssemblyName";
+                result = CreateInstance(GetType(fullTypeName));
+            }
             return result;
         }
 
+        public static object CreateInstance(Type type)
+        {
+            return Activator.CreateInstance(type);
+        }
 
         internal static List<Type> GetListExtendedClasses(Type baseType)
         {
@@ -254,6 +265,19 @@ namespace DialogueSystem.Utilities
                 case var _ when t == typeof(bool): return "b";
                 default: return t.Name.Length >= 2 ? t.Name.Substring(0, 2) : t.Name;
             }
+        }
+
+        internal static Type GetType(string fullTypeName)
+        {
+            Type type = null;
+            type = Type.GetType(fullTypeName);
+            if (type != null) return type;
+
+            Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
+            type = assembly.GetType(fullTypeName, true);
+            if (type != null) return type;
+
+            throw new Exception($"There is no type {fullTypeName}");
         }
     }
 }

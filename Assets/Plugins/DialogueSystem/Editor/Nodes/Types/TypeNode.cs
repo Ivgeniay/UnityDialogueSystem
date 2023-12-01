@@ -48,8 +48,9 @@ namespace DialogueSystem.Nodes
 
             if (output.Type != typeof(Type))
             {
-                Type type = Type.GetType(output.Type.FullName);
-                if (type == null) type = assembly.GetType(output.Type.FullName);
+                Type type = DSUtilities.GetType(output.Type.FullName);
+                //Type.GetType(output.Type.FullName);
+                //if (type == null) type = assembly.GetType(output.Type.FullName);
                 
                 if (type != null)
                 {
@@ -59,8 +60,9 @@ namespace DialogueSystem.Nodes
             }
             else
             {
-                Type type = Type.GetType(dropdownTypes.value);
-                if (type == null) type = assembly.GetType(dropdownTypes.value); 
+                Type type = DSUtilities.GetType(dropdownTypes.value);
+                //Type.GetType(dropdownTypes.value);
+                //if (type == null) type = assembly.GetType(dropdownTypes.value); 
                 if (type != null)
                 {
                     dropdownTypes.value = type.FullName;
@@ -70,20 +72,18 @@ namespace DialogueSystem.Nodes
 
             dropdownTypes.RegisterValueChangedCallback<string>((e) =>
             {
-                Type type = assembly.GetType(e.newValue);
-                if (type != null)
+                Type type = DSUtilities.GetType(e.newValue);
+                
+                this.ChangeOutputPortsTypeAndName(type);
+                output.ChangeName(type.Name);
+                if (output.connected)
                 {
-                    this.ChangeOutputPortsTypeAndName(type);
-                    output.ChangeName(type.Name);
-                    if (output.connected)
+                    List<Edge> connections = output.connections.ToList();
+                    foreach (Edge edge in connections)
                     {
-                        List<Edge> connections = output.connections.ToList();
-                        foreach (Edge edge in connections)
-                        {
-                            BaseNode inputNode = edge.input.node as BaseNode;
-                            if (inputNode != null)
-                                inputNode.OnConnectInputPort(edge.input as BasePort, edge);
-                        }
+                        BaseNode inputNode = edge.input.node as BaseNode;
+                        if (inputNode != null)
+                            inputNode.OnConnectInputPort(edge.input as BasePort, edge);
                     }
                 }
             });
