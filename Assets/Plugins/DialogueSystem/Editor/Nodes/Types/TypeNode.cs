@@ -49,9 +49,6 @@ namespace DialogueSystem.Nodes
             if (output.Type != typeof(Type))
             {
                 Type type = DSUtilities.GetType(output.Type.FullName);
-                //Type.GetType(output.Type.FullName);
-                //if (type == null) type = assembly.GetType(output.Type.FullName);
-                
                 if (type != null)
                 {
                     dropdownTypes.value = type.FullName;
@@ -61,8 +58,6 @@ namespace DialogueSystem.Nodes
             else
             {
                 Type type = DSUtilities.GetType(dropdownTypes.value);
-                //Type.GetType(dropdownTypes.value);
-                //if (type == null) type = assembly.GetType(dropdownTypes.value); 
                 if (type != null)
                 {
                     dropdownTypes.value = type.FullName;

@@ -7,9 +7,9 @@ namespace DialogueSystem.UIElement
 {
     internal class DSObjectField : ObjectField, IDataHolder
     {
-        public string Name { get; set; } 
-        public Type Type { get; set; } 
-        public object Value { get; set; } 
+        public string Name { get => label; set => label = value; } 
+        public Type Type { get => objectType; set => objectType = value; } 
+        public object Value { get => value; set => this.value = (UnityEngine.Object)value; } 
         public bool IsFunctions { get; set; } 
         public bool IsSerializedInScript { get; set; }
         public Visibility Visibility { get; set; } 
@@ -17,7 +17,8 @@ namespace DialogueSystem.UIElement
 
         public DSObjectField()
         {
-            this.objectType = null;
+            Value = null;
+            //this.objectType = null;
         }
     }
 }

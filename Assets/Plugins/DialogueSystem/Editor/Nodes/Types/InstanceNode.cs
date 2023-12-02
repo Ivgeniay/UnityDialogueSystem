@@ -49,11 +49,11 @@ namespace DialogueSystem.Nodes
 
             if (connectedPort != null)
             {
-                if (objectField.objectType == null || !objectField.objectType.Equals(connectedPort.Type))
-                { 
-                    if (objectField.value != null) objectField.value = null;
+                if (objectField.Type == null || !objectField.Type.Equals(connectedPort.Type))
+                {
+                    if (objectField.Value != null) objectField.Value = null;
+                    objectField.Type = connectedPort.Type;
                     ChangeOutputPortsTypeAndName(connectedPort.Type, "Instance");
-                    objectField.objectType = connectedPort.Type;
                 }
             }
             objectField.SetEnabled(objectField.objectType != null);
@@ -63,15 +63,15 @@ namespace DialogueSystem.Nodes
         {
             base.OnDestroyConnectionInput(port, edge);
             objectField.SetEnabled(false);
-            objectField.value = null;
-            objectField.objectType = null;
-            ChangeOutputPortsTypeAndName(typeof(Type), "Instance");
+            objectField.Value = null;
+            objectField.Type = null;
+            ChangeOutputPortsTypeAndName(typeof(Type), "Instance"); 
         }
 
         protected override void DrawExtensionContainer(VisualElement container)
         {
             objectField = new();
-            objectField.label = "Instance: ";
+            objectField.label = "Instance";
             objectField.SetEnabled(objectField.value != null); 
 
             Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
@@ -82,8 +82,8 @@ namespace DialogueSystem.Nodes
 
             if (output != null) 
             {
-                objectField.objectType = output.Type;
-                objectField.value = output.AssetSource;
+                objectField.Type = output.Type;
+                objectField.Value = output.AssetSource;
                 ChangeOutputPortsTypeAndName(output.Type, "Instance");
             }
 
@@ -93,33 +93,15 @@ namespace DialogueSystem.Nodes
                 model.AssetSource = e.newValue;
                 output.AssetSource = e.newValue;
                 output.SetValue(output.AssetSource);
+                graphView.OnValidate();
             });
-
-            //foreach (Type type in publicTypes)
-            //    dropdownTypes.choices.Add(type.FullName);
-
-            //BasePort output = GetOutputPorts()[0];
-            //if (output.Value != null)
-            //{
-            //    Type type = assembly.GetType(output.Value.ToString());
-            //    if (type != null)
-            //        dropdownTypes.value = type.ToString();
-            //}
-
-            //objectField.RegisterValueChangedCallback<string>((e) =>
-            //{
-            //    Type type = assembly.GetType(e.newValue);
-            //    if (type != null)
-            //    {
-            //        this.ChangeOutputPortsTypeAndName(type);
-            //        output.ChangeName(type.Name);
-            //        Debug.Log(type);
-            //    }
-            //});
 
             container.Add(objectField);
             base.DrawExtensionContainer(container);
-        }
+            InitializeSettingElement(container);
+        } 
 
+        public (Type, object) GetValue() => (objectField.Type, objectField.Value);
+        
     }
 }

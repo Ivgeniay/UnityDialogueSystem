@@ -5,19 +5,22 @@ using System;
 
 [System.Serializable] public class DialogueFileName22 : DialogueSystem.DialogueDisposer{
 	#region Fields
-	private DSCreate_List_Te_Te_Te_Te_Li DSCreate_List_Te_Te_Te_Te_Li_0 = new();
-	private DSDialogue DSDialogue_0 = new(){
+	[SerializeField] private DSCreate_List_Te_Te_Te_Li DSCreate_List_Te_Te_Te_Li_0 = new();
+    [SerializeField] private DialogueSystem.Assets.TestActor TestGameObject2;
+    [SerializeField]
+    private DSDialogue DSDialogue_0 = new(){
 		Text = @$"End dialogue",
 	};
-	private DSDialogue DSDialogue_1 = new(){
+    [SerializeField]
+    private DSDialogue DSDialogue_1 = new(){
 		Text = @$"Start dialogue",
 	};
 	#endregion
 	#region Methods
 	private void Initialize(){
-		DSCreate_List_Te_Te_Te_Te_Li_0.ListOfTestActor_4 = () =>{
+		DSCreate_List_Te_Te_Te_Li_0.ListOfTestActor_3 = () =>{
 			System.Collections.Generic.List<T> GetList<T>(params T[] param) => new System.Collections.Generic.List<T>(param);
-			return GetList<DialogueSystem.Assets.TestActor>(null, null, null, null);
+			return GetList<DialogueSystem.Assets.TestActor>(TestGameObject2, null, TestGameObject2);
 		};
 		DSDialogue_0.DSDialogueOption = new System.Collections.Generic.List<DialogueSystem.DialogueDisposer.DSDialogueOption>{
 			
@@ -34,9 +37,9 @@ using System;
 	}
 	#endregion
 	#region InnerClasses
-	[System.Serializable] private class DSCreate_List_Te_Te_Te_Te_Li{
+	[System.Serializable] private class DSCreate_List_Te_Te_Te_Li{
 		#region Fields
-		[SerializeField] public Func<System.Collections.Generic.List<DialogueSystem.Assets.TestActor>> ListOfTestActor_4;
+		[SerializeField] public Func<System.Collections.Generic.List<DialogueSystem.Assets.TestActor>> ListOfTestActor_3;
 		#endregion
 		
 	}

@@ -279,5 +279,13 @@ namespace DialogueSystem.Utilities
 
             throw new Exception($"There is no type {fullTypeName}");
         }
+        internal static string GetVarname(VariableInfo mainInfo, VariableInfo innerInfo)
+        {
+            string name = string.Empty;
+            if (string.IsNullOrWhiteSpace(innerInfo.Name)) name = mainInfo.Name;
+            else name = mainInfo.Name + "." + innerInfo.Name;
+            if (innerInfo.DataHolder != null && innerInfo.DataHolder.IsFunctions && !name.Contains("()")) name += "()";
+            return name;
+        }
     }
 }

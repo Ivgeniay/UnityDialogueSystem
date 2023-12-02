@@ -44,10 +44,10 @@ namespace DialogueSystem.Window
         internal ObservableDictionary<BasePort, string> Anchors = new();
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
-        private Dictionary<Type, int> nessesaryTypes = new Dictionary<Type, int>()
+        private Dictionary<Type, int> necessaryTypes { get; set; } = new Dictionary<Type, int>()
         {
-            //{ typeof(StartDialogueNode), 1 },
-            //{ typeof(EndDialogueNode), 1}
+            { typeof(StartDialogueNode), 0},
+            { typeof(EndDialogueNode), 0}
         };
 
         private int _repeatedNameAmount;
@@ -57,7 +57,8 @@ namespace DialogueSystem.Window
             set
             {
                 _repeatedNameAmount = value;
-                OnSaveEnableHandler();
+                OnValidate();
+                //OnSaveValidationHandler();
             }
         }
 
@@ -124,7 +125,8 @@ namespace DialogueSystem.Window
             BaseNode node = DSUtilities.CreateNode(this, type, position, portsContext);
             AddElement(node);
             i_Nodes.Add(node);
-            OnSaveEnableHandler();
+            OnValidate();
+            //OnSaveValidationHandler();
             return node;
         }
         internal BaseGroup CreateGroup(Type type, Vector2 mousePosition, string title = "DialogueGroup", string tooltip = null)
@@ -272,7 +274,8 @@ namespace DialogueSystem.Window
                     i_Groups.Remove(group);
                     RemoveElement(group);
                 });
-                OnSaveEnableHandler();
+                OnValidate();
+                //OnSaveValidationHandler();
             };
         }
         private void OnGroupElementAdded()
@@ -562,15 +565,25 @@ namespace DialogueSystem.Window
         internal T[] GetArrayNodesOfType<T>() =>
             i_Nodes.OfType<T>().ToArray();
 
-        internal void OnSaveEnableHandler()
+
+        internal void OnValidate()
+        {
+            OnSaveValidationHandler();
+        }
+        private void OnSaveValidationHandler()
         {
             bool repeatednames = repeatedNameAmount == 0;
-            bool isNesseseryNodes = CheckNodes(i_Nodes, nessesaryTypes);
-            if (repeatednames && isNesseseryNodes) OnCanSaveGraphEvent?.Invoke(true);
-            else OnCanSaveGraphEvent?.Invoke(false);
+            bool isNesseseryNodes = ValidationNessesaryNodes(i_Nodes, necessaryTypes);
+            bool isInstanceNodeNotNullValue = i_Nodes
+                .OfType<InstanceNode>()
+                .All(e => e.GetValue().Item2 != null);
+
+            OnCanSaveGraphEvent?.Invoke(repeatednames && isNesseseryNodes && isInstanceNodeNotNullValue);
         }
-        internal static bool CheckNodes(List<BaseNode> i_Nodes, Dictionary<Type, int> nessesaryTypes)
+        private bool ValidationNessesaryNodes(List<BaseNode> i_Nodes, Dictionary<Type, int> nessesaryTypes)
         {
+            if (i_Nodes.Count == 0) return false;
+
             Dictionary<Type, int> nodeTypeCounts = i_Nodes
                 .GroupBy(node => node.GetType())
                 .ToDictionary(group => group.Key, group => group.Count());
@@ -580,7 +593,8 @@ namespace DialogueSystem.Window
                 Type targetType = kvp.Key;
                 int necessaryCount = kvp.Value;
 
-                if (!nodeTypeCounts.TryGetValue(targetType, out int actualCount) || actualCount < necessaryCount) return false;
+                if (necessaryCount > 0)
+                    if (!nodeTypeCounts.TryGetValue(targetType, out int actualCount) || actualCount < necessaryCount) return false;
             }
             return true;
         }

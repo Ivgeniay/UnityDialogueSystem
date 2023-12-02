@@ -4,7 +4,7 @@ using System;
 
 namespace DialogueSystem.UIElement
 {
-    internal class DSDropdownField : DropdownField//s, IDataHolder
+    internal class DSDropdownField : DropdownField//, IDataHolder
     {
         public string Name { get; set; }
         public Type Type { get; set; }

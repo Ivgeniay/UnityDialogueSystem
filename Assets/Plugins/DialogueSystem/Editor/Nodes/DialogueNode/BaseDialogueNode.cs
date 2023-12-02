@@ -30,8 +30,6 @@ namespace DialogueSystem.Nodes
             }
         }
 
-        internal virtual DSTextField GetDialogueTextField() => textField;
-
         protected override void DrawExtensionContainer(VisualElement container)
         {
             VisualElement customDataContainer = new VisualElement();
