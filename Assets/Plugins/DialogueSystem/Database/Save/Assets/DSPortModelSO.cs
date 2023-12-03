@@ -65,7 +65,7 @@ namespace DialogueSystem.Database.Save
                         NodePortModelSO dSNodePortModelSO = CreateInstance<NodePortModelSO>();
                         AssetDatabase.AddObjectToAsset(dSNodePortModelSO, parent);
 
-                        dSNodePortModelSO.name = $"(PortModel){PortID}{o.NodeID}{Random.Range(0,100)}";
+                        dSNodePortModelSO.name = $"(PortModel){PortID}{o.NodeID}";
                         dSNodePortModelSO.Init(o);
                         NodeIDs.Add(dSNodePortModelSO);
 

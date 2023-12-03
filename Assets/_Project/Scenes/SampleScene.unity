@@ -384,7 +384,7 @@ GameObject:
   - component: {fileID: 1801800705}
   - component: {fileID: 1801800704}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: TestGameObject2
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -402,6 +402,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f5319eaff990647a4255a1d7a1bc5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dialogue22:
+    Text: 
+    DSDialogueOption: []
   Age: 14
   Level: 10
   Name: Nikolay Huev

@@ -39,6 +39,8 @@ namespace DialogueSystem.Nodes
         protected Foldout settings;
 
         private Color defaultbackgroundColor;
+        protected List<BasePort> inputPorts = new();
+        protected List<BasePort> outputPorts = new();
 
         internal virtual void Initialize(DSGraphView graphView, Vector2 position, List<object> context)
         {
@@ -102,7 +104,7 @@ namespace DialogueSystem.Nodes
         }
         protected virtual void DrawInputContainer(VisualElement container)
         {
-            foreach (var input in Model.Inputs)
+             foreach (var input in Model.Inputs)
                 AddPortByType(input);
         }
         protected virtual void DrawOutputContainer(VisualElement container)
@@ -196,45 +198,6 @@ namespace DialogueSystem.Nodes
             DisconnectInputPorts();
             DisconnectOutputPorts();
         }
-        internal protected List<BasePort> GetInputPorts()
-        {
-            //из-за того что if инпут порт находится в Output контейнере приходится делать такую замудренную шляпу
-            var inputs = inputContainer.Children().Cast<BasePort>().ToList();
-            var ifPortModel = Model.Inputs.Where(e => e.IsIfPort).ToList();
-            if (ifPortModel!= null && ifPortModel.Count > 0)
-            {
-                var outputs = GetOutputPorts();
-                if (outputs != null && outputs.Count > 0)
-                {
-                    foreach (var output in outputs)
-                    {
-                        foreach (var ifNode in ifPortModel)
-                        {
-                            if (output.ID == ifNode.PortID)
-                            {
-                                inputs.Add(output);
-                            }
-                        }
-                    }
-                }
-            }
-            return inputs;
-        }
-        internal protected List<BasePort> GetOutputPorts()
-        {
-            List<BasePort> outputPorts = new List<BasePort>();
-
-            foreach (VisualElement child in outputContainer.Children())
-            {
-                if (child is BasePort basePort)
-                    outputPorts.Add(basePort);
-                
-                if (child.childCount > 0)
-                    outputPorts.AddRange(GetAllOutputPortsRecursive(child));
-            }
-
-            return outputPorts;
-        }
         internal virtual string GetLetterFromNumber(int number)
         {
             number = Math.Abs(number);
@@ -283,8 +246,8 @@ namespace DialogueSystem.Nodes
         #region MonoEvents
         public virtual void OnConnectOutputPort(BasePort port, Edge edge)
         {
-            BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            BasePort connectedPort = edge.input as BasePort;
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
             var tt = Model.Outputs.Where(el => el.PortID == port.ID).FirstOrDefault();
@@ -293,7 +256,7 @@ namespace DialogueSystem.Nodes
         public virtual void OnConnectInputPort(BasePort port, Edge edge)
         {
             BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
             var tt = Model.Inputs.Where(el => el.PortID == port.ID).FirstOrDefault();
@@ -337,9 +300,30 @@ namespace DialogueSystem.Nodes
         }
 
         public virtual void Do(PortInfo[] portInfos) { }
+
+        internal virtual void Update()
+        {
+            IEnumerable<BasePort> connectedOutput = outputPorts.Where(e => e.connected);
+            foreach (BasePort item in connectedOutput)
+            {
+                IEnumerable<DSEdge> dSEdges = item.connections.Cast<DSEdge>();
+                foreach (DSEdge edge in dSEdges)
+                {
+                    try
+                    {
+                        BaseNode inputNode = edge.input.node as BaseNode;
+                        //inputNode.OnConnectInputPort(edge.input as BasePort, edge);
+                        edge.ConnectionAnimation();
+                        inputNode.Update();
+                    }
+                    catch (Exception ex) { Debug.LogException(ex); }
+                }
+            }
+        }
         #endregion
 
         #region Ports
+
         protected virtual (BasePort port, DSPortModel data) AddPortByType(
             string portText, 
             string ID, 
@@ -398,6 +382,10 @@ namespace DialogueSystem.Nodes
         }
         protected virtual (BasePort port, DSPortModel data) AddPortByType(DSPortModel data)
         {
+            if (this.GetType() == typeof(AddToListNode))
+            {
+
+            }
             BasePort port = null;
             Port.Capacity capacity = data.IsSingle == true ? Port.Capacity.Single : Port.Capacity.Multi;
             Direction direction = data.IsInput == true ? Direction.Input : Direction.Output;
@@ -408,7 +396,7 @@ namespace DialogueSystem.Nodes
                 orientation: Orientation.Horizontal,
                 direction: direction,
                 capacity: capacity,
-                type: data.Type);
+                type: data.Type); 
             port.AvailableTypes = data.AvailableTypes.Select(el => Type.GetType(el)).ToArray();
             port.SetValue(data.Value);
             port.ChangeName(data.PortText);
@@ -571,8 +559,16 @@ namespace DialogueSystem.Nodes
                         }
                         graphView.DeleteElements(port.connections);
                     }
-                    if (data.IsInput) Model.Inputs.Remove(data);
-                    else Model.Outputs.Remove(data);
+                    if (data.IsInput)
+                    {
+                        Model.Inputs.Remove(data);
+                        inputPorts.Remove(port);
+                    }
+                    else
+                    {
+                        Model.Outputs.Remove(data);
+                        outputPorts.Remove(port);
+                    }
                     graphView.RemoveElement(port);
                 },
                 styles: new string[]
@@ -634,15 +630,26 @@ namespace DialogueSystem.Nodes
             }
             else
             {
-                if (data.IsInput) inputContainer.Add(port);
-                else outputContainer.Add(port);
+                if (data.IsInput)
+                {
+                    inputContainer.Add(port);
+                    inputPorts.Add(port);
+                }
+                else
+                {
+                    outputContainer.Add(port);
+                    outputPorts.Add(port);
+                }
             }
             if (!string.IsNullOrWhiteSpace(data.Anchor)) port.AddOrUpdateAnchor(data.Anchor);
 
             return (port, data);
         }
 
-        protected void ChangePortValueAndType(BasePort port, Type type, string portname = null)
+        internal protected IEnumerable<BasePort> GetInputPorts() => inputPorts;
+        internal protected IEnumerable<BasePort> GetOutputPorts() => outputPorts;
+        
+        protected void ChangePortTypeAndName(BasePort port, Type type, string portname = null)
         {
             port.SetPortType(type);
             port.ChangeName(portname == null ? GHelper.GetShortVarType(type) : portname);
@@ -651,21 +658,20 @@ namespace DialogueSystem.Nodes
             if (model_port != null)
                 model_port.Type = type;
         }
-
         protected void ChangeOutputPortsTypeAndName(Type type, string portname = null)
         {
-            List<BasePort> outs = GetOutputPorts();
+            IEnumerable<BasePort> outs = GetOutputPorts();
             if (outs != null)
             {
                 foreach (var outPort in outs)
-                    ChangePortValueAndType(outPort, type, portname);
+                    ChangePortTypeAndName(outPort, type, portname);
             }
         }
         #endregion
 
-
         #region Lambdas
         internal virtual string LambdaGenerationContext(MethodParamsInfo[] inputVariables, MethodParamsInfo[] outputVariables) => string.Empty;
+
         #endregion
     }
 

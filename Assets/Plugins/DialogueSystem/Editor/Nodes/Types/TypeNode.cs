@@ -38,7 +38,7 @@ namespace DialogueSystem.Nodes
             Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
             Type[] publicTypes = assembly.GetExportedTypes();
 
-            BasePort output = GetOutputPorts()[0];
+            BasePort output = GetOutputPorts().First();
 
             foreach (Type type in publicTypes)
                 dropdownTypes.choices.Add(type.FullName);

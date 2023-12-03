@@ -54,20 +54,23 @@ namespace DialogueSystem
                 }
                 else foldout = foldouts.First(e => e.text == item.Value.DeclaringType.Name);
 
-                var result = AddPortByType(
-                    ID: Guid.NewGuid().ToString(),
-                    portText: $"{item.Key} ({item.Value.Type.Name})",
-                    type: item.Value.Type,
-                    value: DSUtilities.GetDefaultValue(item.Value.Type),
-                    isInput: false,
-                    isSingle: false,
-                    isField: false,
-                    cross: false,
-                    portSide: PortSide.Output,
-                    availableTypes: new Type[] { item.Value.Type },
-                    isAnchorable: true
-                    );
-                foldout.Add(result.port);
+                if (DSConstants.AvalilableTypes.Contains(item.Value.Type))
+                {
+                    var result = AddPortByType(
+                        ID: Guid.NewGuid().ToString(),
+                        portText: $"{item.Key} ({item.Value.Type.Name})",
+                        type: item.Value.Type,
+                        value: DSUtilities.GetDefaultValue(item.Value.Type),
+                        isInput: false,
+                        isSingle: false,
+                        isField: false,
+                        cross: false,
+                        portSide: PortSide.Output,
+                        availableTypes: new Type[] { item.Value.Type },
+                        isAnchorable: true
+                        );
+                    foldout.Add(result.port);
+                }
             }
 
             RefreshExpandedState();

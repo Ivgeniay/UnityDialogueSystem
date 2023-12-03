@@ -41,10 +41,10 @@ namespace DialogueSystem.Nodes
             base.OnConnectInputPort(port, edge);
 
             BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
-            List<BasePort> inputPorts = GetInputPorts();
+            List<BasePort> inputPorts = GetInputPorts().ToList();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
 
             for (var i = 0; i < inputPorts.Count; i++)
@@ -63,7 +63,7 @@ namespace DialogueSystem.Nodes
                     connectedPort = _port.connections.First().output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(_port, connectedPort.Type);
+                        ChangePortTypeAndName(_port, connectedPort.Type, connectedPort.Type.Name);
                         var infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
                         infos.Type = connectedPort.Type;
@@ -81,7 +81,7 @@ namespace DialogueSystem.Nodes
                     connectedPort = edge.output as BasePort;
                     if (connectedPort != null && connectedPort.Value != null)
                     {
-                        ChangePortValueAndType(_port, connectedPort.Type);
+                        ChangePortTypeAndName(_port, connectedPort.Type, connectedPort.Type.Name);
 
                         var infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                         infos.Value = connectedPort.Value;
@@ -95,12 +95,7 @@ namespace DialogueSystem.Nodes
 
         public override void Do(PortInfo[] portInfos)
         {
-            base.Do(portInfos);
-
-            //BasePort output = GetOutputPorts()[0];
-
-            //var isStr = portInfos.Any(e => e.port.Type == typeof(string));
-            //ChangeOutputPortType(isStr == true ? typeof(string) : typeof(double));
+            base.Do(portInfos); 
         }
     }
 }

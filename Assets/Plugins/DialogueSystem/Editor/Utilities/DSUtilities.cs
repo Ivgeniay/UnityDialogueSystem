@@ -187,9 +187,9 @@ namespace DialogueSystem.Utilities
             }
             return result;
         }
-
-        public static object CreateInstance(Type type)
+        internal static object CreateInstance(Type type)
         {
+            if (type.Namespace != null && type.Namespace.StartsWith("UnityEngine")) return null;// .IsAssignableFrom(typeof(UnityEngine.Object))) return null;
             return Activator.CreateInstance(type);
         }
 
@@ -270,12 +270,38 @@ namespace DialogueSystem.Utilities
         internal static Type GetType(string fullTypeName)
         {
             Type type = null;
-            type = Type.GetType(fullTypeName);
-            if (type != null) return type;
+            if (!fullTypeName.Contains("["))
+            {
+                type = Type.GetType(fullTypeName);
+                if (type != null) return type;
 
-            Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
-            type = assembly.GetType(fullTypeName, true);
-            if (type != null) return type;
+                Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
+                type = assembly.GetType(fullTypeName, true);
+                if (type != null) return type;
+            }
+            else
+            {
+                string[] typeParts = fullTypeName.Split('[');
+                string typeNameWithoutGeneric = typeParts[0];
+                string genericArgumentPart = typeParts[1].TrimEnd(']');
+
+                string fullTypeName_ = typeNameWithoutGeneric + "[" + DSConstants.DEFAULT_ASSEMBLY + "." + genericArgumentPart + "]";
+
+                Type argType = Type.GetType(genericArgumentPart);
+                if (argType == null)
+                {
+                    Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
+                    argType = assembly.GetType(genericArgumentPart, true);
+                }
+                if (argType == null) throw new Exception();
+
+                if (typeNameWithoutGeneric.Contains("List"))
+                {
+                    type = typeof(List<>).MakeGenericType(argType);
+                }
+
+                return type;
+            }
 
             throw new Exception($"There is no type {fullTypeName}");
         }

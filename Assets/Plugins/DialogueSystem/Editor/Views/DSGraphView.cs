@@ -32,6 +32,7 @@ namespace DialogueSystem.Window
 
         private const string GRAPH_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemStyles.uss";
         private const string NODE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DialogueSystemNodeStyles.uss";
+        private const string DSEDGE_STYLE_LINK = "Assets/Plugins/DialogueSystem/Resources/Front/DsEdgeStyle.uss";
 
         private Generator generator;
         private DSSearchWindow searchWindow;
@@ -41,7 +42,7 @@ namespace DialogueSystem.Window
         private Dictionary<string, DSGroupErrorData> groups;
         private Dictionary<BaseGroup, Dictionary<string, DSNodeErrorData>> groupedNodes;
 
-        internal ObservableDictionary<BasePort, string> Anchors = new();
+        internal ObservableDictionary<BasePort, string> Anchors { get; } = new();
         internal List<BaseNode> i_Nodes { get; set; } = new List<BaseNode>();
         internal List<BaseGroup> i_Groups { get; set; } = new List<BaseGroup>();
         private Dictionary<Type, int> necessaryTypes { get; set; } = new Dictionary<Type, int>()
@@ -49,6 +50,7 @@ namespace DialogueSystem.Window
             { typeof(StartDialogueNode), 0},
             { typeof(EndDialogueNode), 0}
         };
+
 
         private int _repeatedNameAmount;
         private int repeatedNameAmount
@@ -188,7 +190,22 @@ namespace DialogueSystem.Window
             return contextualMenuManipulator;
         }
 
-        
+        private void UpdateNode()
+        {
+            List<BaseNode> stNums = new();
+            foreach (BaseNode node in i_Nodes)
+            {
+                IEnumerable<BasePort> inputs = node.GetInputPorts();
+                if (inputs.Count() == 0)
+                {
+                    stNums.Add(node);
+                    continue;
+                }
+                bool allInputPortsOff = inputs.All(t => !t.connected);
+                if (allInputPortsOff) stNums.Add(node);
+            }
+            foreach (BaseNode node in stNums) node.Update();
+        }
 
         private IManipulator CreateNodeContextMenu(string actionTitle, Type type)
         {
@@ -275,7 +292,6 @@ namespace DialogueSystem.Window
                     RemoveElement(group);
                 });
                 OnValidate();
-                //OnSaveValidationHandler();
             };
         }
         private void OnGroupElementAdded()
@@ -294,6 +310,7 @@ namespace DialogueSystem.Window
                     }
                     else continue;
                 }
+                OnValidate();
             };
         }
         private void OnGroupElementRemoved()
@@ -312,6 +329,7 @@ namespace DialogueSystem.Window
                     }
                     else continue;
                 }
+                OnValidate();
             };
         }
         private void OnGroupRenamed()
@@ -324,6 +342,7 @@ namespace DialogueSystem.Window
 
                 baseGroup.OnTitleChanged(group.title);
                 AddGroup(baseGroup);
+                OnValidate();
             };
         }
         private void OnGraphViewChanged()
@@ -340,6 +359,7 @@ namespace DialogueSystem.Window
                         outputNode.OnConnectOutputPort(edge.output as BasePort, edge);
                         nextNode.OnConnectInputPort(edge.input as BasePort, edge);
                     }
+                    OnValidate();
                 }
                 if (changes.movedElements != null)
                 {
@@ -368,6 +388,7 @@ namespace DialogueSystem.Window
                             nextNode?.OnDestroyConnectionInput(edge.input as BasePort, edge);
                         }
                     }
+                    OnValidate();
                 }
                 return changes;
             };
@@ -539,7 +560,7 @@ namespace DialogueSystem.Window
         #endregion
         #region Styles
         private void AddStyles() =>
-            this.LoadAndAddStyleSheets(GRAPH_STYLE_LINK, NODE_STYLE_LINK);
+            this.LoadAndAddStyleSheets(GRAPH_STYLE_LINK, NODE_STYLE_LINK, DSEDGE_STYLE_LINK);
         
         private void AddGridBackground()
         {
@@ -569,6 +590,7 @@ namespace DialogueSystem.Window
         internal void OnValidate()
         {
             OnSaveValidationHandler();
+            UpdateNode();
         }
         private void OnSaveValidationHandler()
         {
@@ -687,13 +709,13 @@ namespace DialogueSystem.Window
             Model.FileName = graphSO.FileName;
             foreach (var groupModel in graphSO.GroupModels)
             {
-                BaseGroup group = CreateGroup(Type.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
+                BaseGroup group = CreateGroup(DSUtilities.GetType(groupModel.Type), groupModel.Position, groupModel.GroupName);
                 group.Model.ID = groupModel.ID;
             }
 
             foreach (var nodeModel in graphSO.NodeModels)
             {
-                BaseNode node = CreateNode(Type.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> { nodeModel });
+                BaseNode node = CreateNode(DSUtilities.GetType(nodeModel.DialogueType), nodeModel.Position, new List<object> { nodeModel });
                 if (!string.IsNullOrWhiteSpace(node.Model.GroupID))
                 {
                     BaseGroup group = GetGroupById(node.Model.GroupID);
@@ -706,22 +728,18 @@ namespace DialogueSystem.Window
             {
                 if (node.Model.Outputs == null || node.Model.Outputs.Count == 0) continue;
                 foreach (var output in node.Model.Outputs)
-                    ToMakeConnections(output, node.GetOutputPorts());
-                
+                    ToMakeConnections(output, node.GetOutputPorts()); 
             }
 
             return Model.FileName;
         }
 
-        private void ToMakeConnections(DSPortModel portModel, List<BasePort> ports)
+        private void ToMakeConnections(DSPortModel portModel, IEnumerable<BasePort> ports)
         {
             var port = ports.Where(el => el.ID == portModel.PortID).FirstOrDefault();
             if (port != null)
             {
-                if (portModel.NodeIDs == null)
-                {
-
-                }
+                if (portModel.NodeIDs == null) { }
                 else
                 {
                     foreach (NodePortModel portIdModel in portModel.NodeIDs)
@@ -731,7 +749,7 @@ namespace DialogueSystem.Window
                         {
                             foreach (string portId in portIdModel.PortIDs)
                             {
-                                List<BasePort> inp = inputNode.GetInputPorts();
+                                IEnumerable<BasePort> inp = inputNode.GetInputPorts();
                                 BasePort neededInputPort = inp.Where(e => e.ID == portId).FirstOrDefault();
                                 if (neededInputPort != null)
                                 {

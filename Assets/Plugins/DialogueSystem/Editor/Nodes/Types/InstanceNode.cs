@@ -22,14 +22,14 @@ namespace DialogueSystem.Nodes
             base.Initialize(graphView, position, context);
             if (context == null)
             {
-                Model.AddPort(new DSPortModel(DSConstants.AllTypes, Ports.PortSide.Output)
+                Model.AddPort(new DSPortModel(DSConstants.AllTypes, PortSide.Output)
                 {
                     Type = typeof(Type),
                     PortText = "Instance",
                     IsSingle = false,
                 });
 
-                Model.AddPort(new DSPortModel(DSConstants.TypeTypes, PortSide.Input)
+                Model.AddPort(new DSPortModel(DSConstants.AllTypes, PortSide.Input)
                 {
                     Type= typeof(Type),
                     PortText = "Type",
@@ -44,7 +44,7 @@ namespace DialogueSystem.Nodes
             base.OnConnectInputPort(port, edge);
 
             BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
             if (connectedPort != null)
@@ -77,8 +77,8 @@ namespace DialogueSystem.Nodes
             Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
             Type[] publicTypes = assembly.GetExportedTypes();
 
-            BasePort input = GetInputPorts()[0];
-            BasePort output = GetOutputPorts()[0];
+            BasePort input = GetInputPorts().First();
+            BasePort output = GetOutputPorts().First();
 
             if (output != null) 
             {

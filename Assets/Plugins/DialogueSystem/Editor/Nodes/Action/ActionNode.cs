@@ -65,10 +65,10 @@ namespace DialogueSystem.Nodes
         {
             base.OnConnectInputPort(port, edge);
             BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
-            List<BasePort> inputPorts = GetInputPorts();
+            List<BasePort> inputPorts = GetInputPorts().ToList();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
 
             for (var i = 0; i < inputPorts.Count; i++)
@@ -82,7 +82,7 @@ namespace DialogueSystem.Nodes
 
             if (connectedPort != null && connectedPort.Value != null && port != inputPorts[0])
             { 
-                ChangePortValueAndType(port, connectedPort.Type);
+                ChangePortTypeAndName(port, connectedPort.Type);
                 PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
@@ -92,7 +92,7 @@ namespace DialogueSystem.Nodes
                 if (inputPorts[i] != port && !inputPorts[i].connected)
                 {
                     if (inputPorts[i].Type != connectedPort.Type) inputPorts[i].DisconnectAll();
-                    ChangePortValueAndType(inputPorts[i], connectedPort.Type);
+                    ChangePortTypeAndName(inputPorts[i], connectedPort.Type);
                     PortInfo infos = portInfos.Where(e => e.port == inputPorts[i]).FirstOrDefault();
                     infos.Value = connectedPort.Value;
                     infos.Type = connectedPort.Type;

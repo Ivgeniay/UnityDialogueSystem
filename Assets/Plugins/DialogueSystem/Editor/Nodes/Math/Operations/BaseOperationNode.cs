@@ -36,7 +36,7 @@ namespace DialogueSystem.Nodes
                     Cross = false,
                     IsField = false,
                     IsInput = true,
-                    IsSingle = false,
+                    IsSingle = true,
                     Type = typeof(double),
                     Value = "0",
                 });
@@ -96,10 +96,10 @@ namespace DialogueSystem.Nodes
         {
             base.Do(portInfos);
 
-            BasePort output = GetOutputPorts()[0];
-
+            BasePort output = GetOutputPorts().First();
             bool isStr = portInfos.Any(e => e.port.Type == typeof(string));
-            ChangeOutputPortsTypeAndName(isStr == true ? typeof(string) : typeof(double));
+            Type t = isStr == true ? typeof(string) : typeof(double); 
+            ChangePortTypeAndName(output, t, t.Name);
         }
 
     }

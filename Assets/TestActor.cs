@@ -5,6 +5,7 @@ namespace DialogueSystem.Assets
 {
     public class TestActor : MonoBehaviour, IDialogueActor
     {
+        public DialogueDisposer.DSDialogueOption.DSDialogue dialogue22;
         public int Age;
         public int Level;
         public string Name;

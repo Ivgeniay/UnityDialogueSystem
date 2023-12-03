@@ -42,6 +42,7 @@ namespace DialogueSystem.Utilities
                 typeof(double),
                 typeof(bool),
                 typeof(Dialogue),
+                typeof(DialogueDisposer.DSDialogueOption.DSDialogue)
             };
 
             PrimitiveTypes = new Type[]
@@ -68,14 +69,14 @@ namespace DialogueSystem.Utilities
                 typeof(double),
             };
 
-            DialogueTypes = new Type[] { typeof(Dialogue), };
+            DialogueTypes = new Type[] { typeof(Dialogue), typeof(DialogueDisposer.DSDialogueOption.DSDialogue) };
             TypeTypes = new Type[] { typeof(Type) };
             AllTypes = new Type[] { typeof(AllTypes) };
 
             CollectionsTypes = new Type[]
             {
-                typeof(List<>),
-                typeof(Dictionary<,>)
+                typeof(List<object>),
+                typeof(Dictionary<object,object>)
             };
 
             All = "All";

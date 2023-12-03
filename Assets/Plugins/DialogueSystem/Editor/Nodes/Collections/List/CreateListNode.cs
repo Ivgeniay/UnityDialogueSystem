@@ -20,20 +20,22 @@ namespace DialogueSystem.Nodes
             base.Initialize(graphView, position, context);
             if (context == null)
             {
-                Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Input)
+                Model.AddPort(new DSPortModel(DSConstants.AllTypes, PortSide.Input)
                 {
-                    PortText = "Element",
+                    PortText = "Object",
+                    Type = typeof(object),
                     Cross = false,
                     IsField = false,
                     IsSingle = true,
                     IsInput = true,
                     Value = "",
-                    IsAnchorable = true,
+                    IsAnchorable = false,
                 });
 
-                Model.AddPort(new DSPortModel(DSConstants.AvalilableTypes, PortSide.Output)
+                Model.AddPort(new DSPortModel(DSConstants.AllTypes, PortSide.Output)
                 {
-                    PortText = "Collection",
+                    PortText = "ListOfObject",
+                    Type = typeof(List<object>),
                     Cross = false,
                     IsField = false,
                     IsSingle = false,
@@ -48,7 +50,7 @@ namespace DialogueSystem.Nodes
         {
             base.DrawMainContainer(container);
 
-            BasePort firstInputPort = GetInputPorts()[0];
+            BasePort firstInputPort = GetInputPorts().First();
             Button addChoiceBtn = DSUtilities.CreateButton(
                 "AddInput",
                 () =>
@@ -62,7 +64,7 @@ namespace DialogueSystem.Nodes
                         isSingle: true,
                         cross: true,
                         portSide: PortSide.Input,
-                        availableTypes: DSConstants.AvalilableTypes,
+                        availableTypes: DSConstants.AllTypes,
                         isAnchorable: true);
                 },
                 styles: new string[] { "ds-node__button" }
@@ -73,10 +75,9 @@ namespace DialogueSystem.Nodes
         {
             base.OnConnectInputPort(port, edge);
             BasePort connectedPort = edge.output as BasePort;
-            bool continues = BasePortManager.HaveCommonTypes(connectedPort.AvailableTypes, port.AvailableTypes);
+            bool continues = BasePortManager.HaveCommonTypes(connectedPort.Type, port.AvailableTypes);
             if (!continues) return;
 
-            List<BasePort> inputPorts = GetInputPorts();
             PortInfo[] portInfos = new PortInfo[inputPorts.Count];
 
             for (var i = 0; i < inputPorts.Count; i++)
@@ -85,12 +86,12 @@ namespace DialogueSystem.Nodes
                     node = this,
                     port = inputPorts[i],
                     Type = inputPorts[i].Type,
-                    Value = inputPorts[i].Type.IsValueType == true ? Activator.CreateInstance(inputPorts[i].Type) : ""
+                    Value = inputPorts[i].Type.IsValueType == true ? DSUtilities.CreateInstance(inputPorts[i].Type) : "", // Activator.CreateInstance(inputPorts[i].Type) : ""
                 };
 
-            if (connectedPort != null && connectedPort.Value != null)
+            if (connectedPort != null)// && connectedPort.Value != null)
             {
-                ChangePortValueAndType(port, connectedPort.Type);
+                ChangePortTypeAndName(port, connectedPort.Type, connectedPort.Type.Name);
                 PortInfo infos = portInfos.Where(e => e.port == port).FirstOrDefault();
                 infos.Value = connectedPort.Value;
                 infos.Type = connectedPort.Type;
@@ -101,7 +102,7 @@ namespace DialogueSystem.Nodes
                 if (_port != port)
                 {
                     if (_port.Type != connectedPort.Type) _port.DisconnectAll();
-                    ChangePortValueAndType(_port, connectedPort.Type);
+                    ChangePortTypeAndName(_port, connectedPort.Type, connectedPort.Type.Name);
                     PortInfo infos = portInfos.Where(e => e.port == _port).FirstOrDefault();
                     infos.Value = connectedPort.Value;
                     infos.Type = connectedPort.Type;

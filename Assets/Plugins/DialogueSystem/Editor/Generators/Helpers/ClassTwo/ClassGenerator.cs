@@ -368,13 +368,13 @@ namespace DialogueSystem.Generators
                             {
                                 innerDsClass.VariableInfo[i].Name = "Text";
                                 string t = dialogue.Model.Text;
-                                //string t = innerDsClass.VariableInfo[i].Value?.ToString();
 
                                 if (textField.IsAnchored)
                                 {
                                     foreach (KeyValuePair<BasePort, string> item in graphView.Anchors)
                                     {
-                                        if (t.Contains(item.Value))
+                                        string findStr = "{" + item.Value + "}";
+                                        if (t.Contains(findStr))
                                         {
                                             BaseNode node = item.Key.node as BaseNode;
                                             DSClassInfo init = Initialize(node, intoDSClassInfo);
@@ -404,59 +404,114 @@ namespace DialogueSystem.Generators
                     break;
 
                 case BaseCollectionsNode collection:
-                    innerDsClass = CreateInnerCollectionClass(collection);
-                    mainVarInfo = AddDSClassCollectionToMain(innerDsClass, intoDSClassInfo);
 
-                    switch (collection)
+                    innerDsClass = CreateInnerCreateListClass(collection);
+                    mainVarInfo = AddDSClassCreateListToMain(innerDsClass, intoDSClassInfo);
+
+                    for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
                     {
-                        case CreateListNode createListNode:
-                            for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                        BasePort port = innerDsClass.VariableInfo[i].DataHolder as BasePort;
+                        BaseNode node = port.node as BaseNode;
+
+                        if (port.PortSide == PortSide.Output)
+                        {
+                            List<MethodParamsInfo> inputMethodInfo = new();
+                            List<MethodParamsInfo> outputMethodInfo = new();
+
+                            foreach (var variable in innerDsClass.VariableInfo)
                             {
-                                BasePort port = innerDsClass.VariableInfo[i].DataHolder as BasePort;
-                                BaseNode node = port.node as BaseNode;
-
-                                if (port.PortSide == PortSide.Output)
+                                var port_ = variable.DataHolder as BasePort;
+                                if (port_.PortSide == PortSide.Input)
                                 {
-                                    List<MethodParamsInfo> inputMethodInfo = new();
-                                    List<MethodParamsInfo> outputMethodInfo = new();
-
-                                    foreach (var variable in innerDsClass.VariableInfo)
+                                    MethodParamsInfo methodInfo = new();
+                                    if (port_.connected)
                                     {
-                                        var port_ = variable.DataHolder as BasePort;
-                                        if (port_.PortSide == PortSide.Input)
-                                        {
-                                            MethodParamsInfo methodInfo = new();
-                                            if (port_.connected)
-                                            {
-                                                Edge edge = port_.connections.ToList()[0];
-                                                BasePort outputPort = edge.output as BasePort;
-                                                DSClassInfo outputDSClass = Initialize(outputPort.node as BaseNode, intoDSClassInfo);
-                                                VariableInfo outputPortVarInfo = outputDSClass.GetVariable(outputPort);
-                                                VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputPort.node as BaseNode);
+                                        Edge edge = port_.connections.ToList()[0];
+                                        BasePort outputPort = edge.output as BasePort;
+                                        DSClassInfo outputDSClass = Initialize(outputPort.node as BaseNode, intoDSClassInfo);
+                                        VariableInfo outputPortVarInfo = outputDSClass.GetVariable(outputPort);
+                                        VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputPort.node as BaseNode);
 
-                                                methodInfo.ParamName = DSUtilities.GetVarname(outputNodeVarInfo, outputPortVarInfo);
-                                                methodInfo.ParamType = outputPort.Type;
-                                            }
-                                            else
-                                            {
-                                                methodInfo.ParamName = GHelper.GetValueWithPrefix(port_.Type, DSUtilities.GetDefaultValue(port_.Type));
-                                                methodInfo.ParamType = DSUtilities.GetType(GHelper.GetVarType(port_.Type));
-                                            }
-                                            inputMethodInfo.Add(methodInfo);
-                                        }
+                                        methodInfo.ParamName = DSUtilities.GetVarname(outputNodeVarInfo, outputPortVarInfo);
+                                        methodInfo.ParamType = outputPort.Type;
                                     }
-                                    string portNodeScr = node.LambdaGenerationContext(inputMethodInfo.ToArray(), outputMethodInfo.ToArray());
-
-                                    dsGrathViewClass.ClassDrawer.AddInitializeLambda
-                                        (
-                                            name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
-                                            context: portNodeScr
-                                        );
+                                    else
+                                    {
+                                        methodInfo.ParamName = GHelper.GetValueWithPrefix(port_.Type, DSUtilities.GetDefaultValue(port_.Type));
+                                        methodInfo.ParamType = DSUtilities.GetType(GHelper.GetVarType(port_.Type));
+                                    }
+                                    inputMethodInfo.Add(methodInfo);
                                 }
                             }
-                            break;
+                            string portNodeScr = node.LambdaGenerationContext(inputMethodInfo.ToArray(), outputMethodInfo.ToArray());
+
+                            dsGrathViewClass.ClassDrawer.AddInitializeLambda
+                                (
+                                    name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                                    context: portNodeScr
+                                );
+                        }
                     }
                     break;
+
+                    //switch (collection)
+                    //{
+                    //    case CreateListNode createListNode:
+                    //        innerDsClass = CreateInnerCreateListClass(createListNode);
+                    //        mainVarInfo = AddDSClassCreateListToMain(innerDsClass, intoDSClassInfo);
+
+                    //        for (int i = 0; i < innerDsClass.VariableInfo.Count; i++)
+                    //        {
+                    //            BasePort port = innerDsClass.VariableInfo[i].DataHolder as BasePort;
+                    //            BaseNode node = port.node as BaseNode;
+
+                    //            if (port.PortSide == PortSide.Output)
+                    //            {
+                    //                List<MethodParamsInfo> inputMethodInfo = new();
+                    //                List<MethodParamsInfo> outputMethodInfo = new();
+
+                    //                foreach (var variable in innerDsClass.VariableInfo)
+                    //                {
+                    //                    var port_ = variable.DataHolder as BasePort;
+                    //                    if (port_.PortSide == PortSide.Input)
+                    //                    {
+                    //                        MethodParamsInfo methodInfo = new();
+                    //                        if (port_.connected)
+                    //                        {
+                    //                            Edge edge = port_.connections.ToList()[0];
+                    //                            BasePort outputPort = edge.output as BasePort;
+                    //                            DSClassInfo outputDSClass = Initialize(outputPort.node as BaseNode, intoDSClassInfo);
+                    //                            VariableInfo outputPortVarInfo = outputDSClass.GetVariable(outputPort);
+                    //                            VariableInfo outputNodeVarInfo = intoDSClassInfo.GetVariable(outputPort.node as BaseNode);
+
+                    //                            methodInfo.ParamName = DSUtilities.GetVarname(outputNodeVarInfo, outputPortVarInfo);
+                    //                            methodInfo.ParamType = outputPort.Type;
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            methodInfo.ParamName = GHelper.GetValueWithPrefix(port_.Type, DSUtilities.GetDefaultValue(port_.Type));
+                    //                            methodInfo.ParamType = DSUtilities.GetType(GHelper.GetVarType(port_.Type));
+                    //                        }
+                    //                        inputMethodInfo.Add(methodInfo);
+                    //                    }
+                    //                }
+                    //                string portNodeScr = node.LambdaGenerationContext(inputMethodInfo.ToArray(), outputMethodInfo.ToArray());
+
+                    //                dsGrathViewClass.ClassDrawer.AddInitializeLambda
+                    //                    (
+                    //                        name: mainVarInfo.Name + "." + innerDsClass.VariableInfo[i].Name,
+                    //                        context: portNodeScr
+                    //                    );
+                    //            }
+                    //        }
+                    //        break;
+
+                    //    case AddToListNode addToListNode:
+                    //        innerDsClass = CreateInnerAddToListClass(addToListNode);
+                    //        mainVarInfo = AddDSClassAddToListToMain(innerDsClass, intoDSClassInfo);
+                    //        break;
+                    //}
+                    //break;
 
                 case BaseTypeNode types:
 
@@ -697,7 +752,7 @@ namespace DialogueSystem.Generators
         #endregion 
 
         #region Collections
-        private DSClassInfo CreateInnerCollectionClass(BaseCollectionsNode collectionNode)
+        private DSClassInfo CreateInnerCreateListClass(BaseCollectionsNode collectionNode)
         {
             DSClassInfo innerDsClass = CreateInstanceDSClassInfo(collectionNode);
 
@@ -717,7 +772,63 @@ namespace DialogueSystem.Generators
             } 
             return innerDsClass;
         }
-        private VariableInfo AddDSClassCollectionToMain(DSClassInfo innerDsClass, DSClassInfo<DSGraphView> intoDSClassInfo)
+        private VariableInfo AddDSClassCreateListToMain(DSClassInfo innerDsClass, DSClassInfo<DSGraphView> intoDSClassInfo)
+        {
+            BaseCollectionsNode baseCollectionsNode = innerDsClass.IDataHolder as BaseCollectionsNode;
+            //ИНИЦИАЛИЗАЦИЯ СИГНАТУРЫ ВНУТРЕННЕГО КЛАССА
+            if (intoDSClassInfo.RegisterInnerClassDeclaration(innerDsClass))
+            {
+                ClassDrawer classDrawer = innerDsClass.ClassDrawer;
+                classDrawer.ClassDeclaration(innerDsClass.Type, Attribute.SystemSerializable, Visibility.@private);
+                foreach (VariableInfo info in innerDsClass.VariableInfo)
+                {
+                    if (info.DataHolder is BasePort port)
+                    {
+                        if (port.IsFunctions)
+                            classDrawer.AddField(info, attribute: Attribute.SerializeField, false);
+                    }
+                }
+            }
+
+            //СОЗДАНИЕ ПЕРЕМЕННОЙ ДЛЯ ГЛАВНОГО КЛАССА
+            VariableInfo mainVarInfo = new VariableInfo()
+            {
+                ClassInfo = innerDsClass,
+                DataHolder = innerDsClass.IDataHolder,
+                Visibility = innerDsClass.IDataHolder.Visibility,
+                Type = innerDsClass.Type,
+                Name = innerDsClass.Type + "_" + intoDSClassInfo.VariableInfo.Where(e => e.Type == innerDsClass.Type).Count(),
+                Value = null,
+            };
+            dsGrathViewClass.VariableInfo.Add(mainVarInfo);
+
+            //ДОБАВЛЕНИЕ ПОЛЯ ВНУТРЕННИХ КЛАССОВ В МЕЙН
+            dsGrathViewClass.ClassDrawer.AddField(mainVarInfo, attribute: innerDsClass.IDataHolder.Attribute, true);
+            return mainVarInfo;
+        }
+
+        private DSClassInfo CreateInnerAddToListClass(BaseCollectionsNode collectionNode)
+        {
+            DSClassInfo innerDsClass = CreateInstanceDSClassInfo(collectionNode);
+
+            foreach (var item in innerDsClass.DataHolders)
+            {
+                string fieldname = item.Name;
+                VariableInfo info = new VariableInfo()
+                {
+                    ClassInfo = innerDsClass,
+                    DataHolder = item,
+                    Value = item.Value,
+                    Name = fieldname + $"_{innerDsClass.VariableInfo.Count}",
+                    Type = GHelper.GetVarType(item.Type),
+                    Visibility = item.Visibility,
+                };
+                innerDsClass.VariableInfo.Add(info);
+            }
+            return innerDsClass;
+        }
+
+        private VariableInfo AddDSClassAddToListToMain(DSClassInfo innerDsClass, DSClassInfo<DSGraphView> intoDSClassInfo)
         {
             BaseCollectionsNode baseCollectionsNode = innerDsClass.IDataHolder as BaseCollectionsNode;
             //ИНИЦИАЛИЗАЦИЯ СИГНАТУРЫ ВНУТРЕННЕГО КЛАССА

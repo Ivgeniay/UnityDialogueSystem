@@ -11,6 +11,7 @@ using DialogueSystem.Nodes;
 using System.Linq;
 using DialogueSystem.Database.Save;
 using UnityEditor;
+using Codice.CM.Common;
 
 namespace DialogueSystem.Ports
 {
@@ -20,8 +21,8 @@ namespace DialogueSystem.Ports
         public bool IsFunctions { get; set; }
         public BasePort IfPortSource { get; set; }
         public object Value { get; private set; }
-        public Type Type { get; private set; }
-        public string Name { get; private set; }
+        public Type Type { get => portType; private set => portType = value; }
+        public string Name { get => portName; private set => portName = value; }
         public bool IsSerializedInScript { get; set; }
         public Generators.Visibility Visibility { get; set; } = Generators.Visibility.@public;
         public Generators.Attribute Attribute { get; set; }
@@ -89,10 +90,13 @@ namespace DialogueSystem.Ports
             base.Connect(edge);
             if (edge.output != null && edge.input == this)
             {
-                var other = edge.output as BasePort;
-                if (!BasePortManager.HaveCommonTypes(AvailableTypes, other.AvailableTypes))
+                BasePort other = edge.output as BasePort;
+                if (Type == other.Type) return;
+                if (!BasePortManager.HaveCommonTypes(other.Type, AvailableTypes))
                 {
                     Disconnect(edge);
+                    edge.output.portCapLit = false;
+                    edge.input.portCapLit = false;
                 }
             }
         }
@@ -182,16 +186,9 @@ namespace DialogueSystem.Ports
             if (value is UnityEngine.Object uObj) AssetSource = uObj;
             Value = value;
         }
-        internal void SetPortType(Type type)
-        {
-            Type = type;
-            portType = type;
-        } 
-        internal void ChangeName(string name)
-        {
-            portName = name;
-            Name = name;
-        }
+        internal void SetPortType(Type type) => Type = type;
+        internal void ChangeName(string name) => Name = name;
+        
 
         private IManipulator CreateContextualMenu()
         {

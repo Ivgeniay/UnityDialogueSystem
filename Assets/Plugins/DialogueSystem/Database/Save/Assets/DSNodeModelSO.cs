@@ -94,8 +94,8 @@ namespace DialogueSystem.Database.Save
             foreach (DSPortModelSO outputsSO in dSPortModelSO)
             {
                 Type[] aTypes = outputsSO.AvailableTypes.Select(x => Type.GetType(x)).ToArray();
+                Type type = DSUtilities.GetType(outputsSO.Type);
 
-                Type type = Type.GetType(outputsSO.Type);
                 if (!string.IsNullOrWhiteSpace(outputsSO.Type) && type == null)
                 {
                     Assembly assembly = Assembly.Load(DSConstants.DEFAULT_ASSEMBLY);
