@@ -8,6 +8,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UIElements;
 using DialogueSystem.Utilities;
+using DialogueSystem.Attributes;
 
 namespace DialogueSystem
 {
@@ -115,11 +116,13 @@ namespace DialogueSystem
         {
             public Type Type { get; }
             public Type DeclaringType { get; }
+            public DSActorAttributes dSActorAttributes { get; }
 
-            public TypeInfo(Type type, Type declaringType)
+            public TypeInfo(Type type, Type declaringType, DSActorAttributes dSActorAttributes)
             {
                 Type = type;
                 DeclaringType = declaringType;
+                this.dSActorAttributes = dSActorAttributes;
             }
         }
 
@@ -142,14 +145,18 @@ namespace DialogueSystem
             private static void PopulateFieldInfo(Type type, Dictionary<string, TypeInfo> fieldDictionary)
             {
                 FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                foreach (var field in fields)
+                foreach (FieldInfo field in fields)
                 {
-                    Type fieldType = field.FieldType;
-                    TypeInfo typeInfo = new TypeInfo(fieldType, type);
+                    DSActorAttributes actorAttributes = field.GetCustomAttribute<DSActorAttributes>();
+                    if (actorAttributes != null)
+                    { 
+                        Type fieldType = field.FieldType;
+                        TypeInfo typeInfo = new TypeInfo(fieldType, type, actorAttributes);
 
-                    fieldDictionary.Add(field.Name, typeInfo);
+                        fieldDictionary.Add(field.Name, typeInfo); 
+                    }
                 }
-
+              
                 Type baseType = type.BaseType;
                 if (baseType != null && baseType != typeof(object))
                     PopulateFieldInfo(baseType, fieldDictionary);
@@ -160,10 +167,14 @@ namespace DialogueSystem
                 PropertyInfo[] propertyes = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 foreach (var field in propertyes)
                 {
-                    Type fieldType = field.PropertyType;
-                    TypeInfo typeInfo = new TypeInfo(fieldType, type);
+                    DSActorAttributes actorAttributes = field.GetCustomAttribute<DSActorAttributes>();
+                    if (actorAttributes != null)
+                    {
+                        Type fieldType = field.PropertyType;
+                        TypeInfo typeInfo = new TypeInfo(fieldType, type, actorAttributes);
 
-                    propertyDictionary.Add(field.Name, typeInfo);
+                        propertyDictionary.Add(field.Name, typeInfo);
+                    }
                 }
 
                 Type baseType = type.BaseType;

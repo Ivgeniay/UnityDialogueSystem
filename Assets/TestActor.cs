@@ -1,4 +1,5 @@
-﻿using DialogueSystem.Characters;
+﻿using DialogueSystem.Attributes;
+using DialogueSystem.Characters;
 using UnityEngine;
 
 namespace DialogueSystem.Assets
@@ -6,6 +7,7 @@ namespace DialogueSystem.Assets
     public class TestActor : MonoBehaviour, IDialogueActor
     {
         public DialogueDisposer.DSDialogueOption.DSDialogue dialogue22;
+        [DSActorAttributes(Order = 0, Description = "Person age")]
         public int Age;
         public int Level;
         public string Name;
